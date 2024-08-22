@@ -40,7 +40,7 @@ API_DOMAIN = env('API_DOMAIN', default='localhost:8000')
 
 SITE_NAME = DOMAIN
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=["http://localhost", "http://127.0.0.1"])
 SECURE_REFERRER_POLICY = "origin"
 
