@@ -1,0 +1,133 @@
+{% load static %}
+
+<article class="post" style="margin-bottom: 200px">
+    <div class="blog-detail-description feed_l_padding">
+        <form action="{% url 'answer_question' question.id %}"
+              method="post"
+              onsubmit="return submit_answer_form();">
+            {% csrf_token %}
+            <div class="custom_row mt-3">
+                <div class="col-sm-12">
+                    <h5>Deine Antwort</h5>
+                    <div class="form-group">
+                        {% if settings.question_editor == 'md' %}
+                            <div id="wmd-button-bar"></div>
+                            {% include 'question/includes/image_upload.html' %}
+                        {% endif %}
+                        <textarea id="wmd-input"
+                                  class="form-control wmd-input"
+                                  rows="10"
+                                  placeholder="Deine Antwort *"
+                                  name="answer_text">{{ answer.text|default_if_none:'Deine Antwort *' }}</textarea>
+                        <div class="hidden" id="chosen_videos_from_modal">
+                            {% for recommendation in answer.answer_recommendations.all %}
+                                <input name="suggested_videos" type="hidden" value="{{ recommendation.youtube_id }}">
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="existing_answer" value="{{ answer.id }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom_row mt-2">
+                <div class="col-sm-12">
+                    {% if settings.question_editor == 'tiny' %}
+                    <a href="{% static 'files/mathjax_howto.pdf' %}" class="small link_color text-bold d-block"
+                       target="_blank">
+                        Hinweis: So gibst du Formeln ein.
+                    </a>
+                    {% endif %}
+                    <hr>
+                    {% if settings.question_editor == 'tiny' %}
+                        <div id="math_preview_answer"></div>
+                        <div id="math_buffer_answer"></div>
+                    {% else %}
+                        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                    {% endif %}
+                    <hr>
+                </div>
+            </div>
+
+            <div class="mr-5">
+                <div class="custom_row mt-2 mb-3" id="suggest_video_previews">
+                    {% if answer %}
+                        {% for recommendation in answer.answer_recommendations.all %}
+                            <div class="col-md-3 col-lg-3 col-sm-3 mb-4">
+                                <i class="fas fa-times-circle delete_selected_video"
+                                   data-video-id="{{ recommendation.youtube_id }}" aria-hidden="true"></i>
+                                <iframe data-name="youtube"
+                                        data-src="https://www.youtube.com/embed/{{ recommendation.youtube_id }}"
+                                        frameborder="0" width="100%"
+                                        allowfullscreen="allowfullscreen"
+                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="custom_row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <button name="submit"
+                                type="submit"
+                                id="submit_answer_btn"
+                                {% if request.user_agent.is_mobile %}style="width: 100%!important;"{% endif %}
+                                class="btn btn-primary lrm-button mr-3 mb-3 no_text_transform font22">
+                            {% if answer %}Antwort speichern{% else %}Antwort posten{% endif %}
+                        </button>
+
+
+                        {% if answer %}
+                            {% if request.user.id == answer.user_id and answer.can_be_deleted %}
+                                <button type="button"
+                                        {% if request.user_agent.is_mobile %}style="width: 100%!important;"{% endif %}
+                                        class="delete-answer btn-danger btn mb-3 no_text_transform font22"
+                                        data-answer-id="{{ answer.id }}">
+                                    Löschen
+                                </button>
+                            {% elif request.user.profile.is_moderator %}
+                                <button type="button"
+                                        {% if request.user_agent.is_mobile %}style="width: 100%!important;"{% endif %}
+                                        class="delete-answer btn-danger btn mb-3 no_text_transform font22"
+                                        data-answer-id="{{ answer.id }}">
+                                    Löschen
+                                </button>
+                            {% endif %}
+                        {% endif %}
+
+                        <button name="button"
+                                type="button"
+                                id="suggest_videos"
+                                {% if request.user_agent.is_mobile %}
+                                style="width: 100%!important;color: #464646!important;
+    background-color: transparent;
+    background-image: none;
+    border-color: #b8bbbd!important;
+    box-shadow: 0 1px 9px 1px #80808038;"
+                                {% else %}
+                                style="width: 260px!important;color: #464646!important;
+    background-color: transparent;
+    background-image: none;
+    border-color: #b8bbbd!important;
+    box-shadow: 0 1px 9px 1px #80808038;"
+                                {% endif %}
+                                class="btn btn-outline-primary mb-3 {% if not request.user_agent.is_mobile %}ml-3{% endif %} no_text_transform font22 btn-outline-no-bg"
+                                data-toggle="modal" data-target="#suggest_videos_modal">
+                            <i class="fab fa-youtube"></i> Videos vorschlagen
+                        </button>
+                        <div class="clearfix"></div>
+
+                        {% if request.user.id == answer.user_id and not answer.can_be_deleted %}
+                            <p class="font15">
+                                Diese Antwort kann nicht mehr gelöscht werden, da sie bereits akzeptiert wurde.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</article>
+
+

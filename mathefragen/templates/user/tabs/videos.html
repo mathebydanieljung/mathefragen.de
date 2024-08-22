@@ -1,0 +1,21 @@
+{% load static custom_tags %}
+
+<div class="mt-4">
+    <div class="custom_row mt-3 pl-4 pr-4">
+
+        {% for video in all_videos %}
+            <div class="col-lg-4 mb-4">
+                <a href="{{ video.get_absolute_url }}">
+                    <div class="card border-0 shadow-1" style="width: 18rem;">
+                        <img src="{{ video.thumbnail.url }}" class="" alt="...">
+                        <div class="card-body">
+                            <p class="card-title">{{ video.title }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+

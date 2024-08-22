@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ site_domain }} - Bezahlen & weiter zur Videokonferenz
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/jquery.datetimepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'css/tutoring.css' %}?v=34wf" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content pt-5">
+                    <h3 class="mb-4 font22 question_title text-center">
+                        Nachhilfe anfragen
+                    </h3>
+
+                    <article class="post mb-5">
+                        <div class="justify-content-center">
+
+                            <div class="custom_row justify-content-center">
+                                <div class="col-md-8 col-lg-6 col-sm-12">
+
+                                    {% if question %}
+                                        <h6>Frage:</h6>
+                                        <p class="">
+                                            <a class="link_color" href="{{ question.get_absolute_url }}"
+                                               target="_blank">
+                                                {{ question.title }}
+                                            </a>
+                                        </p>
+
+                                    {% endif %}
+
+                                    <form method="post" class="mb-5e" onsubmit="return check_tutor_form();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="question_hash" value="{{ question.hash_id }}">
+
+                                        <h6>Wo brauchst du Hilfe? *</h6>
+                                        <textarea autofocus name="request_message" required id="description" rows="5"
+                                                  class="form-control"
+                                                  placeholder="Beschreibe deine Lage. Wo brauchst du Hilfe?"></textarea>
+
+                                        <h6 class="mt-4">Wann kannst du? *</h6>
+                                        <small class="d-block mt-0 mb-3">min. 1, am besten 3 Terminvorschläge auswählen</small>
+                                        <input id="datetimepicker1" name="date_time1" class="form-control" required
+                                               placeholder="Datum/Zeit auswählen * ">
+                                        <input id="datetimepicker2" name="date_time2" class="form-control mt-3"
+                                               placeholder="Alternative auswählen">
+                                        <input id="datetimepicker3" name="date_time3" class="form-control mt-3"
+                                               placeholder="Alternative auswählen">
+
+                                        <div class="mt-4">
+                                            <h6>Wie lange benötigst du? *</h6>
+                                            <div class="btn-group justify-content-center btn-group-toggle w-100"
+                                                 data-toggle="buttons">
+                                                <label class="btn btn-secondary font15 w-40">
+                                                    <input type="radio" required name="duration"
+                                                           class="30_min"
+                                                           value="30"
+                                                           id="option1">
+                                                    30 Minuten
+                                                </label>
+                                                <label class="btn btn-secondary font15 w-40">
+                                                    <input type="radio" required name="duration"
+                                                           class="60_min"
+                                                           value="60"
+                                                           id="option2">
+                                                    60 Minuten
+                                                </label>
+                                                <label class="btn btn-secondary font15 w-40">
+                                                    <input type="radio" required name="duration"
+                                                           class="90_min"
+                                                           value="90"
+                                                           id="option3">
+                                                    90 Minuten
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-5">
+                                            {% if not pre_select %}
+                                            <h6 class="mb-3">Helfer auswählen</h6>
+                                            {% endif %}
+                                            {% for tutor in tutors %}
+                                                <div class="card mb-4 shadow-sm  {% if pre_select %}selected_tutor_card{% endif %}" id="card_{{ tutor.hash_id }}">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-2 mr-1">
+                                                                <img src="{{ tutor.get_profile_image }}" alt=".." width="50px">
+                                                            </div>
+                                                            <div class="col">
+                                                                <p class="my-0 font-weight-bold">
+                                                                    {{ tutor.get_full_name }}
+                                                                    {% if tutor.verified %}
+                                                                        <i class="fa fa-badge-check"></i>
+                                                                    {% endif %}
+                                                                </p>
+                                                                <p class="font12">
+                                                                    {{ tutor.points }} Punkte,
+                                                                    {{ tutor.total_answers }} Fragen beantwortet,
+                                                                    {{ tutor.total_tutoring_sessions }} Nachhilfe Sitzungen
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        {% with tutor.user.tutor_setting as tutor_setting %}
+                                                        <div class="row mt-3 tutor_prices">
+                                                            <div class="col">
+                                                                <h3 class="card-title pricing-card-title 30_min">
+                                                                    {{ tutor_setting.half_hourly_rate }}€ <small class="text-muted font12">/ 30 Min.</small>
+                                                                </h3>
+                                                            </div>
+                                                            <div class="col">
+                                                                <h3 class="card-title pricing-card-title 60_min">
+                                                                    {{ tutor_setting.hourly_rate }}€ <small class="text-muted font12">/ 60 Min.</small>
+                                                                </h3>
+                                                            </div>
+                                                            <div class="col">
+                                                                <h3 class="card-title pricing-card-title 90_min">
+                                                                    {{ tutor_setting.ninety_min_rate }}€ <small class="text-muted font12">/ 90 Min.</small>
+                                                                </h3>
+                                                            </div>
+                                                        </div>
+                                                        <ul class="list-unstyled mt-2 mb-4">
+                                                            <li>
+                                                                {% if tutor_setting.sek_1 %}Sekundarstufe I,{% endif %}
+                                                                {% if tutor_setting.sek_2 %}Sekundarstufe II,{% endif %}
+                                                                {% if tutor_setting.uni %}Sekundarstufe II,{% endif %}
+                                                            </li>
+
+                                                            {% if tutor.user.received_tutor_reviews.count %}
+                                                            <li class="font15 mt-4 font-italic">
+                                                                <i class="fa fa-quote-left valign-super grey_text mr-1"></i>
+                                                                {{ tutor.user.received_tutor_reviews.last.text }}
+                                                            </li>
+                                                            {% endif %}
+                                                        </ul>
+                                                        {% endwith %}
+
+                                                        <button type="button" data-status="" id="{{ tutor.hash_id }}" class="w-100 font17 btn btn-lg {% if pre_select %}btn-primary{% else %}select_tutor_btn btn-outline-primary{% endif %}">
+                                                            {% if pre_select %}Ausgewählt <i class="fas fa-check"></i>{% else %}Auswählen{% endif %}
+                                                        </button>
+                                                    </div>
+                                                    {% if pre_select %}
+                                                        <input type="hidden" name="selected_tutors" id="hid_input_{{ pre_select }}" value="{{ pre_select }}">
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <button type="submit" class="btn lrm-button w-100 mt-4 font17">
+                                            Anfrage absenden
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script src="{% static 'js/jquery.datetimepicker.js' %}"></script>
+    <script>
+        function check_tutor_form(){
+            let tutor_card_is_selected = false;
+            if ('{{ pre_select }}'){
+                tutor_card_is_selected = true;
+            }
+            // check if any tutor card is selected
+            $('.tutor_card').each(function (){
+                 if ($(this).hasClass('selected_tutor_card')) {
+                     tutor_card_is_selected = true
+                 }
+            });
+            if (!tutor_card_is_selected) {
+                alert('Bitte mindestens einen Helfer auswählen.');
+                return false;
+            }
+            return tutor_card_is_selected
+        }
+
+        function select_tutor_card(clicked_btn){
+            const this_hash = clicked_btn.attr('id');
+            const tutor_card = $('#card_' + this_hash);
+            clicked_btn.data('status', 'selected');
+            const clicked_btn_value = 'Ausgewählt <i class="fas fa-check"></i>';
+            clicked_btn.html(clicked_btn_value);
+            clicked_btn.addClass('btn-primary');
+            clicked_btn.removeClass('btn-outline-primary');
+            tutor_card.addClass('selected_tutor_card');
+
+            // insert hidden input field
+            let hid_input = document.createElement('input');
+            hid_input.name = 'selected_tutors';
+            hid_input.type = 'hidden';
+            hid_input.value = this_hash;
+            hid_input.id = 'hid_input_' + this_hash;
+            tutor_card.append(hid_input);
+
+        }
+
+        function unselect_tutor_card(clicked_btn){
+            const this_hash = clicked_btn.attr('id');
+            const tutor_card = $('#card_' + this_hash);
+            clicked_btn.data('status', '');
+            const clicked_btn_value = 'Auswählen';
+            clicked_btn.html(clicked_btn_value);
+            clicked_btn.removeClass('btn-primary');
+            clicked_btn.addClass('btn-outline-primary');
+            tutor_card.removeClass('selected_tutor_card');
+
+            // remove the hidden input field
+            tutor_card.find('#hid_input_' + this_hash).remove();
+        }
+
+        $(function () {
+
+            $('.select_tutor_btn').on('click', function (){
+                console.log('clicked status:', $(this).data('status'));
+                if ($(this).data('status') === ''){
+                    select_tutor_card($(this));
+                } else {
+                    unselect_tutor_card($(this));
+                }
+            });
+
+            $('input[name=duration]').on('change', function (){
+                const selected_price = $(this).attr('class');
+
+                $('.tutor_prices').each(function (){
+                    $(this).find('.selected_price').removeClass('selected_price');
+                });
+
+                $('.tutor_prices').each(function (){
+                    $(this).find('.' + selected_price).addClass('selected_price');
+                });
+
+            });
+
+            var currentYear = new Date();
+            $('#datetimepicker1, #datetimepicker2, #datetimepicker3').datetimepicker({
+                format: 'd.m.Y H:i',
+                lang: 'de',
+                minDate: 0,
+                yearStart: currentYear.getFullYear(),
+                closeOnDateSelect: true
+            });
+        });
+    </script>
+{% endblock %}
+

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ site_domain }} - Nachhilfe Sitzungen
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/jquery.datetimepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'css/tutoring.css' %}?v=34wf" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content pt-5">
+                    <h3 class="mb-4 font22 question_title">
+                        Deine Nachhilfe-Sitzungen
+                    </h3>
+
+                    <article class="post mb-5">
+                        <div class="justify-content-center">
+                            <div class="custom_row">
+                                {% if not sessions %}
+                                    <h5>Du hast keine Nachhilfe-Sitzungen.</h5>
+                                {% endif %}
+                                {% for session in sessions %}
+                                    <div class="col-md-6 col-lg-4 col-sm-12">
+                                        <a href="{{ session.get_absolute_url }}" class="no_color_link">
+                                            <div class="card mb-4 shadow-sm tutor_card" id="card_{{ tutor.hash_id }}">
+                                                <div class="card-body">
+                                                    <div class="row text-center">
+                                                        <div class="col">
+                                                            {% if session.user_id %}
+                                                                <img src="{{ session.user.profile.get_profile_image }}"
+                                                                     alt=".." width="50px">
+                                                                <small class="d-inline-block mt-2">{{ session.user.profile.get_full_name }}</small>
+                                                            {% else %}
+                                                                <small class="d-inline-block font12 mt-2">Inaktiver
+                                                                    Nutzer</small>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col">
+                                                            <small>mit</small>
+                                                        </div>
+                                                        <div class="col">
+                                                            <img src="{{ session.tutor.profile.get_profile_image }}"
+                                                                 alt=".." width="50px">
+                                                            <small class="d-inline-block mt-2">{{ session.tutor.profile.get_full_name }}</small>
+                                                        </div>
+                                                    </div>
+
+                                                    <p class="mt-3 mb-1 font15">
+                                                        Preis: {{ session.amount_to_pay }}€
+                                                    </p>
+                                                    <p class="mt-0 font15">
+                                                        Datum: {{ session.idate }}
+                                                    </p>
+
+                                                    <ul class="list-unstyled mt-2 mb-4">
+                                                        <li class="font15 mt-4 font-italic">
+                                                            <i class="fa font10 fa-quote-left valign-super grey_text mr-1"></i>
+                                                            {{ session.latest_message }}
+                                                        </li>
+                                                    </ul>
+
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script>
+
+        $(function () {
+
+        });
+    </script>
+{% endblock %}
+

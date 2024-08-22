@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static custom_tags %}
+
+{% block title %}
+    {{ site_domain }} - Bezahlen & weiter zur Videokonferenz
+{% endblock %}
+
+{% block extra_head %}
+    <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&disable-card=amex,visa&disable-funding=giropay,sofort&currency=EUR"></script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content pt-5">
+                    <h3 class="mb-1 font22 question_title text-center">
+                        Nachhilfe-Sitzung mit
+                        <a href="{{ help_request.tutor.profile.get_absolute_url }}" class="link_color" target="_blank">
+                            {{ help_request.tutor.username }}
+                        </a>
+                    </h3>
+                    <p class="text-center">
+                        am {{ help_request.accepted_date_time|date:'l' }},
+                        den {{ help_request.accepted_date_time|date:'d.m.Y' }} um {{ help_request.accepted_date_time|date:'H:i' }} Uhr
+                    </p>
+                    <article class="post mt-2 mb-5">
+                        <div class="justify-content-center">
+
+                            <div class="custom_row justify-content-center">
+                                <div class="col-md-6 col-sm-12">
+
+                                    <h5 class="mt-3 mb-5 text-center">
+                                        {{ amount_to_show }}
+                                    </h5>
+
+                                    <div id="paypal-button-container"></div>
+
+                                    <div id="payment-being-processed" class="hidden text-center">
+                                        <h3>Bitte warten ... <i class="fas fa-spinner fa-spin"></i></h3>
+                                    </div>
+
+                                    <div class="mt-4 font15">
+                                        Die mathefragen.de Nachhilfe-Garantie schützt dich, wenn du Nachhilfe Stunden
+                                        von unseren Helfern durch mathefragen.de in Anspruch nimmst. Sollte es zu Problemen
+                                        kommen, kannst du dich an unser Team wenden und wir überprüfen, ob eine
+                                        Erstattung möglich ist.
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script>
+        document.querySelector('#paypal-button-container').style.display = 'none';
+        $(function (){
+            document.querySelector('#paypal-button-container').style.display = 'block';
+        });
+        paypal.Buttons({
+            style: {
+                color: 'blue',
+                shape: 'pill'
+            },
+            locale: 'de_DE',
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    payer: {
+                        name: {
+                            given_name: "{{ request.user.first_name|default:request.user.username }}",
+                            surname: "{{ request.user.last_name|default:request.user.username }}"
+                        },
+                        email_address: "{{ request.user.email }}",
+                    },
+                    purchase_units: [{
+                        amount: {
+                            value: {{ amount_to_pay }},
+                            currency_code: 'EUR'
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+
+                $('#paypal-button-container').addClass('hidden');
+                $('#payment-being-processed').removeClass('hidden');
+
+                return actions.order.capture().then(function (details) {
+
+                    // Call your server to save the transaction
+                    return fetch('{% url "process_payment" session_id %}', {
+                        method: 'post',
+                        headers: {
+                            "X-CSRFToken": '{{ csrf_token }}',
+                            "Accept": "application/json",
+                            'content-type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            order_id: data.orderID
+                        }),
+                    }).then(function (response) {
+                        if (response.status === 200) {
+                            location.replace('{% url "payment_success" session_id %}?oid=' + data.orderID);
+                        }
+                    });
+                });
+            },
+            enableStandardCardFields: true,
+
+        }).render('#paypal-button-container');
+    </script>
+{% endblock %}
+

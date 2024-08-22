@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block extra_head %}
+
+{% endblock %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5">
+
+                    {% if tutors %}
+                        <div class="custom_row ml-3 mr-4">
+                            <div class="col">
+                                <h5 class="mb-3">
+                                    {{ tutors|length }} Helfer
+                                </h5>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if not tutors %}
+                        <div class="custom_row mt-4 ml-3 mr-4">
+                            <div class="col-sm-12 col-md-6 col-lg-6 mb-4">
+                                <p class="font14">Aktuell kein Helfer verfügbar.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="custom_row mt-4 ml-3 mr-4">
+                        {% for tutor in tutors %}
+                            <div class="col-sm-12 col-md-6 col-lg-6 mb-4">
+                                <div class="custom_row">
+                                    <div class="col-1 mr-3 text-center">
+                                        <a href="{{ tutor.get_absolute_url }}" class="no_color_link">
+                                            <div class="d-inline-block text-center">
+                                                <img src="{{ tutor.get_profile_image }}" alt=".."
+                                                     style="width: 40px">
+                                                <br>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-9 font14 user_{{ tutor.id }} {{ tutor.badge|lower }}">
+                                        <a href="{{ tutor.get_absolute_url }}" target="_blank" class="no_color_link">
+                                            <b>{{ tutor.username }}</b>
+                                            {% if tutor.verified %}
+                                                <i class="fa fa-badge-check"></i>
+                                            {% endif %}<br>
+                                            <span class="font12">{{ tutor.points|cool_number }} Punkte</span>
+                                            {% if tutor.status and tutor.status != 'sonstiges' %},
+                                                <span class="font12">{{ tutor.get_status_display }}</span>
+                                            {% endif %}
+                                            <br>
+                                            <small class="font12">
+                                                <b>{{ tutor.total_answers|cool_number }}</b> mal geholfen in
+                                                {{ tutor.linked_most_helped_tags|safe }}
+                                            </small>
+                                            <p>
+                                                <small class="font12">
+                                                    diese Woche: <b>{{ tutor.answers_this_week }}</b>,
+                                                    diesen Monat: <b>{{ tutor.answers_this_month }}</b>
+                                                </small>
+                                                <br>
+                                                {% if tutor.total_tutored %}
+                                                    <small>
+                                                        Bisher <b>{{ tutor.total_tutored }} Stunden Nachhilfe</b>
+                                                        gegeben.
+                                                    </small>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                {% if tutor.user.tutor_setting.sek_1 %}
+                                                    <small class="font13 d-block mb-2">
+                                                        <span class="light_bold">Sekundarstufe I</span>
+                                                    </small>
+                                                {% endif %}
+                                                {% if tutor.user.tutor_setting.sek_2 %}
+                                                    <small class="font13 d-block mb-2">
+                                                        <span class="light_bold">Sekundarstufe II</span>
+                                                    </small>
+                                                {% endif %}
+                                                {% if tutor.user.tutor_setting.university_modules %}
+                                                    <small class="font13 d-block mb-2">
+                                                        <span class="light_bold">Uni: </span>
+                                                        <small class="d-block font12">
+                                                            {{ tutor.user.tutor_setting.university_modules|better_list }}
+                                                        </small>
+                                                    </small>
+                                                {% endif %}
+                                                {% if tutor.user.tutor_setting.note %}
+                                                    <small class="font13 d-block mb-2">
+                                                        - <span class="light_bold">Bemerkung: </span>
+                                                        <small class="d-block font12">{{ tutor.user.tutor_setting.note }}</small>
+                                                    </small>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                <span class="light_bold font15">Preise</span>: <br>
+                                                {% if tutor.user.tutor_setting.half_hourly_rate %}
+                                                    <small class="light_bold font12">30
+                                                        Minuten: {{ tutor.user.tutor_setting.half_hourly_rate }}
+                                                        EUR</small>
+                                                {% endif %}
+                                                {% if tutor.user.tutor_setting.hourly_rate %}
+                                                    <br>
+                                                    <small class="light_bold font12">60
+                                                        Minuten: {{ tutor.user.tutor_setting.hourly_rate }} EUR</small>
+                                                {% endif %}
+                                                {% if tutor.user.tutor_setting.ninety_min_rate %}
+                                                    <br>
+                                                    <small class="light_bold font12">90
+                                                        Minuten: {{ tutor.user.tutor_setting.ninety_min_rate }}
+                                                        EUR</small>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                <a href="{% url 'ask_tutors' %}?question={{ question_id }}">
+                                                    <button class="btn lrm-button font15"
+                                                            style="background-color: #f48024!important;">
+                                                        Jetzt Nachhilfe anfragen
+                                                    </button>
+                                                </a>
+                                            </p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if tutors and tutors.paginator.num_pages > 1 %}
+                        <div class="custom_row ml-3 mr-4">
+                            <div class="col-lg-12 text-center">
+                                <ul class="pagination">
+
+                                    {% if tutors.has_previous %}
+                                        <li class="prev">
+                                            <a href="?page={{ tutors.previous_page_number }}">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="active font12">
+                                        {{ tutors.number }} von {{ tutors.paginator.num_pages }}
+                                    </li>
+
+                                    {% if tutors.has_next %}
+                                        <li class="next">
+                                            <a href="?page={{ tutors.next_page_number }}">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

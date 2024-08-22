@@ -1,0 +1,38 @@
+{% load custom_tags %}
+
+<div class="vote">
+    {% answer_already_up_voted answer.id request.user.id as answer_already_upvoted %}
+    {% answer_already_down_voted answer.id request.user.id as answer_already_downvoted %}
+
+    <div class="increment up arrow-up confetti-button {% if answer_already_upvoted %}already_upvoted{% endif %}"
+         data-id="{{ answer.id }}"
+         data-owner-id="{{ answer.user_id }}"
+         data-type="answer"></div>
+    <div class="num_votes mt-1 mb-1" itemprop="upvoteCount">{{ answer.vote_points }}</div>
+    <div class="increment down arrow-down {% if answer_already_downvoted %}already_downvoted{% endif %}"
+         data-id="{{ answer.id }}"
+         id="answer_downvote_{{ answer.id }}"
+         data-owner-id="{{ answer.user_id }}"
+         data-type="answer"></div>
+
+</div>
+{% if not question.is_article %}
+    {% if request.user.id == question.user_id %}
+        <div class="accept_answer_div accept_answer text-center"
+             data-answer-id="{{ answer.id }}"
+             data-owner-id="{{ answer.user_id }}"
+             id="accept_answer_{{ answer.id }}">
+            <svg aria-hidden="true"
+                 class="{% if answer.accepted %}accepted{% else %}unaccepted{% endif %}" width="36"
+                 height="36" viewBox="0 0 36 36">
+                <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
+            </svg>
+        </div>
+    {% elif answer.accepted %}
+        <div class="accept_answer_div text-center">
+            <svg aria-hidden="true" class="accepted" width="36" height="36" viewBox="0 0 36 36">
+                <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
+            </svg>
+        </div>
+    {% endif %}
+{% endif %}

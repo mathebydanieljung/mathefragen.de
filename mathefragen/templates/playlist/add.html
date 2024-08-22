@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static compress %}
+
+{% block extra_head %}
+    {% if settings.question_editor == 'tiny' %}
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="{% static 'js/tinymce.min.js' %}"></script>
+    {% else %}
+        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+    {% endif %}
+    <script type="text/javascript" src="{% static 'js/jquery.tokeninput.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/tokeninput/token-input-facebook.css' %}?v=14" />
+    <script>
+        var prePopulateTags = {% if tags %}{{ tags|safe }}{% else %}[]{% endif %};
+        var isAlreadyAsked = '{{ request.GET.already_asked }}';
+        var setAsArticle = '{{ request.GET.set_as }}';
+        var playlistId = {{ playlist.id|default:0 }};
+        var searchForTag = "{% url 'search_for_hashtag' %}";
+        var delete_playlist_url = "{% url 'delete_playlist' playlist.hash_id|default:'no-hash' %}";
+    </script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+
+                    <h3 class="feed_l_padding">
+                        <span>Lernplayliste erstellen</span>
+                    </h3>
+
+                    <article class="post pr-4 feed_l_padding">
+
+                        <div class="blog-detail-description">
+                            <form method="post" class="mt-4" onsubmit="return check_form()">
+                                {% csrf_token %}
+                                {{ form.being_edited }}
+                                {{ form.playlist_hash_id }}
+
+                                <div class="custom_row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            {{ form.name }}
+                                            <small class="font12">{{ form.name.help_text }}</small>
+                                            {% if name_error %}<small class="text-danger font12 text-bold">{{ name_error }}</small>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="custom_row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+
+                                            {% if settings.question_editor == 'md' %}
+                                            <div id="wmd-button-bar"></div>
+                                            {% include 'question/includes/image_upload.html' %}
+                                            {% endif %}
+
+                                            {{ form.description }}
+
+                                            {% if settings.question_editor == 'tiny' %}
+                                                <p class="mt-3 text-bold">
+                                                    <a href="{% static 'files/mathjax_howto.pdf' %}"
+                                                       class="font12 link_color"
+                                                       target="_blank">
+                                                        Hinweis: So gibst du Formeln ein.
+                                                    </a>
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="custom_row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="light_bold mb-0" id="id_tags_label">Tags</label>
+                                            <small class="font12 d-block mb-1">
+                                                Füge bis zu 5 Tags hinzu, um zu beschreiben, worum es bei deiner Playliste geht
+                                            </small>
+                                            {{ form.tags }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="custom_row mt-2">
+                                    <div class="col-sm-12">
+                                        <label>Vorschau</label>
+                                        <hr>
+                                        {% if settings.question_editor == 'tiny' %}
+                                            <div id="MathPreview"></div>
+                                            <div id="MathBuffer"></div>
+                                        {% else %}
+                                            <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                                        {% endif %}
+                                        <hr>
+                                    </div>
+                                </div>
+
+                                <div class="custom_row mt-3">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+
+                                            <button name="submit"
+                                                    type="submit"
+                                                    id="submit_playlist_btn"
+                                                    class="btn lrm-button font18">
+                                                Weiter
+                                            </button>
+
+                                            {% if playlist %}
+                                                <button type="button"
+                                                        class="delete-playlist btn-danger btn ml-2 no_text_transform font18"
+                                                        data-playlist-id="{{ playlist.id }}">
+                                                    Löschen
+                                                </button>
+                                            {% endif %}
+
+                                            {% if playlist %}
+                                                <a href="{{ playlist.get_absolute_url }}" class="ml-3 mr-3 mf_color">
+                                                    Abbrechen
+                                                </a>
+                                            {% endif %}
+
+                                            <p class="font13 mt-4">
+                                                Bitte lade keine urheberrechtlich geschützten Materialien, wie z. B.
+                                                ganze Seiten aus einem Schulbuch, hoch. Du würdest doch auch nicht
+                                                wollen, dass jemand deine Arbeit einfach so ohne Erlaubnis irgendwo im
+                                                Internet veröffentlicht, oder? Bei groben Verstößen kann dich der Upload
+                                                bis zu 1500€ kosten. Auch klausurzulassungspflichtige Übungsblätter
+                                                dürfen nicht hochgeladen werden. Das wäre ziemlich unfair gegenüber
+                                                deinen Kommilitonen. Einzelne Ausschnitte aus Übungsblättern und Büchern
+                                                sind aber kein Problem, solange du die Quelle nennst und dich aktiv an
+                                                der Erarbeitung einer Lösung beteiligst.
+                                            </p>
+
+                                            {% if error %}
+                                                <p class="mt-3 text-danger text-bold">
+                                                    {{ error }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file %}
+        <script type="text/javascript">
+            $(function () {
+                $("#id_tags").tokenInput(searchForTag, {
+                    theme: "facebook",
+                    hintText: 'Nach Tag suchen',
+                    searchingText: 'wird gesucht ...',
+                    noResultsText: 'Wir finden nichts :/',
+                    preventDuplicates: true,
+                    minChars: 2,
+                    prePopulate: prePopulateTags,
+                    tokenValue: 'name'
+                });
+
+                $('.delete-playlist').on('click', function () {
+                    var confirm_deletion = confirm('Willst du deine Playlist wirklich löschen?');
+                    if (confirm_deletion) {
+                        location.href = delete_playlist_url;
+                    }
+                });
+
+                $('#token-input-id_tags').on('keydown', function (e) {
+                    if (e.keyCode === 13) {
+                        // here we can check user has enough reputation to create his own hashtags
+                        var new_hashtag = $(this).val();
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                if (isAlreadyAsked){
+                    alert('Ähnliche Playliste wurde bereits gestellt.');
+                }
+            });
+        </script>
+    {% endcompress %}
+
+    {% if settings.question_editor == 'tiny' %}
+        <script src="{% static 'js/mathjax_preview_v4.js' %}?v=98wijel"></script>
+        <script src="{% static 'js/tinymce/plugins/custom_image_dialog/plugin.min.js' %}?v=wdww12"></script>
+        <script type="text/javascript">
+            tinymce.init({
+                selector: '#wmd-input',
+                menubar: false,
+                language: 'de',
+                entity_encoding: "raw",
+                plugins: 'custom_image_dialog lists media link',
+                toolbar: 'custom_image_dialog bold link italic forecolor backcolor underline numlist bullist',
+                image_title: false,
+                height: 400,
+                content_css: tinymce_custom_css_path + '?bogus=w76ewejf',
+                image_description: false,
+                images_upload_base_path: '/media/',
+                images_file_types: 'jpeg,JPEG,jpg,JPG,jpe,jfi,jif,jfif,png,PNG,gif,bmp,webp',
+                image_advtab: false,
+                setup: function (ed) {
+                    ed.on('keyup', function (e) {
+                        Preview.Update();
+                    });
+                    ed.on('focus', function (e) {
+                        var style = $('.tox-tinymce').attr('style');
+                        style += 'border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;';
+                        $('.tox-tinymce').attr('style', style);
+                    });
+                    ed.on('blur', function (e) {
+                        var style = $('.tox-tinymce').attr('style');
+                        style = style.replace('border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;', '');
+                        $('.tox-tinymce').attr('style', style);
+                    });
+                },
+                init_instance_callback: function (editor) {
+                    editor.on('Paste', function (e) {
+                        console.log('Pasted');
+                        console.log(e.content);
+                    });
+                },
+                automatic_uploads: true,
+                file_picker_types: 'file image media',
+                file_browser_callback_types: 'file image media'
+            });
+
+            function check_form() {
+                var playlist_description = $.trim(tinymce.get('wmd-input').getContent({format : 'text'}));
+                var inserted_hashtags = $('#id_tags').tokenInput('get');
+
+                if (!playlist_description) {
+                    alert('Bitte beschreibe deine Playlist ausführlicher.');
+                    return false;
+                }
+
+                if (inserted_hashtags.length < 1) {
+                    $('.token-input-list-facebook').css('border-color', '#CC444A');
+                    $('#id_tags_label').css('color', '#CC444A');
+                    alert('Bitte mindestens ein Tag eingeben');
+                    return false;
+                }
+
+                return true;
+            }
+
+            $(function () {
+                Preview.Init('wmd-input', 'MathPreview', 'MathBuffer');
+                // editing, so preview directly on dom load
+                if(playlistId) {
+                    Preview.Update();
+                }
+            });
+        </script>
+    {% else %}
+        {% compress js file %}
+        <script type="text/javascript">
+            function check_form() {
+                var question_text = $('#wmd-input').val();
+                var inserted_hashtags = $('#id_tags').tokenInput('get');
+
+                var question_title = $.trim($('#id_title').val());
+                var is_bad_title = (
+                    question_title.indexOf('Frage') >= 0 ||
+                    question_title.indexOf('helf') >= 0 ||
+                    question_title.indexOf('??') >= 0 ||
+                    question_title.indexOf('Bitte') >= 0 ||
+                    question_title.indexOf('dringend') >= 0
+                )
+                if (is_bad_title) {
+                    $('#id_title').css('border-color', '#CC444A');
+                    alert('Bitte beschreibe deine Frage ausführlicher.');
+                    $('#id_title').focus();
+                    return false;
+                } else {
+                    $('#id_title').removeAttr('style');
+                }
+
+
+                if (!question_text) {
+                    alert('Bitte beschreibe deine Frage ausführlicher.');
+                    return false;
+                }
+
+                if (inserted_hashtags.length < 1) {
+                    $('.token-input-list-facebook').css('border-color', '#CC444A');
+                    $('#id_tags_label').css('color', '#CC444A');
+                    alert('Bitte mindestens ein Hashtag eingeben');
+                    return false;
+                }
+
+                $('#submit_playlist_btn').attr('disabled', 'disabled');
+                return true;
+            }
+        </script>
+        <script type="text/javascript" src="{% static 'js/app_markdown.js' %}?v=as9qweswk"></script>
+        {% endcompress %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="modal fade" id="after_session_check_modal" tabindex="-1" role="dialog" aria-labelledby="after_session_check_label" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="mt-1">
+                    <div class="custom_row justify-content-center">
+                        <div class="col text-center">
+                            <p class="mb-3 light_bold d-block">
+                                Wurde durch die Nachhilfe von {{ help_request.tutor.username }} die Frage beantwortet?
+                            </p>
+                            <button name="button" type="button" class="btn lrm-button mr-2 mb-3 question_settled_clk">
+                                Ja, meine Frage wurde beantwortet
+                            </button>
+                            <button name="button" type="button" data-dismiss="modal" class="btn btn-outline-primary mb-3">
+                                Nein, ich brauche noch Hilfe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

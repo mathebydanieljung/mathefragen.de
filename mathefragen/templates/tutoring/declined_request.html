@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static custom_tags %}
+
+{% block title %}
+    {{ site_domain }} - Bezahlen & weiter zur Videokonferenz
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/jquery.datetimepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'css/chat.css' %}?v=w9ee8ifj2" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content pt-5">
+                    <h3 class="mb-1 font22 question_title text-center">
+                        {{ help_request.duration }} Minuten Nachhilfe
+                    </h3>
+                    <article class="post mt-4 mb-5">
+                        <div class="justify-content-center">
+
+                            <div class="custom_row justify-content-center">
+                                <div class="col-md-6 col-sm-12">
+                                    <h5>Diese Anfrage wurde von {{ help_request.tutor.get_full_name }} abgelehnt.</h5>
+                                    <br>
+                                    <label>Mitteilung:</label>
+                                    <p>
+                                        {{ help_request.decline_reason }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+

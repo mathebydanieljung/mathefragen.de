@@ -1,0 +1,33 @@
+<div class="modal fade" id="convert_comment_to_answer" tabindex="-1" role="dialog" aria-labelledby="deleteAnswerLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" class="mt-4" action="{% url 'convert' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" id="id_convert_direction" name="convert_direction" value="to_answer">
+                    <input type="hidden" id="id_convert_object_id" name="convert_object_id">
+                    <p class="font14">
+                        Möchtest du wirklich diesen Kommentar in eine Antwort umwandeln?
+                    </p>
+                    <p class="font14">
+                        Folgende Nutzer werden darüber informiert:
+                    </p>
+                    <p class="font14">
+                        - Fragensteller <br>
+                        - Nutzer, der diesen Kommentar geschrieben hat
+                    </p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Abbrechen
+                    </button>
+
+                    <button type="submit" class="btn btn-danger">
+                        Ja, jetzt umwandeln
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

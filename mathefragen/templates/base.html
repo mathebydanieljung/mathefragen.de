@@ -1,0 +1,905 @@
+{% load static custom_tags compress %}
+
+<!DOCTYPE html>
+<html lang="de">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="x-ua-compatible" content="IE=edge,chrome=1">
+        <meta name="robots" content="index, follow">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta name="author" content="{{ site_domain }}">
+
+        <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+        <meta property="og:type" content="article"/>
+
+        {% render_seo as seo %}
+        {% block og_data %}
+            <meta property="og:url" content="https://{{ site_domain }}"/>
+            <meta property="og:title" content="{{ seo.title }}"/>
+            <meta property="og:description" content="{{ seo.meta_description }}"/>
+
+            <meta property="twitter:title" content="{{ seo.title }}"/>
+            <meta property="twitter:description" content="{{ seo.meta_description }}"/>
+        {% endblock %}
+
+        {% if seo.share_image %}
+            <meta property="og:image" itemprop="image" content="{{ seo.share_image.url }}"/>
+            <meta property="twitter:image" itemprop="image" content="{{ seo.share_image.url }}"/>
+        {% endif %}
+        <meta property="og:site_name" content="{{ site_domain }}" />
+        <meta property="og:type" content="website" />
+        <meta property="fb:app_id" content="{{ seo.fb_app_id }}"/>
+        <meta property="og:image:width" content="1200"/>
+        <meta property="og:image:height" content="630"/>
+
+        <meta property="twitter:site" content="{{ site_domain }}">
+        <meta property="twitter:title" content="{{ seo.title }}">
+        <meta property="twitter:description" content="{{ seo.meta_description }}">
+        <meta property="twitter:creator" content="{{ site_domain }}">
+        {% if seo.share_image %}
+        <meta property="twitter:image:src" content="{{ seo.share_image.url }}">
+        {% endif %}
+        <meta property="twitter:domain" content="{{ site_domain }}">
+
+        {% render_favicons as icons %}
+        {% if icons.0 %}
+            <link rel="shortcut icon" href="{% static icons.0 %}?v=4">
+            <link rel="apple-touch-icon" sizes="180x180" href="{% static icons.1 %}?v=4">
+            <link rel="icon" type="image/png" sizes="32x32" href="{% static icons.2 %}?v=4">
+            <link rel="icon" type="image/png" sizes="16x16" href="{% static icons.3 %}?v=4">
+            <link rel="mask-icon" href="{% static icons.5 %}?v=4" color="#0573a7">
+            <meta name="msapplication-TileColor" content="#ffffff">
+            <meta name="theme-color" content="#ffffff">
+        {% endif %}
+
+        <title>{% block title %}{{ seo.title }}{% endblock %}</title>
+        <meta name="description" content="{% block description %}{{ seo.meta_description }}.{% endblock %}">
+
+        <!-- Google Fonts -->
+        <link href="{% static 'css/google_font_face.css' %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap.min.css' %}?v=2212" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'css/fontawesome-all.min.css' %}">
+
+        <!-- CUSTOM STYLESHEET -->
+        <style>
+            :root {
+                --ci-color: {{ settings.ci_color|default:'#03689e' }};
+                --ci-shadow: {{ settings.ci_color|default:'#03689e42' }}42;
+            }
+        </style>
+        <link href="{% static 'css/style.css' %}?v=7" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/default.css' %}?v=09ed8kweese2" rel="stylesheet" type="text/css" />
+        <script src="{% static 'js/jquery.min.js' %}"></script>
+
+        {# Klaro Consent Manager   #}
+        <script defer type="application/javascript"
+                src="{% static 'js/klaro/klaro.config.js' %}"></script>
+        <script defer
+                data-config="klaroConfig"
+                type="application/javascript"
+                src="{% static 'js/klaro/klaro.js' %}">
+        </script>
+
+        {% render_snippets as snippets %}
+        {% for sn in snippets %}
+            {{ sn.embed_code|safe }}
+        {% endfor %}
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+              tex2jax: {
+                  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+                  processEscapes: true
+              },
+              "HTML-CSS": { linebreaks: { automatic: true } },
+              CommonHTML: { linebreaks: { automatic: true } },
+              SVG: { linebreaks: { automatic: true } },
+              showProcessingMessages: false,
+            });
+        </script>
+        <script>
+            const hot_question_apis = {{ hot_question_apis|safe }};
+            const csrf_token = '{{ csrf_token }}';
+            const siteDomain = '{{ site_domain }}';
+            const http_referer = '{{ request.META.HTTP_REFERER }}';
+            const fb_app_id = '{{ seo.fb_app_id }}';
+            const global_wss_url = '{{ global_wss_url }}';
+            const user_wss_url = '{{ user_wss_url }}';
+            const websockets_enabled = {% if websockets_enabled %}true{% else %}false{% endif %};
+            const question_wss_url = '{{ question_wss_url }}';
+            const youtubeSearchUrl = "{% url 'youtube_search' %}";
+            const searchForTag = "{% url 'search_for_hashtag' %}";
+            const questionId = {{ question.id|default:0 }};
+            const user_logged_in = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+            const isVerifiedUser = {% if request.user.profile.verified %}true{% else %}false{% endif %};
+            const register_confirmed = '{{ request.GET.confirmed }}';
+            const user_id = {% if request.user.is_authenticated %}{{ request.user.id }}{% else %}null{% endif %};
+            const urls = {
+                {% if request.user.is_authenticated %}
+                fetch_messages: '{% url "fetch_messages" request.user.id %}',
+                update_last_active: '{% url "update_last_active" request.user.id %}',
+                skipProfileCompletionURL: '{% url "skip_profile_completion" request.user.id %}',
+                {% endif %}
+                upload_image_url: '{% url "upload_image" %}',
+            }
+            const saveChannelSuggestionUrl = '{% url "save_channel_suggestion" %}';
+            const sendFeedbackUrl = '{% url "send_feedback" %}';
+            const deleteAccountUrl = "{% url 'delete_my_account' %}";
+            const loading_img_src = '{% static "images/loading.gif" %}';
+            const isMobile = {% if request.user_agent.is_mobile %}true{% else %}false{% endif %};
+            const askToCompleteProfile = {% if request.user.is_authenticated and request.user.profile.should_complete_profile %}true{% else %}false{% endif %};
+            const tinymce_custom_css_path = '{% static "css/tinymce_custom.css" %}';
+        </script>
+        {% compress js file wss %}
+        <script type="text/javascript">
+            function GlobalWSConnection(){
+                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
+                    return;
+                }
+                var global_ws = new WebSocket(global_wss_url);
+                global_ws.onmessage = function (event) {
+                    var notification_number = $('#notification_number');
+                    // play sound
+                    new Audio('{% static 'files/push.mp3' %}').play();
+                    var old_number = $.trim(notification_number.text());
+                    if (!old_number) {
+                        old_number = '0';
+                    }
+                    notification_number.text(parseInt(old_number) + 1);
+                    if (notification_number.hasClass('hidden')){
+                        notification_number.removeClass('hidden');
+                    }
+                };
+                global_ws.onclose = function () {
+                    setTimeout(GlobalWSConnection, 1000);
+                }
+            }
+
+            function UserWSConnection(ws_url){
+                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
+                    return;
+                }
+                var user_ws = new WebSocket(ws_url);
+                user_ws.onmessage = function (event) {
+                    var notification_number = $('#notification_number');
+                    // play sound
+                    new Audio('{% static 'files/push.mp3' %}').play();
+                    var old_number = $.trim(notification_number.text());
+                    if (!old_number) {
+                        old_number = '0';
+                    }
+                    notification_number.text(parseInt(old_number) + 1);
+
+                    if (notification_number.hasClass('hidden')){
+                        notification_number.removeClass('hidden');
+                    }
+                };
+                user_ws.onclose = function() {
+                    setTimeout(function(){
+                        UserWSConnection(ws_url);
+                    }, 1000);
+                };
+            }
+
+            function QuestionWSConnection(ws_url){
+                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
+                    return;
+                }
+                var question_ws = new WebSocket(ws_url);
+                question_ws.onmessage = function (event) {
+                    var payload = JSON.parse(event.data);
+                    var acted_user_id = payload['user_id'];
+
+                    // dont notify the user who acted first
+                    if (user_id !== acted_user_id) {
+                        new Audio('{% static 'files/question_push.mp3' %}').play();
+                        if (payload['type'] === 'new_answer') {
+                            $('#no_answers_yet').html('Es gibt eine neue Antwort <i class="fal fa-long-arrow-right"></i>');
+                            $('#no_answers_yet').addClass('shake');
+                            $('#reload_page_btn').removeClass('d-none');
+                        }
+                    }
+
+                    if (payload['type'] === 'question_comment') {
+                        // question comments update
+                        update_comments(payload, '#question_comment_append_place');
+
+                    } else if (payload['type'] === 'answer_comment') {
+                        // answer comments update
+                        update_comments(payload, '#answer_comment_append_place_' + payload['belongs_to']);
+                    }
+                };
+                question_ws.onclose = function() {
+                    setTimeout(function(){
+                        QuestionWSConnection(ws_url);
+                    }, 1000);
+                };
+            }
+
+            function update_comments(payload, comment_append_place_id){
+                var comment_text = payload['comment_text'];
+                var username = payload['username'];
+                var user_id = payload['user_id'];
+
+                // question comment
+                var comment_span = document.createElement('span');
+                comment_span.classList.add('font13');
+                comment_span.innerText = comment_text;
+
+                var small = document.createElement('small');
+                var username_anchor = document.createElement('a');
+                username_anchor.href = '/user/profile/' + user_id + '/';
+                username_anchor.classList.add('text-bold');
+                username_anchor.classList.add('mf_color');
+                username_anchor.classList.add('font12');
+                username_anchor.innerHTML = '&nbsp; - &nbsp;' + username;
+
+                small.appendChild(username_anchor);
+                comment_span.appendChild(small);
+
+                var comment_div = document.createElement('div');
+                comment_div.classList.add('pl-2');
+                comment_div.classList.add('comment_box');
+
+                var hr_ = document.createElement('hr');
+                hr_.classList.add('mt-3');
+                hr_.classList.add('mb-3');
+
+                comment_div.appendChild(comment_span);
+
+                $(comment_append_place_id).append(hr_);
+                $(comment_append_place_id).append(comment_div);
+                $(comment_append_place_id).addClass('pb-3');
+            }
+        </script>
+        {% endcompress %}
+        {% block extra_head %}{% endblock %}
+    </head>
+
+    <body {% block body_extra_attr %}{% endblock %}>
+        {% include 'modals/login.html' %}
+        {% include 'modals/feedback.html' %}
+        {% include 'modals/report.html' %}
+        {% include 'modals/points_explain.html' %}
+        {% include 'modals/thanks.html' %}
+        {% include 'modals/delete_answer.html' %}
+        {% include 'modals/delete_playlist_unit.html' %}
+        {% include 'modals/share.html' %}
+        {% include 'modals/confirmed.html' %}
+        {% include 'modals/image_popup.html' %}
+        {% include 'modals/channel_suggestion.html' %}
+        {% include 'modals/grasp_level.html' %}
+        {% include 'modals/video_suggest.html' %}
+        {% include 'modals/helpes_to_book.html' %}
+
+        {% if request.user.is_authenticated and request.resolver_match.view_name == 'public_profile_hashed' %}
+        {% include 'modals/review_tutor.html' %}
+        {% endif %}
+
+        {% if request.user.is_authenticated and request.resolver_match.view_name != 'profile_settings' %}
+        {% include 'modals/fill_profile.html' %}
+        {% endif %}
+        {% include 'modals/convert.html' %}
+        <header {% if no_left_sidebar and not show_nav %}class="d-none"{% endif %}>
+            <nav class="navbar navbar-expand-md fixed-top custom_body_bg border_bottom_grey">
+                <a class="mr-0" href="/?src=show_questions_landing">
+                    {% if settings.logo_svg_content %}
+                        {{ settings.logo_svg_content|safe }}
+                    {% else %}
+                        <img src="{{ settings.logo.url }}" alt="Logo des Forums" class="">
+                    {% endif %}
+                </a>
+
+                <div class="ml-1 mt-3 mt-md-0">
+                    <a href="https://www.youtube.com/@MathebyDanielJung" target="_blank">
+                        <img alt="Logo von Mathe by Daniel Jung" src="{% static 'images/mathebydanieljung.webp' %}" width="185" class="d-none d-sm-block">
+                        <img alt="Logo von Mathe by Daniel Jung" src="{% static 'images/mathebydanieljung.webp' %}" width="80" class="d-block d-sm-none">
+                    </a>
+                </div>
+
+                {% if recommended_by %}
+                    <div class="ml-3 mt-2 mt-md-0 d-none d-md-block text-center">
+                        <div class="font12 small">Empfohlen von</div>
+                        <a href="{{ recommended_by.link }}" target="_blank">
+                            <img alt="Logo von der empfehlenden Instanz" src="{{ recommended_by.logo.url }}" width="130">
+                        </a>
+                    </div>
+                {% endif %}
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars mf_color"></i>
+                </button>
+                <div class="collapse navbar-collapse navbar-customizations" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto d-md-hidden">
+                        <li class="nav-item dropdown ml-3 d-none">
+                            <a class="nav-link mf_color dropdown-toggle font14" href="#" id="dropdown01" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">Weitere Portale</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdown01">
+                                <a class="dropdown-item mf_color font14 {% if 'mathefragen' in site_domain %}d-none{% endif %}" target="_blank" href="https://www.mathefragen.de">mathefragen.de</a>
+                                <a class="dropdown-item mf_color font14 {% if 'informatikfragen' in site_domain %}d-none{% endif %}" target="_blank" href="https://www.informatikfragen.de">informatikfragen.de</a>
+                                <a class="dropdown-item mf_color font14 {% if 'physik' in site_domain %}d-none{% endif %}" target="_blank" href="https://www.physik-fragen.de">physik-fragen.de</a>
+                                <a class="dropdown-item mf_color font14 {% if 'chemie' in site_domain %}d-none{% endif %}" target="_blank" href="https://www.chemie-fragen.de">chemie-fragen.de</a>
+                                <a class="dropdown-item mf_color font14 {% if 'bio' in site_domain %}d-none{% endif %}" target="_blank" href="https://www.bio-fragen.de">bio-fragen.de</a>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="d-block d-md-none pt-0 px-3">
+                        <p class="mt-3">
+                            <a href="/" class="link_color light_bold">
+                                Home <br>
+                                <small class="font12">
+                                    {{ request.stats.total_users }} Mitglieder,
+                                    {{ request.stats.total_questions }} Fragen,
+                                    {{ request.stats.percent_answered }}% beantwortet
+                                </small>
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            {% if request.user.is_authenticated %}
+                                <a href="{{ request.user.profile.get_absolute_url }}" class="link_color light_bold">
+                                    <span> My Hub </span>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="link_color light_bold">
+                                    <span> My Hub </span>
+                                </a>
+                            {% endif %}
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="{% url "all_users" %}?sort=top_helping" class="link_color light_bold">
+                                Top Helfer
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="{% url 'index' %}?filter=no_answer" class="link_color light_bold">
+                                Unbeantwortete Fragen
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="{% url 'all_playlists' %}" class="link_color light_bold">
+                                Lernplaylisten
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="https://amzn.to/3w0kVvH" class="link_color light_bold">
+                                Lernhefte
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="https://www.youtube.com/@MathebyDanielJung" class="link_color light_bold">
+                                Mathevideos
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="https://www.mathefragen.de/artikel/22ed83e199de247c/unser-kodex/" class="link_color light_bold">
+                                Unser Codex
+                            </a>
+                        </p>
+
+                        <p class="mt-3">
+                            <a href="https://danieljung.io/" class="link_color light_bold">
+                                About Daniel
+                            </a>
+                        </p>
+
+                        {% right_promotions as promotions %}
+                        {% for promotion in promotions %}
+                            <p>
+                                <a href="{{ promotion.link }}" class="link_color light_bold">
+                                    {{ promotion.text }}
+                                </a>
+                            </p>
+                        {% endfor %}
+
+                        <p class="mt-3">
+                            <a id="feedback_modal_click_mobile" class="link_color light_bold">
+                                Feedback & Support
+                            </a>
+                        </p>
+
+                    </div>
+                    <div class="mt-2 mt-md-0 px-3 {% if request.user_agent.is_mobile %}mb-4{% else %}mb-0{% endif %}">
+                        {% if request.user.is_authenticated %}
+                            <div class="user_nav_box" style="display: flex; align-items: center;">
+                                <div class="notification_icon d-inline-block">
+                                    {% unread_messages request.user as number_msgs %}
+                                    <small id="notification_number" class="{% if not number_msgs %}hidden{% endif %}">
+                                        {{ number_msgs }}
+                                    </small>
+                                    <i class="fal fa-inbox inbox_klass"></i>
+                                </div>
+                                <a href="{{ request.user.profile.get_absolute_url }}">
+                                    <div class="d-inline-block mr-2">
+                                        {% if request.user.profile.profile_image %}
+                                            <img src="{{ request.user.profile.profile_image.url }}" alt="" height="28">
+                                        {% else %}
+                                            <i class="fas fa-user mf_color"></i>
+                                        {% endif %}
+                                        <small class="text-black font12 mr-1 ml-1">
+                                            {{ request.user.profile.points }}
+                                        </small>
+                                    </div>
+                                </a>
+
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-center btn btn-link border-0 text-black">
+                                        <i class="fa fa-sign-out" title="Ausloggen"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary font13 text-center mf_color">Einloggen</a>
+                            <a href="{% url 'register' %}" class="btn lrm-button font13 ml-3 text-center">Kostenlos registrieren</a>
+
+                        {% endif %}
+                    </div>
+
+                    {% if request.user.is_authenticated %}
+                        <div class="dropdown-menu dropdown-menu-right notification_dropdown hidden pb-0"
+                             aria-labelledby="bd-versions">
+                            <div class="float-left inbox_box_padding">
+                                <span class="inbox_name">Inbox</span>
+                            </div>
+                            <div class="float-right inbox_box_padding">
+                                <a class="font12 link_color" href="{% url 'inbox' request.user.id %}">Alle Nachrichten</a>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="dropdown-divider pb-0 mb-0"></div>
+                            <div id="messages_container"></div>
+                            <div class="mt-1 mb-1 inbox_box_padding">
+                                <a class="font12 link_color" href="{% url 'inbox' request.user.id %}">Alle Nachrichten</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </nav>
+        </header>
+
+        <!-- Begin page -->
+
+        <div id="wrapper" class="mb-4 {% block wrapper_extra_class %}{% endblock %}">
+
+            {% if show_confirm_alert %}
+                <div class="alert alert-danger please_confirm_alert font12" role="alert">
+                    Bitte bestätige deine E-Mail-Adresse.
+                </div>
+            {% endif %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="left side-menu {% if no_left_sidebar %}d-none{% endif %}">
+
+                <div class="slimscroll-menu" id="remove-scroll">
+
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <ul class="nav flex-column">
+                            <li>
+                                <a class="nav-link {% if request.resolver_match.view_name == 'index' %}active_menu active{% endif %}" href="{% url 'index' %}"><i class="fa fa-home mf_color mr-1"></i> Home</a>
+                            </li>
+                            <li>
+                                <a class="nav-link {% if request.resolver_match.view_name == 'all_users' %}active_menu active{% endif %}" href="{% url 'all_users' %}"><i class="fa fa-users mf_color mr-1"></i> Mitglieder</a>
+                            </li>
+
+                            {% if request.user.is_staff %}
+                            <li>
+                                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fa fa-star mf_color mr-1"></i> Adminbereich</a>
+                            </li>
+                            {% endif %}
+
+                            <li>
+                                <a class="nav-link cursor_pointer" data-toggle="modal" data-target="#feedback_modal">
+                                    <i class="fa fa-comments mf_color mr-1"></i> Feedback & Support</a>
+                            </li>
+
+                            <li>
+                                <a class="nav-link cursor_pointer" data-toggle="modal" data-target="#share_modal">
+                                    <i class="fa fa-share-alt mf_color mr-1"></i> Frage teilen</a>
+                            </li>
+
+                            <li>
+                                <a class="nav-link" href="https://www.mathefragen.de/artikel/22ed83e199de247c/unser-kodex/">
+                                    <i class="fas fa-book-open mf_color mr-1"></i> Unser Kodex
+                                </a>
+                            </li>
+
+                            <div class="dropdown-divider"></div>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cloud mf_color mr-1"></i> Andere Portale</a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="https://www.mathefragen.de" target="_blank">mathefragen.de</a>
+                                    <a class="dropdown-item" href="https://www.informatikfragen.de" target="_blank">informatikfragen.de</a>
+                                    <a class="dropdown-item" href="https://www.physik-fragen.de" target="_blank">physik-fragen.de</a>
+                                    <a class="dropdown-item" href="https://www.chemie-fragen.de" target="_blank">chemie-fragen.de</a>
+                                    <a class="dropdown-item" href="https://www.bio-fragen.de" target="_blank">bio-fragen.de</a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="nav-link" href="https://www.meta-fragen.de"><i class="fas fa-info-circle mf_color mr-1"></i> Community Corner</a>
+                            </li>
+
+                            <div class="dropdown-divider"></div>
+
+                            <li class="text-center">
+                                <div id="donate-button-container" class="nav-link">
+                                    <div class="pb-2">Unterstütze diese Plattform</div>
+                                    <form action="https://www.paypal.com/donate" method="post" target="_top">
+                                        <input type="hidden" name="hosted_button_id" value="5H4ZXE6GFWDC6" />
+                                        <input type="image" src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Spenden mit dem PayPal-Button" />
+                                    </form>
+                                </div>
+                            </li>
+
+
+                        </ul>
+
+                    </div>
+                    <!-- Sidebar -->
+                    <div class="clearfix"></div>
+
+                </div>
+                <!-- Sidebar -left -->
+
+            </div>
+            <!-- Left Sidebar End -->
+
+            <div class="page-wrapper {% if no_left_sidebar %}ml-0{% endif %}">
+                {% block main %}{% endblock %}
+            </div>
+
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+        <!-- js placed at the end of the document so the pages load faster -->
+        <script src="{% static 'js/popper.min.js' %}?v=1212"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/jquery.easing.min.js' %}"></script>
+        <script src="{% static 'js/cookie.js' %}?v=1212"></script>
+        <script src="{% static 'js/hot_questions.js' %}?v=2w3dwe" rel="preload" as="script"></script>
+
+        {% compress js file bottom_base_js %}
+        <script type="text/javascript" rel="preload" as="script">
+
+            function update_activity(){
+                if (user_logged_in){
+                    $.ajax({
+                        url: urls.update_last_active,
+                        type: 'post',
+                        data: {
+                            csrfmiddlewaretoken: csrf_token,
+                        }
+                    });
+                }
+            }
+
+            function countChar(val, max_chars, min_chars, max_counter_id, min_counter_id, button_id) {
+                const len = val.value.length;
+                if (len > max_chars) {
+                    val.value = val.value.substring(0, max_chars);
+                } else {
+                    $('#' + max_counter_id).text(max_chars - len);
+                    if (min_counter_id && min_chars){
+                        $('#' + min_counter_id).text(Math.max(min_chars - len, 0));
+                        if (button_id){
+                            if (!Math.max(min_chars - len, 0)){
+                                $('#' + button_id).removeAttr('disabled');
+                            } else {
+                                $('#' + button_id).attr('disabled', 'disabled');
+                            }
+                        }
+                    }
+                }
+            }
+
+            $(function(){
+
+                $('[data-toggle="tooltip"]').tooltip();
+
+                update_activity();
+
+                // todo: check which other events make sense.
+                document.onclick = update_activity;     // touchpad clicks
+
+                $(document).on('click', function (event) {
+                    // close inbox dropdown if clicked somewhere else
+                    const main_trigger = $(".notification_icon");
+                    if (main_trigger !== event.target && !main_trigger.has(event.target).length) {
+                        const notification_dropdown = $('.notification_dropdown');
+                        if (!notification_dropdown.hasClass('hidden')){
+                            notification_dropdown.addClass('hidden');
+                        }
+                    }
+                    // close open tooltips
+                    if ($(event.target).closest(".tooltip-inner").length === 0) {
+                        $('[data-toggle="tooltip"]').tooltip('hide');
+                    }
+                });
+
+                // close open tooltips on scroll
+                $(document).on('scroll', function (event){
+                    if ($(event.target).closest(".tooltip-inner").length === 0) {
+                        $('[data-toggle="tooltip"]').tooltip('hide');
+                    }
+                });
+
+                if (askToCompleteProfile){
+                    $('#complete_profile_modal').modal('show');
+                }
+
+                $('.skip_profile_completion').on('click', function (){
+                    $('#complete_profile_modal').modal('hide');
+                    $.get(urls.skipProfileCompletionURL);
+                });
+
+                $('.rotate_image_btn_modal').on('click', function () {
+                    var image = $('#image_modal_content');
+                    if (image.hasClass('deg90')) {
+                        image.removeClass('deg90');
+                        image.addClass('deg180');
+                        $('#image_modal .modal-dialog').css('padding-top', '0');
+                    } else if (image.hasClass('deg180')) {
+                        image.removeClass('deg180');
+                        image.addClass('deg270');
+                        $('#image_modal .modal-dialog').css('padding-top', '10%');
+                    } else if (image.hasClass('deg270')) {
+                        image.removeClass('deg270');
+                        image.addClass('deg360');
+                        $('#image_modal .modal-dialog').css('padding-top', '0');
+                    } else if (image.hasClass('deg360')) {
+                        image.removeClass('deg360');
+                        image.addClass('deg90');
+                        $('#image_modal .modal-dialog').css('padding-top', '0');
+                    } else {
+                        image.addClass('deg90');
+                        $('#image_modal .modal-dialog').css('padding-top', '10%');
+                    }
+                });
+
+                // open channel suggestion modal
+                $('.open_channel_suggestion').on('click', function () {
+                    $('#channel_suggest_modal').modal('show');
+                });
+
+                $('#login_modal').on('shown.bs.modal', function () {
+                    $('#id_modal_login_id').trigger('focus')
+                })
+
+                $('.send_channel_suggestion').on('click', function () {
+                    var channel_suggestion_category = $('#channel_suggestion_category').val();
+                    var channel_suggest_description = $('#channel_suggest_description').val();
+
+                    $.post(saveChannelSuggestionUrl, {
+                        channel_suggestion_category: channel_suggestion_category,
+                        channel_suggest_description: channel_suggest_description,
+                        csrfmiddlewaretoken: csrf_token,
+                    }).done(function (data) {
+                        $('#feedback_type_in_modal').text('deinen Vorschlag');
+                        $('#channel_suggest_modal').modal('hide');
+                        $('#thnx_report_modal').modal('show');
+                    });
+                });
+
+                $('.community_paper_icon').tooltip({'html': true});
+
+                $('#reload_page_btn').on('click', function(){
+                    window.location.reload();
+                });
+
+                if (!isMobile) {
+                    // websocket connections
+                    GlobalWSConnection();
+                    if (user_logged_in) {
+                        var url = user_wss_url + user_id;
+                        UserWSConnection(url);
+                    }
+                }
+
+                if (register_confirmed) {
+                    $('#confirmed_modal').modal('show');
+                }
+
+                $('#feedback_modal_click_mobile').on('click', function(){
+                    $('#feedback_modal').modal('show');
+                });
+
+                $('.delete-account-completely').on('click', function(){
+                    var delete_confirmed = window.confirm('Möchtest du wirklich dein Benutzerkonto vollständig löschen?');
+                    if (delete_confirmed) {
+                        window.location.href = deleteAccountUrl;
+                    }
+                });
+
+                $('.fa-search').on('click', function(){
+                    $(this).addClass('hidden');
+                    $('.search_input').removeClass('hidden');
+                });
+
+                $('.notification_icon').on('click', function(){
+                    const notification_dropdown = $('.notification_dropdown');
+
+                    // remove the red number
+                    $('#notification_number').addClass('hidden');
+
+                    if (notification_dropdown.hasClass('hidden')){
+                        notification_dropdown.removeClass('hidden');
+                        $.ajax({
+                            url: urls.fetch_messages,
+                            type: 'get'
+                        }).done(function(messages){
+
+                            $('#messages_container').empty();
+
+                            var no_msg_tag = document.createElement('p');
+                            no_msg_tag.innerText = 'Keine neue Nachrichten';
+                            no_msg_tag.classList.add('font12')
+                            no_msg_tag.classList.add('p-3');
+
+                            if (!messages.length) {
+                                $('#messages_container').append(no_msg_tag);
+                            }
+
+                            $.each(messages, function(i, message) {
+                                var msg_anchor = document.createElement('a');
+                                msg_anchor.classList.add('dropdown-item');
+                                msg_anchor.classList.add('line_divider');
+                                msg_anchor.classList.add('font12');
+                                msg_anchor.classList.add('pb-2');
+                                if (message.link) {
+                                    msg_anchor.href = message.link;
+                                } else {
+                                    msg_anchor.href = '/user/profile/' + user_id + '/inbox/';
+                                }
+                                if (!message.read) {
+                                    msg_anchor.classList.add('unread_msg');
+                                }
+
+                                var date = document.createElement('small');
+                                date.classList.add('d-block');
+                                date.innerText = message.date;
+
+                                var question_title = document.createElement('strong');
+                                question_title.innerText = message.title;
+
+                                var message_tag = document.createElement('small');
+                                message_tag.classList.add('font12');
+                                message_tag.classList.add('d-block');
+                                message_tag.innerText = '[' + message.type + '] ' + message.message;
+
+                                msg_anchor.appendChild(date);
+                                msg_anchor.appendChild(question_title);
+                                msg_anchor.appendChild(message_tag);
+
+                                $('#messages_container').append(msg_anchor);
+
+                            });
+
+                        });
+
+                    } else {
+                        notification_dropdown.addClass('hidden');
+                    }
+                });
+
+
+                $('.send_feedback').on('click', function(){
+                    var feedback_text = $.trim($('#feedback_text').val());
+                    var feedback_category = $.trim($('#feedback_category').val());
+                    var feedback_email = $.trim($('#feedback_email').val());
+                    if (feedback_text) {
+                        $.ajax({
+                            url: sendFeedbackUrl,
+                            type: 'post',
+                            data: {
+                                'csrfmiddlewaretoken': csrf_token,
+                                'feedback_text': feedback_text,
+                                'feedback_category': feedback_category,
+                                'feedback_email': feedback_email,
+                                'path': location.href,
+                            }
+                        }).always(function(){
+                            $('#feedback_modal').modal('hide');
+                            $('#thnx_report_modal').modal('show');
+                        });
+                    }
+                });
+
+                $('.share_link_in_detail').on('click', function(){
+                    var title = $(this).data('title');
+                    var hashtags = $(this).data('hashtags');
+                    var subject = $(this).data('subject');
+                    var body = $(this).data('body');
+                    var url = $(this).data('url');
+
+                    // set all the links and data before opening the dialog
+                    $('.share_modal_body a').each(function(){
+                        $(this).attr("data-title", title);
+                        $(this).attr("data-hashtags", hashtags);
+                        $(this).attr("data-subject", subject);
+                        $(this).attr("data-body", body);
+                        $(this).attr("data-url", url);
+                    });
+
+                    $('#share_modal').modal('show');
+
+                });
+
+                $('.facebook_btn').on('click', function(){
+                    var url = $(this).data('url');
+                    var shareURL = "https://www.facebook.com/dialog/share?";
+                    var params = {
+                        display: 'popup',
+                        app_id: fb_app_id,
+                        href: url
+                    };
+                    for (var prop in params) shareURL += '&' + prop + '=' + encodeURIComponent(params[prop]);
+                    window.open(shareURL, '', 'left=0,top=0,width=550,height=450,personalbar=0,toolbar=0,scrollbars=0,resizable=0');
+                });
+
+                $('.twitter_btn').on('click', function(){
+                    var title = $(this).data('title');
+                    var hashtags = $(this).data('hashtags');
+                    var url = $(this).data('url');
+                    var shareURL = "https://twitter.com/share?";
+                    var params = {
+                        url: url,
+                        text: title,
+                        hashtags: hashtags
+                    };
+                    for (var prop in params) shareURL += '&' + prop + '=' + encodeURIComponent(params[prop]);
+                    window.open(shareURL, '', 'left=0,top=0,width=550,height=450,personalbar=0,toolbar=0,scrollbars=0,resizable=0');
+                });
+
+                $('.messenger_btn').on('click', function(){
+                    var url = $(this).data('url');
+                    window.location.href = 'fb-messenger://share?link=' + encodeURIComponent(url) + '&app_id=' + encodeURIComponent(fb_app_id);
+                });
+
+                $('.whatsapp_btn').on('click', function(){
+                    var title = $(this).data('title');
+                    var url = $(this).data('url');
+                    var text = title + '\n' + url;
+                    window.location.href = 'whatsapp://send?text=' + encodeURIComponent(text);
+                });
+
+                $('.telegram_btn').on('click', function(){
+                    var title = $(this).data('title');
+                    var url = $(this).data('url');
+                    window.location.href = 'https://telegram.me/share/url?url='+ url + '&text=' + encodeURIComponent(title);
+                });
+
+                $('.email_btn').on('click', function(){
+                    var subject = $(this).data('subject');
+                    var text = $(this).data('body') + ' - ' + $(this).data('url');
+                    window.open('mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text));
+                });
+
+                $('img.fit_width').on('click', function(){
+                    var img_src = $(this).attr('src');
+                    $('#image_modal_content').attr('src', img_src);
+                    $('#image_modal').modal('show');
+                });
+            });
+        </script>
+        {% endcompress %}
+        {% block extra_js_bottom %}{% endblock %}
+    </body>
+
+</html>

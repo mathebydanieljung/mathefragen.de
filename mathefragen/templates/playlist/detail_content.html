@@ -1,0 +1,156 @@
+{% load static custom_tags markdownify l10n %}
+
+<article class="post mt-2 mb-1">
+    <hr>
+    <div class="blog-detail-description feed_l_padding">
+
+        <div class="custom_row">
+            <div class="col-2 col-md-1">
+                {% if not owner_preview %}
+                <div class="vote text-center">
+                    {% playlist_already_up_voted playlist.id request.user.id as already_upvoted %}
+                    {% playlist_already_down_voted playlist.id request.user.id as already_downvoted %}
+
+                    <div class="increment up arrow-up {% if already_upvoted %}already_upvoted{% endif %}"
+                         data-hash_id="{{ playlist.hash_id }}"
+                         data-owner-id="{{ playlist.user_id }}"
+                         data-type="playlist"></div>
+                    <div class="num_votes mt-1 mb-1">{{ playlist.vote_points }}</div>
+                    <div class="increment down arrow-down {% if already_downvoted %}already_downvoted{% endif %}"
+                         data-hash_id="{{ playlist.hash_id }}"
+                         data-owner-id="{{ playlist.user_id }}"
+                         data-type="playlist"></div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-11 col-10 word_break_all">
+                <div id="question_text_div">
+                    {% if settings.question_editor == 'tiny' %}
+                        {{ playlist.description|safe }}
+                    {% else %}
+                        {{ playlist.description|markdownify }}
+                    {% endif %}
+                </div>
+                <div class="playlist_contents mt-4">
+                    <h6>Inhalte:</h6>
+                    <ul class="list_style_none content_units">
+                    {% for unit in playlist.playlist_units_by_order %}
+                        <li data-order="{{ unit.int_order|unlocalize }}"> {{ unit.int_order|unlocalize }}. <a href="#post_{{ unit.id }}" class="link_color unit_link">{{ unit.name|capfirst }}</a></li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                <p>&nbsp;</p>
+                <div class="float-left">
+                    <div class="tagcloud">
+                        {% for tag in playlist.tags.all %}
+                            <a class="text-bold link_color" href="{% url 'all_playlists' %}?tag={{ tag.name|remove_hash }}">{{ tag.name|capfirst }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="float-right user_right_box">
+                    <div class="question_bottom_box font12">
+
+                        <small class="font12 float-right">erstellt {{ playlist.idate|naturaltime_v2}}</small>
+
+                        <br>
+                        <div class="float-left mt-1">
+                            {% if playlist.user.profile.profile_image %}
+                                <img src="{{ playlist.user.profile.profile_image.url }}" alt="" width="32">
+                            {% elif playlist.user %}
+                                <img src="https://www.gravatar.com/avatar/{{ playlist.user.profile.hash_id }}?s=32&d=identicon&r=PG&f=1"
+                             alt="" width="32" height="32" class="bar-sm">
+                            {% endif %}
+                        </div>
+                        <div class="float-right text-right ml-2">
+                            <small>
+                                {% if playlist.user.profile %}
+                                    <a href="{{ playlist.user.profile.get_absolute_url }}" class="text-bold link_color font12">
+                                        {{ playlist.user.profile.username }},
+                                        {% if playlist.user.profile.verified %}
+                                            <i class="fa fa-badge-check"></i>
+                                        {% endif %}
+                                    </a>
+                                {% else %}
+                                    inaktiver Nutzer
+                                {% endif %}
+                                <br>
+                                {% if playlist.user.profile.other_status %}
+                                    {{ playlist.user.profile.other_status }},
+                                {% elif playlist.user.profile.status %}
+                                    {{ playlist.user.profile.get_status_display }},
+                                {% endif %}
+
+                                {% if playlist.user.profile %}
+                                    Punkte: {{ playlist.user.profile.points|cool_number }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+        <div class="custom_row mb-5 font13">
+            <div class="col-2 col-md-1">
+                &nbsp;
+            </div>
+            <div class="col-md-10 col-10">
+
+                <small class="mt-4 d-block">
+                    {% if request.user.is_authenticated and request.user.id == playlist.user_id %}
+                        <a href="{% url 'edit_playlist' playlist.hash_id %}" class="font12 link_color mr-3">Bearbeiten</a>
+                    {% endif %}
+                    <span class="share_link_in_detail mf_color"
+                          data-title="{{ playlist.name|capfirst }}"
+                          data-hashtags="letsrockmathe,{{ site_domain }},danieljung"
+                          data-subject="Tolle Lern-Playliste '{{ playlist.name|capfirst }}'"
+                          data-body="Tolle Lern-Playliste bei {{ site_domain }}: '{{ playlist.name|capfirst }}'"
+                          data-url="https://{{ site_domain }}{{ playlist.get_absolute_url }}">
+                        <i class="fal fa-share-alt"></i>&nbsp; Teilen
+                    </span>
+
+                    {% if request.user.id != playlist.user_id %}
+                        {% already_playlist_reported playlist.id request.user.id as pl_already_reported %}
+                        <span class="ml-3 font12 cursor_pointer mf_color {% if not pl_already_reported %}report_content{% endif %}"
+                                  data-object-type="playlist"
+                                  data-object-id="{{ playlist.id }}">
+                            Diese Playliste melden
+                                {% if playlist.playlist_reports.count %} ({{ playlist.playlist_reports.count }}){% endif %}
+                        </span>
+                    {% endif %}
+                </small>
+
+            </div>
+        </div>
+
+        <div class="mt-2 mb-3">
+            <h5 class="mb-0">
+                <span>
+                    {{ playlist.playlist_units.count }} Einheit{{ playlist.playlist_units.count|pluralize:",en" }}
+                </span>
+            </h5>
+        </div>
+
+    </div>
+</article>
+
+{% if not request.user.is_authenticated %}
+    <article class="post mb-0">
+        <div class="blog-detail-description feed_l_padding mb-2">
+            <div class="custom_row">
+                <div class="col-12 text-center mt-4">
+                    <h3 class="mb-0 font22 question_title">
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="link_color light_bold">Log dich ein</a>, um den Inhalt zu sehen.
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </article>
+{% else %}
+
+    {% for unit in playlist.playlist_units_by_order %}
+        {% include 'playlist/unit_detail.html' %}
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,15 @@
+version: '3'
+networks:
+  nl-net:
+    external: true
+services:
+  metafragen-server:
+    image: registry.gitlab.com/new-learning/mathefragen.de/app:latest
+    volumes:
+      - /var/www/aiedn/apps/mathefragen.de/.env.meta:/code/.env
+      - /var/log/aiedn/metafragen.de/log:/code/log
+    environment:
+      - TZ=Europe/Berlin
+    restart: always
+    networks:
+      - nl-net

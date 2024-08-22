@@ -1,0 +1,35 @@
+<div class="modal fade" id="ask_now_modal_v1" tabindex="-1" role="dialog" aria-labelledby="AskNowLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="AskNowLabel">
+                    Deutschlands größte Mathe-Community
+                </h5>
+                <button type="button" class="close hide_ask_question_modal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="p-2">
+                    <h4>
+                        Moment mal..  <br>
+                        Du suchst nach Mathe-Hilfe?
+                    </h4>
+                    <h5 class="font-weight-normal" style="line-height: 1.6!important;">
+                        Hier gibt es Hilfe! Stelle deine Frage.
+                    </h5>
+                    <h5 class="font-weight-normal" style="line-height: 1.6!important;">
+                        Nach wenigen Minuten hast du eine individuelle Antwort. <b>100% kostenlos!</b>
+                    </h5>
+                    <a href="{% url 'create_question' %}?src=modal"
+                       id="ask_now_modal_v1_click"
+                       class="fragestellen_dialog_cta_click">
+                        <button class="btn lrm-button text-bold w-100 mt-3" style="font-size: 1.35rem!important;">
+                            Jetzt Frage stellen
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

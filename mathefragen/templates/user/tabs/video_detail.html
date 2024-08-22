@@ -1,0 +1,21 @@
+{% load static custom_tags %}
+
+<div class="mt-4">
+    <div class="custom_row mt-3 pl-4 pr-4">
+
+        <div class="col-lg-12 mb-3">
+            <a class="font15" href="{% url 'tutor_videos' profile.user_id %}">< Alle videos</a>
+        </div>
+
+        <div class="col-lg-12 mb-4">
+            <div class="">
+                <h4 class="card-title">{{ video.title }}</h4>
+                <video poster="" id="player" playsinline controls preload="auto">
+                    <source src="{{ video.file.url }}" type="video/mp4"/>
+                </video>
+            </div>
+        </div>
+
+    </div>
+</div>
+

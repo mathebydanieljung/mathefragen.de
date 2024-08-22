@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block wrapper_extra_class %}math_background{% endblock %}
+
+{% block main %}
+    {% if 'profile-inactive' in request.GET %}
+        <div class="alert alert-danger please_confirm_alert font12" role="alert" style="left: 40%!important;">
+            Dein Account wurde gesperrt.
+        </div>
+    {% endif %}
+    <section class="pt-5" style="padding-bottom: 400px">
+
+        <div class="container login_container">
+
+            <div class="custom_row justify-content-center">
+                <div class="col-lg-5 col-md-6 col-sm-8 col-xl-5">
+
+                    <div class="card login_card">
+                        <div class="card-header text-center" style="border-bottom: none">
+                            {% if settings.logo_icon %}
+                            <a href="/">
+                                <img src="{{ settings.logo_icon.url }}" width="70%" alt="Logo der Plattform">
+                            </a>
+                            {% endif %}
+
+                            {% if settings.slogan %}
+                            <h4 class="mb-2">
+                                {{ settings.slogan }}
+                            </h4>
+                            {% endif %}
+                        
+                            {% if recommended_by %}
+                            <p>
+                                <small class="font12">Empfohlen von</small>
+                                <a href="{{ recommended_by.link }}" target="_blank">
+                                    <img src="{{ recommended_by.logo.url }}" width="130" alt="">
+                                </a>
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body">
+                            {% if new_question_hash %}
+                            <h4 class="text-center mb-5">
+                                Logge Dich jetzt ein,<br> um Deine Frage zu stellen.
+                            </h4>
+                            {% endif %}
+
+                            <ul class="nav nav-tabs profile_tabs mb-5">
+                                <li class="nav-item w-50">
+                                    {% if new_question_hash %}
+                                        <a class="nav-link active no_color_link h-100 text-center font17 pl-4" href="{% url 'login' %}?nqh={{ new_question_hash|default:'' }}">Login</a>
+                                    {% else %}
+                                        <a class="nav-link active no_color_link h-100 text-center font17 pl-4" href="{% url 'login' %}?next={{ request.GET.next|default:'/' }}">Login</a>
+                                    {% endif %}
+                                </li>
+                                <li class="nav-item w-50">
+                                    {% if new_question_hash %}
+                                        <a class="nav-link text-center no_color_link font17" href="{% url 'register' %}?nqh={{ new_question_hash|default:'/' }}">
+                                            Neu hier?
+                                        </a>
+                                    {% else %}
+                                        <a class="nav-link text-center no_color_link font17" href="{% url 'register' %}?next={{ request.GET.next|default:'/' }}">
+                                            Neu hier?
+                                        </a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+
+                            <div class="card-text">
+                                <form method="post" class="mt-1" onsubmit="return submit_login_form();">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.GET.next|default:'/' }}">
+                                    <input type="hidden" name="nqh" value="{{ new_question_hash|default:'' }}">
+                                        <div class="mb-3">
+                                            {{ login_form.login_id }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ login_form.password }}
+                                        </div>
+                                        <input name="next_page" value="{{ request.GET.next|default:'/' }}" type="hidden">
+                                        <div class="mb-3">
+                                            <button name="submit"
+                                                    type="submit"
+                                                    id="submit"
+                                                    class="btn lrm-button w-100 font18 h-100 cursor_pointer">
+                                                Jetzt einloggen
+                                            </button>
+                                        </div>
+
+                                        <div>
+                                            <p class="font14">
+                                                Leider mussten wir die Anmeldung über Google/Facebook deaktivieren.
+                                                    Falls du noch kein Passwort für den Login gesetzt hast,
+                                                    <a class="link_color" target="_blank"
+                                                       href="{% url 'password_forgot' %}">
+                                                        setze hier ein neues Passwort.
+                                                    </a>
+                                            </p>
+                                            <a class="font14 d-block link_color"
+                                               href="{% url 'password_forgot' %}">
+                                                Passwort vergessen?
+                                            </a>
+                                        </div>
+                                        <div class="mt-3">
+                                            {% if error %}
+                                                <p class="text-danger text-bold">
+                                                    {{ error }}
+                                                </p>
+                                            {% endif %}
+
+                                            {% if please_confirm %}
+                                                <div class="alert alert-success alert-dismissible fade show"
+                                                     role="alert">
+                                                    {{ please_confirm|capfirst }}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if request.GET.password_is_set %}
+                                                <div class="alert alert-success alert-dismissible fade show"
+                                                     role="alert">
+                                                    Dein neues Passwort wurde erfolgreich gespeichert. Jetzt kannst du
+                                                    dich
+                                                    einloggen.
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file login %}
+        <script type="text/javascript">
+            function submit_login_form() {
+                // track mixpanel event
+                if (typeof mixpanel != "undefined") {
+                    mixpanel.track('login', {'login_type': 'email'});
+                }
+                return true;
+            }
+
+            $(function () {
+
+                // google & fb login
+                $('#google_oauth2_login').on('click', function (e) {
+                    e.preventDefault();
+                    var href = $(this).attr('href');
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('login', {'login_type': 'google'});
+                    }
+                    location.href = href;
+                });
+                $('#fb_oauth2_login').on('click', function (e) {
+                    e.preventDefault();
+                    var href = $(this).attr('href');
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('login', {'login_type': 'facebook'});
+                    }
+                    location.href = href;
+                });
+            });
+        </script>
+    {% endcompress %}
+{% endblock %}

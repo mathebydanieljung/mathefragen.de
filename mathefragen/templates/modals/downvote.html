@@ -1,0 +1,41 @@
+<div class="modal fade" id="downvote_modal" tabindex="-1" role="dialog" aria-labelledby="downvoteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downvoteLabel">
+                    Deine Begründung für den Downvote
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    <div class="custom_row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-group">
+                                <textarea minlength="50"
+                                          maxlength="200"
+                                          onkeyup="countChar(this, 200, 20, 'downvote_txt_max', 'downvote_txt_min', 'id_send_downvote_from_modal')"
+                                          class="form-control"
+                                          rows="4"
+                                          id="downvote_reason"
+                                          placeholder="Bitte hilf dabei, dass sich der Helfer/Fragesteller verbessern kann und schreibe möglichst höflich, warum du diesen Vote für angebracht hälst."></textarea>
+                                <small>min. <span id="downvote_txt_min">20</span> Zeichen, max. <span id="downvote_txt_max">200</span> Zeichen.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom_row mt-3">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <button name="button" data-target-clk-id="" disabled type="button" id="id_send_downvote_from_modal" class="btn lrm-button w-100 font17">
+                                    Downvote abschicken
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

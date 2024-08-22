@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block wrapper_extra_class %}math_background{% endblock %}
+
+
+{% block main %}
+    <section
+            style="{% if request.user_agent.is_mobile %}padding-top: 3rem!important;{% else %}padding-top: 6rem!important;{% endif %}">
+
+        <div class="container login_container">
+
+            <div class="custom_row justify-content-center">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="py-5 mt-5">
+                        <h1>
+                            Hey, <br>
+                            du hast eine Mathefrage?
+                        </h1>
+                        <h3>
+                            Hier bekommst du schnelle Hilfe von top Helfern.
+                        </h3>
+                        <a href="/?src=show_questions_landing" class="link_color">
+                            <h4>
+                                {{ request.stats.total_questions }} Fragen,
+                                {{ request.stats.total_answers }} Antworten
+                            </h4>
+                        </a>
+                        <div class="mb-3">
+                            <h6 class="d-inline-block">Empfohlen von</h6>
+                            <a href="https://www.stiftungrechnen.de/" target="_blank">
+                                <img src="https://media.mathefragen.de/media/project/recommended_by/stiftungrechnen.png"
+                                     width="200">
+                            </a>
+                        </div>
+
+                        <a href="{% url 'create_question' %}">
+                            <button class="btn lrm-button {% if request.user_agent.is_mobile %}w-100 font22{% else %}font28{% endif %}">
+                                Jetzt kostenlos Frage stellen
+                            </button>
+                        </a>
+                        <a href="/?src=show_questions_landing" class="link_color">
+                            <p class="pt-4">
+                                Aktuelle Fragen ansehen
+                            </p>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="py-5 mt-5">
+                        <h1>
+                            Erstelle einen kostenlosen Account & beginne zu helfen.
+                        </h1>
+
+                        <h3 class="pb-3">
+                            Du kannst zusätzlich z.B. deinen Videocontent als Hilfe einsetzen
+                        </h3>
+                        <a href="{% url 'register' %}">
+                            <button class="btn lrm-button {% if request.user_agent.is_mobile %}w-100 font22{% else %}font28{% endif %}">
+                                Jetzt Helfer werden
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- end container -->
+
+        <div class="custom_row justify-content-center">
+            <img src="{% static 'landing/img/mymen-bg.png' %}" width="100%">
+        </div>
+
+        <div class="custom_row bg-white">
+            <div class="container login_container">
+                <div class="custom_row">
+                    <div class="col-lg-4 col-md-4 col-sm-12 text-center mb-5">
+                        <div>
+                            <h3>
+                                Frage stellen
+                            </h3>
+                            <div class="font18 mt-4" style="line-height: 35px;">
+                                <b>100% kostenlos</b>.<br>
+                                Stell' deine Frage und <br>
+                                erhalte mehrere
+                                <div class="answered_line d-inline">
+                                    Antworten
+                                    <svg style="fill: #48a868;vertical-align: middle;" aria-hidden="true"
+                                         class="accepted"
+                                         width="15" height="15" viewBox="0 0 36 36">
+                                        <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
+                                    </svg>
+                                </div>
+                                <br> in wenigen Minuten.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 text-center mb-5">
+                        <div>
+                            <h3>
+                                Beste Helfer
+                                <i class="fa fa-badge-check" aria-hidden="true"></i>
+                            </h3>
+                            <p class="font18 mt-4">
+                                Die besten Helfer <br>
+                                stehen zu deiner Verfügung & <br>
+                                beantworten deine Frage <br>
+                                <b>schnell & professionell</b>.
+                                <br><br>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 text-center">
+                        <div>
+                            <h3>
+                                Top Bewertungen
+                            </h3>
+                            <p class="font18 mt-4" style="line-height: 35px;">
+                                <em>"Kurz und knackige Antwort. Supi."</em>
+                                <br>&nbsp;
+                                <em>"danke! habs direkt kapiert ;)."</em>
+                                <br>&nbsp;
+                                <em>"Sehr freundliche und gute Hilfe. Schnelle Antworten mit hilfreichen Hinweisen"</em>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock %}
+

@@ -1,0 +1,32 @@
+<div class="modal fade" id="delete_answer_modal" tabindex="-1" role="dialog" aria-labelledby="deleteAnswerLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAnswerLabel">Antwort löschen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" class="mt-3" action="{% url 'delete_answer' %}">
+                <div class="modal-body">
+
+                    {% csrf_token %}
+                    <input type="hidden" id="delete_answer_id_in_modal" name="answer_id">
+                    <p>
+                        Willst du wirklich deine Antwort löschen?
+                    </p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Abbrechen
+                    </button>
+
+                    <button type="submit" class="btn btn-danger">
+                        Jetzt löschen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

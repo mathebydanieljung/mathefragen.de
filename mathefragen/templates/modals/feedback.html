@@ -1,0 +1,45 @@
+<div class="modal fade" id="feedback_modal" tabindex="-1" role="dialog" aria-labelledby="FeedbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FeedbackLabel">
+                    Dein Feedback
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    {% csrf_token %}
+                    <div class="custom_row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-group">
+                                <select class="form-control" id="feedback_category">
+                                    <option value="tech">Technischer Fehler/Verbesserung</option>
+                                    <option value="content">Inhaltlicher Fehler/Verbesserung</option>
+                                    <option value="general">Allgemeines</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" rows="6" required name="feedback" id="feedback_text"
+                                          placeholder="Dein Feedback"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-3">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <button name="button" type="submit" class="send_feedback btn lrm-button w-100">
+                                    Absenden
+                                </button><br>
+                                <small class="small">Wir lesen jedes Feedback!</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

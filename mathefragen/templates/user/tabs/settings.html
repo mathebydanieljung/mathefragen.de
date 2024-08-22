@@ -1,0 +1,240 @@
+{% load static %}
+
+<div class="card mt-4 ml-4 mr-4">
+    <div class="card-header text-bold">
+        Basis Infos
+    </div>
+    <div class="card-body font14">
+        <form action="{% url 'update_basic_info' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.username.label_tag }}
+                    {{ basic_form.username }}
+                </div>
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.email.label_tag }}
+                    {{ basic_form.email }}
+                    {% if not email_can_be_changed and not basis_form_error %}
+                        <small>Diese E-Mail ist noch nicht bestätigt.</small>
+                        <small>
+                            <a class="link_color confirm_email_resend cursor_pointer">Bestätigungsemail erneut senden.</a>
+                        </small>
+                        <small id="confirm_email_resent" class="text-success d-none"><i class="fas fa-check"></i></small>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="custom_row">
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.first_name.label_tag }}
+                    {{ basic_form.first_name }}
+                </div>
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.last_name.label_tag }}
+                    {{ basic_form.last_name }}
+                </div>
+            </div>
+            <div class="custom_row">
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.phone_number.label_tag }}
+                    {{ basic_form.phone_number }}
+                </div>
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.status.label_tag }}
+                    {{ basic_form.status }}
+                </div>
+            </div>
+            <div class="custom_row">
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.bio.label_tag }}
+                    {{ basic_form.bio }}
+                </div>
+                <div class="col-sm col-md-8 col-lg-6 mb-3">
+                    {{ basic_form.skills.label_tag }}
+                    {{ basic_form.skills }}
+                </div>
+            </div>
+
+            <div class="custom_row other_status {% if not profile.other_status %}hidden{% endif %}">
+                <div class="col-sm col-md-8 col-lg-6 mb-5">
+                    &nbsp;
+                </div>
+                <div class="col-sm col-md-8 col-lg-6">
+                    {{ basic_form.other_status.label_tag }}
+                    {{ basic_form.other_status }}
+                </div>
+            </div>
+
+            <input name="next" type="hidden" value="{{ request.GET.next }}">
+            <button type="submit" class="btn lrm-button">
+                Speichern
+            </button>
+            {% if basis_form_error %}
+                <span class="ml-2 text-danger text-bold">
+                    {{ basis_form_error }}
+                </span>
+            {% endif %}
+
+            {% if request.GET.basic_updated %}
+                <span class="ml-2 text-success text-bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4 ml-4 mr-4">
+    <div class="card-header text-bold">
+        Passwort ändern {% if not profile.user.password %}(noch kein Passwort hinterlegt){% endif %}
+    </div>
+    <div class="card-body font14" id="security_card">
+        <form action="{% url 'change_pwd' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    {{ password_change_form.current_password.label_tag }}
+                    {{ password_change_form.current_password }}
+                </div>
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    {{ password_change_form.password1.label_tag }}
+                    {{ password_change_form.password1 }}
+                </div>
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    {{ password_change_form.password2.label_tag }}
+                    {{ password_change_form.password2 }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn lrm-button">
+                Speichern
+            </button>
+
+            {% if pwd_error %}
+                <span class="ml-2 text-danger text-bold">
+                                            {{ pwd_error }}
+                                        </span>
+            {% endif %}
+
+            {% if request.GET.pwd_updated %}
+                <span class="ml-2 text-success text-bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4 ml-4 mr-4">
+    <div class="card-header text-bold">
+        Privatsphäre
+    </div>
+    <div class="card-body" id="privacy_card">
+
+        <form action="{% url 'change_privacy' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-text">
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input name="hide_email" type="checkbox" class="valign-top"
+                               id="hide_email" {% if profile.hide_email %}checked{% endif %}>
+                        <label class="form-check-label w-75 valign-super" for="hide_email">
+                            Meine E-Mail nicht öffentlich anzeigen
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input name="hide_username" type="checkbox" class="valign-top"
+                               id="hide_username" {% if profile.hide_username %}checked{% endif %}>
+                        <label class="form-check-label w-75 valign-super" for="hide_username">
+                            Meinen Benutzernamen nicht öffentlich anzeigen
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input name="hide_full_name" type="checkbox" class="valign-top"
+                               id="hide_full_name" {% if profile.hide_full_name %}checked{% endif %}>
+                        <label class="form-check-label w-75 valign-super" for="hide_full_name">
+                            Meinen Vor- und Nachnamen nicht öffentlich anzeigen
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn lrm-button mt-4">
+                Speichern
+            </button>
+
+            {% if request.GET.privacy_updated %}
+                <span class="text-success text-bold d-block mt-2">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+
+        </form>
+
+    </div>
+</div>
+
+
+<div class="card mt-4 ml-4 mr-4 d-none">
+    <div class="card-header text-bold">
+        Mitteilungen
+    </div>
+    <div class="card-body" id="privacy_card">
+
+        <form action="{% url 'change_privacy' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-text">
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input name="email_notification" type="checkbox" class="valign-top"
+                               id="email_notification" {% if profile.hide_email %}checked{% endif %}>
+                        <label class="form-check-label w-75 valign-super" for="email_notification">
+                            E-Mail Mitteilungen <br>
+                            <small class="d-block">
+                                Erhalte E-Mail Benachrichtigungen, um sofort zu erfahren falls es
+                                etwas neues für dich gibt. Du kannst dies jederzeit deaktivieren.
+                            </small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn lrm-button mt-4">
+                Speichern
+            </button>
+
+            {% if request.GET.privacy_updated %}
+                <span class="text-success text-bold d-block mt-2">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+
+        </form>
+
+    </div>
+</div>
+
+<div class="card mt-4 mb-5 ml-4 mr-4">
+    <div class="card-header text-danger text-bold">
+        Gefahrenzone
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            Hier kannst du dein Benutzerkonto vollständig löschen.
+            <b>Das Löschen eines Benutzerkontos kann nicht rückgängig gemacht werden.</b>
+        </p>
+
+        <button type="button" class="btn btn-danger delete-account-completely">
+            Jetzt mein Benutzerkonto vollständig löschen!
+        </button>
+
+    </div>
+</div>

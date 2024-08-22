@@ -1,0 +1,303 @@
+:root {
+    --d-default-radius: 2px;
+    --c-text-default: #212529;
+    --c-text-soft: #535d66;
+    --c-content-border: #8080802e;
+    --c-tag-border: #ccd5e4;
+    --c-bubble-bg: #fff9eb;
+}
+
+.search-actions > *:not(:last-child) {
+    margin-right: 1rem;
+}
+
+.border-bottom {
+    border-bottom: 1px solid var(--c-content-border);
+}
+
+.btn {
+    font-size: .85rem;
+}
+
+.btn.btn-big {
+    font-size: 1rem;
+}
+
+.btn.btn-ask-question {
+    font-weight: 900;
+}
+
+@media (max-width: 399px) { 
+    .sm-hidden {
+        display: none;
+    }
+}
+
+.tag {
+    background-color: #F1F4F7;
+    color: var(--c-text-default);
+    font-weight: 600;
+    border: 1px solid var(--c-tag-border);
+    border-radius: var(--d-default-radius);
+    display: inline-block;
+    letter-spacing: 0.5px;
+    margin: 0 0 5px 0;
+    padding: 2px 5px 2px 5px;
+    transition: all 0.25s;
+    text-transform: capitalize;
+}
+
+a.tag:hover {
+    color: var(--c-text-default);
+    background-color: var(--c-tag-border);
+}
+
+.aiedn-video-list {
+    min-height: 14rem;
+    width: 100%;
+}
+
+.aiedn-video-list > * {
+    position: relative;
+}
+
+@media (min-width: 768px)  {
+    .aiedn-video-list {
+        padding-top: 5.5rem;
+    }
+}
+
+@media (max-width: 767px)  {
+    .search-heading-videos {
+        margin-bottom: 2rem;
+    }
+    .aiedn-video-list > div {
+        margin-top: 5.5rem;
+    }
+    .aiedn-video-list > div:not(:last-child) {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (min-width: 576px) { 
+    .aiedn-video-list {
+
+    }
+}
+@media (min-width: 768px) {
+    .aiedn-video-list {
+        min-height: 370px;    
+    }   
+}
+@media (min-width: 992px) {
+    .aiedn-video-list {
+        min-height: 410px;   
+    } 
+}
+@media (min-width: 1200px) {
+    .aiedn-video-list {
+        min-height: 400px; 
+    }   
+}
+@media (min-width: 1201px) {
+    .aiedn-video-list {
+        min-height: 370px; 
+    }   
+}
+@media (min-width: 1261px) {
+    .aiedn-video-list {
+        min-height: 390px; 
+    }   
+}
+@media (min-width: 1371px) {
+    .aiedn-video-list {
+        min-height: 400px; 
+    }   
+}
+@media (min-width: 1501px) {
+    .aiedn-video-list {
+        min-height: 420px; 
+    }   
+}
+@media (min-width: 1721px) {
+    .aiedn-video-list {
+        min-height: 460px; 
+    }   
+}
+@media (min-width: 1871px) {
+    .aiedn-video-list {
+        min-height: 480px; 
+    }   
+}
+@media (min-width: 2191px) {
+    .aiedn-video-list {
+        min-height: 520px; 
+    }   
+}
+
+.aiedn-video-list .video-title {
+    font-size: 1rem;
+}
+
+.aiedn-video-list .category-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: .8em;
+    color: var(--c-text-soft);
+}
+
+.aiedn-video-list .category-list li {
+    display: inline;
+}
+
+.aiedn-video-list .category-list li:before {
+    content: '#';
+}
+
+.aiedn-video-list .category-list li:not(:last-child)::after {
+    content: ', ';
+}
+
+.card.card-video {
+    transition: transform .5s ease;
+    transform-origin: center;
+    height: 100%;
+}
+
+@media (min-width: 768px)  {
+    .card.card-video:not(:focus) {
+        cursor: pointer;
+    }
+    
+    .card.card-video:focus {
+        transition: width .5s ease, height .5s ease;
+        transform: translate(-50%, -50%);
+        position: fixed;
+        height: 95%;
+        width: 90%;
+        top: 50%;
+        left: 50%;
+        z-index: 1050;
+    }
+    
+    .card.card-video:not(:focus):hover {
+        transition: transform .5s ease;
+        transform: scale(1.03);
+    }
+    
+    .card.card-video:focus .bubble {
+        display: none;
+    }    
+}
+
+.card.card-video .video-frame {
+    background-color: #000;
+}
+
+.card.card-video .card-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Anzahl der Zeilen auf 2 begrenzt */
+    max-height: 2.8em;     /* Höhe auf das Zweifache der Zeilenhöhe setzen */
+}
+
+.card.card-video .category-list {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Anzahl der Zeilen auf 2 begrenzt */
+    max-height: 2.8em;     /* Höhe auf das Zweifache der Zeilenhöhe setzen */
+}
+
+.card-video blockquote.bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    border-radius: 1rem;
+    display: inline-block;
+    box-shadow: 0 .125rem .5rem #0000004d,0 .0625rem .125rem #0003;
+    margin-bottom: .5rem;
+    z-index: 100;
+}
+
+.card-video blockquote.bubble::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 100%;
+    left: 1.5em;
+    border: .75rem solid transparent;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-bottom-style: solid;
+    border-bottom-width: 0.75rem;
+    border-bottom: none;
+    border-top-color: var(--c-bubble-bg);
+    filter: drop-shadow(0 -.0625rem .0625rem rgba(0,0,0,.1));
+}
+
+.card-video blockquote.bubble.bottom::after {
+    border-top: none;
+    border-bottom: .75rem solid var(--c-bubble-bg);
+    top: auto;
+    bottom: 100%;
+}
+
+.card-video blockquote.bubble > div {
+    position: relative;
+    background-color: var(--c-bubble-bg);
+    color: var(--c-text-default);
+    padding: 1.125em 1.5em;
+    border-radius: 1rem;
+    z-index: 10;
+    line-height: 1.3em;
+}
+
+.bubble .excerpt {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Anzahl der Zeilen auf 2 begrenzt */
+    max-height: 2.8em;     /* Höhe auf das Zweifache der Zeilenhöhe setzen */
+    margin: 0;
+}
+
+.search-heading {
+    font-size: 2rem;
+}
+
+.search-summary {
+    display: block;
+    font-size: .7em;
+}
+
+.search-heading-videos,
+.search-heading-questions {
+    font-size: 1.6rem;
+}
+
+#skeleton-tile .video-frame,
+#skeleton-tile .card-title,
+#skeleton-tile .card-text {
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+}
+
+#skeleton-tile .card-title,
+#skeleton-tile .card-text {
+    border-radius: 3px;
+}
+
+@keyframes shine {
+    to {
+        background-position-x: -200%;
+    }
+}

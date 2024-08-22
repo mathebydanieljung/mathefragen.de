@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <section class="mt-4">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+
+                    <h3 class="text-center">
+                        <span>
+                            Kostenlose Apps
+                        </span>
+                    </h3>
+
+                    <div class="custom_row mt-5">
+                        <div class="col text-center mb-3">
+                            <div class="team_image">
+                                <a href="https://itunes.apple.com/de/app/lrm-go/id1462159436?mt=8" target="_blank">
+                                    <img src="{% static 'images/appstore.png' %}" alt="" width="200">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col text-center">
+                            <div class="team_image">
+                                <a href="https://play.google.com/store/apps/details?id=de.letsrockmathe.fragen" target="_blank">
+                                    <img src="{% static 'images/google_playstore.png' %}" alt="" width="200">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-5">
+                        <div class="col text-center">
+                            <h4>
+                                Du hast spezielle Mathe-Fragen? <br>
+                                Du bist gut in Mathe und möchtest gerne anderen helfen? <br><br>
+
+                                Hier bist Du genau richtig!
+                            </h4>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}

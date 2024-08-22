@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5">
+
+                    <ul class="nav nav-tabs profile_tabs pl-4 pr-4">
+                        <li class="nav-item">
+                            <a class="nav-link no_color_link" href="{{ profile.get_absolute_url }}">Profil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active no_color_link"
+                               href="{% url 'profile_socials' profile.user_id %}">Socials</a>
+                        </li>
+                        {% if request.user.id == profile.user_id %}
+                            <li class="nav-item">
+                                <a class="nav-link no_color_link" href="{% url 'profile_settings' profile.user_id %}">
+                                    Bearbeiten/Einstellungen
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="mt-4 pl-4 pr-4">
+                        {% if errors %}
+                            {{ errors }}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'add_socials' profile.user_id %}">
+                            <input name="social_id" type="hidden" value="{{ social.id }}">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button class="btn lrm-button btn-lg" type="submit">
+                                {% if form.link.value %}
+                                    Änderung speichern
+                                {% else %}
+                                    Hinzufügen
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}

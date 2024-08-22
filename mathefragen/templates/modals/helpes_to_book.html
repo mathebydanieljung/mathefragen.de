@@ -1,0 +1,37 @@
+{% load static %}
+<div class="modal fade" id="helpers_modal" tabindex="-1" role="dialog" aria-labelledby="helpers_modal_label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpers_modal_label">
+                    Top Helfer für Nachhilfe
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-bodyq">
+                <div class="custom_row justify-content-center">
+                    <div class="col-sm-12 col-md-8 col-lg-8 text-center mb-1 mt-2">
+                        <label for="needed_time" class="font15">Wie viel Zeit benötigst du?</label>
+                        <div class="form-inline justify-content-center">
+                            <div class="form-group">
+                                <select class="form-control d-inline" id="needed_time">
+                                    <option value="">Zeiteinheit auswählen</option>
+                                    <option value="30">30 Minuten</option>
+                                    <option value="60">60 Minuten</option>
+                                    <option value="90">90 Minuten</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary render_tutors font14 w-40 ml-2" style="height: 44px">Helfer anzeigen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="body_helpers_to_book"></div>
+            </div>
+        </div>
+    </div>
+</div>

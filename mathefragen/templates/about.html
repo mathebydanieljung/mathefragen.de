@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    <link href="{% static 'css/timeline.css' %}?v=123" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pt-2 pl-5 pr-5">
+
+                    <div class="custom_row mt-5">
+                        <div class="col-xl-11">
+                            <h4>
+                                {{ site_domain }}
+                            </h4>
+                            <p>
+                                {% now "Y" as current_year %}
+                                Die beliebte Mathematik-Lernplattform mit {{ current_year|add:"-2003" }} Jahren Erfahrung von Daniel Jung im Bereich
+                                Mathelernen plus seinem Team.
+                                Nach 160.000.000 Views & über 2200 Mathetutorials auf YouTube, Lernskripten die
+                                Matheerklärungen mit Videos verbinden, Vor-Ort-Kurskonzepten & digitalen Lernkursen
+                                steht mit {{ site_domain }} nun ein Tool für Lernen und Helfer zur Verfügung, um diese
+                                bestmöglich
+                                zum Lernen zusammen zu bringen. Das Portal wird ständig weiterentwickelt und durch
+                                Features ergänzt, die den Lernprozess optimieren sollen.
+                                Darüberhinaus ist das Ziel Lerndaten auszuwerten hinsichtlich wann, wie mit welcher
+                                Methode gefragt und geholfen wird, um das Lernen zu individualisieren.
+                                ​
+                            </p>
+                        </div>
+                    </div>
+                    <div class="custom_row mt-3">
+                        <div class="col-xl-11">
+                            <h5>
+                                Tools/Hilfe in {{ site_domain }}
+                            </h5>
+                            <ul>
+                                <li>
+                                    Videolernen ist kein Ersatz, aber eine sehr gute Ergänzung im Lernprozess. Daher
+                                    können
+                                    Lernen und Helfer direkt Videos im Lernprozess einbinden
+                                </li>
+                                <li>
+                                    MathJax ermöglicht das Eingeben von Matheformeln
+                                </li>
+                                <li>
+                                    Um Lernerfolg messbar zu machen, lassen wir die Helfer durch die Lerner bewerten.
+                                    Die
+                                    Bewertungsprozesse werden ständig weiterentwickelt
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="custom_row mt-3">
+                        <div class="col-xl-11">
+                            <h5>
+                                Lernen durch Helfen
+                            </h5>
+                            <p>
+                                Diese <a href="https://bit.ly/2HgOn5K" target="_blank" class="mf_color">Lernpyramide</a>
+                                besagt, dass man mit höchster Wahrscheinlichkeit durch das Erklären am
+                                effektivsten lernt.
+                                Unser Ziel ist es, jedem (gleich welchen Alters) eine digitale Plattform zu bieten, um
+                                anderen Mathethemen zu erklären.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="custom_row mt-3">
+                        <div class="col-xl-11">
+                            <h5>
+                                Lernen durch Verstehen
+                            </h5>
+                            <p>
+                                Als „Goldene Regel“ sollen Helfer nicht einfach gestellte Aufgaben rezeptartig lösen und
+                                dem Lerner schicken, sondern einen aktiven Verständnisprozess starten: z.B. durch
+                                erstmaliges Hinterfragen, ob der Lerner schon Ansätze hat oder indem er eine erste Hilfe
+                                schickt (z.B. einen Tipp oder ein Grundlagentutorial).
+                                Dadurch, dass kein spezieller Content vorgegeben wird kann auf Dauer ermittelt werden,
+                                wer mit welchem Medium, wann am effektivsten zum Verständniserfolg kommt.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-3">
+                        <div class="col-xl-11">
+                            <h5>
+                                Was qualifiziert einen Helfer/Wer wird Helfer?
+                            </h5>
+                            <p>
+                                Technologie ermöglicht es heute Daten in allen Bereichen messbar zu machen. Das bietet
+                                im Bildungsbereich nie dagewesene Chancen, Menschen Helfer-Akkreditierung unabhängig von
+                                Alter, Herkunft oder punktuellen Zertifizierungen zu geben.
+                                Neben {{ site_domain }} eigenen Tutoren bekommt jeder die Möglichkeit, anderen zu helfen
+                                und wird
+                                durch Bewertungsprozesse vom Lerner direkt Rückmeldung bekommen. Entsprechend kann von
+                                jedem, der anderen schon geholfen hat eingesehen werden, wie erfolgreich (auf Dauer auch
+                                speziell in welchem Thema) geholfen wurde.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-3">
+                        <div class="col-xl-11">
+                            <h5>
+                                Technologie hinter {{ site_domain }}
+                            </h5>
+                            <p>
+                                Wir nutzen hauptsächlich die Programmiersprache Python mit Django Webframework & Tornado
+                                im Backend. Im Frontend haben wir das CSS Framework Bootstrap im Einsatz. Als
+                                Datenbankmanagementsystem nutzen wir PostgreSQL.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-5 mb-5 justify-content-center">
+                        <div class="col-xl-10">
+                            <h4 class="text-center mb-4">
+                                History {{ site_domain }}/Daniel Jung
+                            </h4>
+                            <div class="timeline">
+                                <div class="tl_container tl_left">
+                                    <div class="content">
+                                        <h2>1992</h2>
+                                        <p>
+                                            Daniel bekommt einen Mathematik Almanach geschenkt und verliebt sich in
+                                            Mathe
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_right">
+                                    <div class="content">
+                                        <h2>1998</h2>
+                                        <p>
+                                            - Mathe/Sport Leistungskurs, <br>
+                                            - Mathetutor für Schüler & Studenten
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_left">
+                                    <div class="content">
+                                        <h2>2003</h2>
+                                        <p>
+                                            - Studium Sport/Mathe <br>
+                                            - Gründung 1. Startup für lokale Tutorvermittlung
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_right">
+                                    <div class="content">
+                                        <h2>2011</h2>
+                                        <p>
+                                            - Beginn Videoproduktion neben Studium & Startup <br>
+                                            - Start <a class="mf_color"
+                                                       href="https://www.youtube.com/c/mathebydanieljung"
+                                                       target="_blank">YouTube Channel</a><br>
+                                            - Test eines eigenen Streamingportals
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_left">
+                                    <div class="content">
+                                        <h2>2014</h2>
+                                        <p>
+                                            - Ablehnung Angebot eines Konzerns u.a. für Abschaltung der kostenlosen
+                                            Videos (Stand: 500 Tutorials, 30000 Abonnenten) <br>
+                                            - Produktion von c.a. 1000 Tutorials Sommer 2014
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_right">
+                                    <div class="content">
+                                        <h2>2015</h2>
+                                        <p>
+                                            - Gründungsgesellschafter StudyHelp (Prüfungsvorbereitungskurse) <br>
+                                            - Gründung lokaler Vorort-LernHub <br>
+                                            - 100.000 Abonnenten YouTube
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_left">
+                                    <div class="content">
+                                        <h2>2017</h2>
+                                        <p>
+                                            - Gründung DJ Academy (New Learning Solutions Online/Offline) <br>
+                                            - Blogger Award Bildung Österreich <br>
+                                            - 100M Views YouTube <br>
+                                            - Gründer Bildungsaccelerator VisionsFirst
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_right">
+                                    <div class="content">
+                                        <h2>2018</h2>
+                                        <p>
+                                            - Einsatz der Videos in Verlagen (Lehrer, Auszubildende, Schüler, Studenten)
+                                            <br>
+                                            - Mathelernhefte & Onlinekurse <br>
+                                            - Mathe Community Testplattform <br>
+                                            - Einstieg Doniyor und Christian ins {{ site_domain }} Team
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_left">
+                                    <div class="content">
+                                        <h2>2019</h2>
+                                        <p>
+                                            - Launch {{ site_domain }} <br>
+                                            - Daniel Jung: Mathe-Botschafter „Stiftung Rechnen“ <br>
+                                            - 500K Abonnenten YouTube <br>
+                                            - April: <a class="mf_color"
+                                                        href="https://itunes.apple.com/de/app/lrm-go/id1462159436?mt=8"
+                                                        target="_blank">iOS App</a> <br>
+                                            - Juni: <a class="mf_color"
+                                                       href="https://play.google.com/store/apps/details?id=de.letsrockmathe.fragen"
+                                                       target="_blank">Android App</a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="tl_container tl_right">
+                                    <div class="content">
+                                        <h2>2020</h2>
+                                        <p>
+                                            - <a class="link_color"
+                                                 href="https://www.amazon.de/gp/product/3426278154/ref=dbs_a_def_rwt_bibl_vppi_i0"
+                                                 target="_blank">Neues Buch "Let's rock education" </a> <br>
+                                            - Launch informatikfragen.de und mehr <br>
+                                            - 650K Abonnenten YouTube <br>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-5 padding_bottom_200  justify-content-center hidden">
+                        <div class="col-xl-10">
+                            <h4 class="text-center">
+                                By the Numbers
+                            </h4>
+                            <div class="text-center mt-4 numbers_in_about">
+                                <div class="custom_row">
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                </div>
+                                <div class="v">
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 pt-4 pb-4">
+                                        <h5>10 million Users</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}

@@ -1,0 +1,505 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block og_data %}
+    <meta property="og:url" content="https://{{ site_domain }}{{ playlist.get_absolute_url }}" />
+    <meta property="og:title" content="{{ site_domain }} - Playlist: {{ playlist.name|capfirst }}" />
+    <meta property="og:description" content="Playlist: {{ playlist.name|capfirst }}" />
+{% endblock %}
+
+{% block title %}
+    {{ site_domain }} - Playlist: {{ playlist.name|capfirst }}
+{% endblock %}
+
+{% block description %}
+    Playlist: {{ playlist.name|capfirst }}
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/vote.css' %}?v=4drf" rel="stylesheet" type="text/css" />
+    {% if settings.question_editor == 'tiny' %}
+        <script type="text/javascript"
+                src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="https://cdn.tiny.cloud/1/1am3gvm21paktqtr11shw5n7d24t9vh3h9oduf216blqq11h/tinymce/5/tinymce.min.js"></script>
+    {% else %}
+        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+    {% endif %}
+    <script>
+        var playlist_delete_url = "{% url 'delete_playlist' playlist.hash_id %}";
+        var playlist_absolute_url = "{{ playlist.get_absolute_url }}";
+        var unit_in_GET = '{{ request.GET.unit }}';
+        var vote_playlist_url = "{% url 'vote_playlist' playlist.hash_id %}";
+        var report_content_url = "{% url 'report_content' %}";
+        var playlist_inactive = {% if not playlist.is_active and request.user.id != playlist.user_id %}true{% else %}
+            false{% endif %};
+    </script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+
+                    <div class="feed_l_padding">
+                        <a href="{{ question.get_absolute_url }}" class="no_color_link">
+                            <h3 class="mb-0 font22 question_title mb-1">
+                                Lernplaylist: {{ playlist.name|capfirst }}
+                            </h3>
+                        </a>
+                        <div>
+                            <small class="font12">
+                                Aufrufe: {{ playlist.views }} &nbsp; &middot; &nbsp; erstellt
+                                {{ playlist.idate|naturaltime_v2 }}
+                            </small>
+
+                            {% if not playlist.is_active %}
+                                <span class="ml-3 font12 cursor_pointer red_color publish_playlist">
+                                    Offline - jetzt veröffentlichen
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                    {% include 'playlist/detail_content.html' %}
+
+                    {% if request.user.id == playlist.user_id %}
+                        {% include 'playlist/add_unit.html' %}
+                    {% endif %}
+
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file playlist_detail_base %}
+        <script>
+            var animateVote = function (el) {
+                //reset animation
+                el.removeClass('animate');
+                el.addClass('animate');
+                setTimeout(function () {
+                    el.removeClass('animate');
+                }, 700);
+            };
+            $(function () {
+                $('.publish_playlist').on('click', function () {
+                    var confirm_publish = window.confirm('Möchtest du deine Lernplayliste wirklich veröffentlichen?');
+                    if (confirm_publish) {
+                        window.location.href = playlist_absolute_url + '?publish_now=yes';
+                    }
+                });
+
+                // small hack to beautify the content sub units. todo: later, make it professional.
+                $('.content_units li').each(function (i) {
+                    if (i) {
+                        var previous_order = $(this).prev().data('order');
+                        var current_order = $(this).data('order');
+                        var previous_order_prefix = previous_order.toString().split('.')[0];
+                        var current_order_prefix = current_order.toString().split('.')[0];
+                        if (previous_order_prefix === current_order_prefix) {
+                            $(this).css('padding-left', '20px');
+                        }
+                    }
+                });
+
+                $('.delete-unit').on('click', function () {
+                    var unit_hash = $(this).data('unit-hash');
+                    $('#delete_unit_hash_in_modal').val(unit_hash);
+                    $('#delete_unit_modal').modal('show');
+                });
+
+                if (playlist_inactive) {
+                    location.replace('/?playlist_invisible=1');
+                }
+
+                if (unit_in_GET) {
+                    Preview.Update();
+                    $('html, body').animate({scrollTop: $('#add_new_unit').offset().top - 200}, "slow");
+                }
+
+                // add target blank to urls
+                $('#question_text_div a, .question_text_div a').attr('target', '_blank');
+                $('#question_text_div a, .question_text_div a').addClass('link_color light_bold');
+                $('.answer_text_div a').attr('target', '_blank');
+                $('.comment_text_div a').attr('target', '_blank');
+
+                $('.suggest_videos_input').on('keydown', function (e) {
+                    if (e.which === 13) {
+                        var search_term = $.trim($('.suggest_videos_input').val());
+                        if (search_term) {
+                            search_ytb(search_term);
+                        }
+                    }
+                });
+
+                $('.suggest_videos_btn').on('click', function () {
+                    var search_term = $.trim($('.suggest_videos_input').val());
+                    if (search_term) {
+                        search_ytb(search_term);
+                    }
+                });
+
+                function search_ytb(search_term) {
+                    $('#waiting_for_ytb_result').removeClass('hidden');
+
+                    $.get({
+                        url: youtubeSearchUrl,
+                        type: 'get',
+                        data: {
+                            'search_term': search_term
+                        }
+                    }).done(function (result_data) {
+
+                        var result_box = $('#ytb_search_result');
+
+                        $('#waiting_for_ytb_result').addClass('hidden');
+
+                        // empty the box before adding new content
+                        result_box.empty();
+
+                        var result_to_show = [];
+                        var found_videos = result_data['items'];
+
+                        $.each(found_videos, function (i, item) {
+
+                            var iframe_ = document.createElement('iframe');
+                            iframe_.src = 'https://www.youtube.com/embed/' + item.id.videoId;
+                            iframe_.frameBorder = 0;
+                            iframe_.width = '80%';
+                            iframe_.setAttribute('allowfullscreen', 'allowfullscreen');
+                            iframe_.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+
+                            var add_btn = document.createElement('i');
+                            add_btn.classList.add('fal');
+                            add_btn.classList.add('fa-plus-circle');
+                            add_btn.classList.add('add_this_video');
+                            add_btn.setAttribute('data-video-id', item.id.videoId);
+
+                            var video_div = document.createElement('div');
+                            video_div.classList.add('video_div');
+                            video_div.classList.add('mt-3');
+
+                            video_div.appendChild(iframe_);
+                            video_div.appendChild(add_btn);
+
+                            result_to_show.push(video_div);
+                        });
+
+                        result_box.append(result_to_show);
+
+                    });
+                }
+
+                $('.add_chosen_videos').on('click', function () {
+                    var chosen_videos = $('#ytb_search_result').find('.this_video_added');
+                    var videos_for_preview = [];
+                    $.each(chosen_videos, function () {
+
+                        var video_input_tag = document.createElement('input');
+                        video_input_tag.name = 'suggested_videos';
+                        video_input_tag.type = 'hidden';
+                        video_input_tag.value = $(this).data('video-id');
+                        $('#chosen_videos_from_modal').append(video_input_tag);
+
+                        // add for preview
+                        var iframe_div = document.createElement('div');
+                        iframe_div.classList.add('col-md-3');
+                        iframe_div.classList.add('col-lg-3');
+                        iframe_div.classList.add('col-sm-3');
+                        iframe_div.classList.add('mb-4');
+
+                        var iframe_ = document.createElement('iframe');
+                        iframe_.src = 'https://www.youtube.com/embed/' + $(this).data('video-id');
+                        iframe_.frameBorder = 0;
+                        iframe_.width = '100%';
+                        iframe_.setAttribute('allowfullscreen', 'allowfullscreen');
+                        iframe_.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+
+                        var delete_icon = document.createElement('i');
+                        delete_icon.classList.add('fas');
+                        delete_icon.classList.add('fa-times-circle');
+                        delete_icon.classList.add('delete_selected_video');
+                        delete_icon.setAttribute('data-video-id', $(this).data('video-id'));
+
+                        iframe_div.appendChild(delete_icon);
+                        iframe_div.appendChild(iframe_);
+
+                        videos_for_preview.push(iframe_div);
+                    });
+
+                    // empty out the result box in modal
+                    $('#ytb_search_result').empty();
+
+                    $('#suggest_video_previews').append(videos_for_preview);
+
+                    // close modal
+                    $('.suggest_videos_input').val('');
+                    $('#suggest_videos_modal').modal('hide');
+                });
+
+                $('body').on('click', '.add_this_video', function () {
+                    $(this).removeClass('fal');
+                    $(this).removeClass('fa-plus-circle');
+                    $(this).removeClass('add_this_video');
+
+                    $(this).addClass('fas');
+                    $(this).addClass('fa-check-circle');
+                    $(this).addClass('this_video_added');
+
+                    $('.add_chosen_videos').removeClass('hidden');
+                });
+
+                $('body').on('click', '.delete_selected_video', function () {
+                    var video_id = $(this).data('video-id');
+
+                    // remove iframe first and delete icon itself
+                    $(this).next('iframe').remove();
+                    $(this).parent('div').remove();
+                    $(this).remove();
+
+                    // remove the input field from form
+                    $('#chosen_videos_from_modal').find('input[value="' + video_id + '"]').remove();
+                });
+
+                // hightlight box if hash in url exists
+                if (window.location.hash) {
+                    $(window.location.hash).addClass('highlight_box');
+                    $('html, body').animate({scrollTop: $(window.location.hash).offset().top - 200}, "slow");
+                }
+
+                $('.unit_link').on('click', function () {
+                    $($(this).attr('href')).addClass('highlight_box');
+                    $('html, body').animate({scrollTop: $($(this).attr('href')).offset().top - 200}, "slow");
+                });
+
+                $(".increment").click(function () {
+
+                    var data_owner_id = $(this).data('owner-id');
+                    var hash_id = $(this).data('hash_id');
+
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+
+                    // owner can't vote
+                    if (user_id === data_owner_id) {
+                        alert('Eigene Frage oder Antwort voten ist nicht erlaubt :/');
+                        return;
+                    }
+
+                    var this_jq = $(this);
+                    var vote_type = 'up';
+                    if (!this_jq.hasClass("up")) {
+                        vote_type = 'down';
+                    }
+
+                    if (this_jq.hasClass('already_upvoted')) {
+
+                        this_jq.removeClass("already_upvoted");
+
+                        var unvoteUrl = '/vote/playlist/' + hash_id + '/undo/';
+                        $.ajax({
+                            url: unvoteUrl,
+                            type: 'post',
+                            data: {
+                                vote_type: vote_type,
+                                csrfmiddlewaretoken: csrf_token
+                            }
+                        }).done(function (res) {
+                            var vote_response = JSON.parse(res);
+                            this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                        });
+                        return false;
+                    } else if (this_jq.hasClass('already_downvoted')) {
+
+                        this_jq.removeClass("already_downvoted");
+
+                        var unvoteUrl = '/vote/playlist/' + hash_id + '/undo/';
+                        $.ajax({
+                            url: unvoteUrl,
+                            type: 'post',
+                            data: {
+                                vote_type: vote_type,
+                                csrfmiddlewaretoken: csrf_token
+                            }
+                        }).done(function (res) {
+                            var vote_response = JSON.parse(res);
+                            this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                        });
+                        return false;
+                    }
+
+                    animateVote(this_jq);
+
+                    $.ajax({
+                        url: vote_playlist_url,
+                        type: 'post',
+                        data: {
+                            vote_type: vote_type,
+                            csrfmiddlewaretoken: csrf_token
+                        }
+                    }).done(function (res) {
+
+                        var vote_response = JSON.parse(res);
+                        if (vote_response.created) {
+                            if (this_jq.hasClass("up")) {
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                                this_jq.parent('.vote').children('.increment').removeClass('already_downvoted');
+                                this_jq.addClass("already_upvoted");
+                            } else {
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                                this_jq.parent('.vote').children('.increment').removeClass('already_upvoted');
+                                this_jq.addClass("already_downvoted");
+                            }
+                        }
+                    });
+                });
+
+                $('.report_content').on('click', function () {
+                    var object_id = $(this).data('object-id');
+                    var object_type = $(this).data('object-type');
+
+                    $('#reported_object').attr('data-object-id', object_id);
+                    $('#reported_object').attr('data-object-type', object_type);
+
+                    $('#report_modal').modal('show');
+                });
+
+                $('.send_report').on('click', function () {
+                    // send the data and then
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+
+                    var report_reason = $('input[name=report_reason]:checked').val();
+                    var object_id = $('#reported_object').data('object-id');
+                    var object_type = $('#reported_object').data('object-type');
+
+                    if (!report_reason) {
+                        alert('Bitte einen Grund angeben');
+                        return;
+                    }
+
+                    $.ajax({
+                        url: report_content_url,
+                        type: 'post',
+                        data: {
+                            'csrfmiddlewaretoken': csrf_token,
+                            'report_reason': report_reason,
+                            'object_id': object_id,
+                            'object_type': object_type
+                        }
+                    }).done(function (response) {
+                        location.reload();
+                    });
+                });
+
+            });
+        </script>
+    {% endcompress %}
+
+    {% if settings.question_editor == 'tiny' %}
+        {% compress js file playlist_detail_tiny %}
+            <script src="{% static 'js/mathjax_preview_v4.js' %}?v=98wijel"></script>
+            <script src="{% static 'js/tinymce/plugins/custom_image_dialog/plugin.min.js' %}?v=wdww12"></script>
+            <script>
+                tinymce.init({
+                    selector: '#wmd-input',
+                    menubar: false,
+                    language: 'de',
+                    entity_encoding: "raw",
+                    plugins: 'custom_image_dialog lists media link',
+                    toolbar: 'custom_image_dialog bold link italic forecolor backcolor underline numlist bullist',
+                    image_title: false,
+                    height: 250,
+                    image_description: false,
+                    automatic_uploads: true,
+                    content_style: 'body { font-family: "Nunito Sans", sans-serif; } ' +
+                        'p { font-size: 15px; font-weight: lighter; }',
+                    convert_urls: false,
+                    images_upload_base_path: '/media/',
+                    setup: function (ed) {
+                        ed.on('keyup', function (e) {
+                            Preview.Update();
+                        });
+                        ed.on('focus', function (e) {
+                            var style = $('.tox-tinymce').attr('style');
+                            style += 'border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;';
+                            $('.tox-tinymce').attr('style', style);
+                        });
+                        ed.on('blur', function (e) {
+                            var style = $('.tox-tinymce').attr('style');
+                            style = style.replace('border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;', '');
+                            $('.tox-tinymce').attr('style', style);
+                        });
+                    },
+                    file_picker_types: 'file image media',
+                    file_browser_callback_types: 'file image media'
+                });
+
+                function check_form() {
+                    /*
+                    this function makes sure, the form is valid and all necessary fields are filled.
+                    Question title is required field, so there is no need to check it.
+                    *  */
+
+                    // check if question text is inserted:
+                    var unit_content = $.trim(tinymce.get('wmd-input').getContent({format: 'text'}));
+
+                    if (!unit_content) {
+                        alert('Bitte beschreibe deine Einheit ausführlicher.');
+                        return false;
+                    }
+
+                    document.getElementById('submit_new_unit_btn').setAttribute('disabled', 'disabled');
+                    return true;
+                }
+
+                $(function () {
+                    Preview.Init('wmd-input', 'MathPreview', 'MathBuffer');
+                });
+            </script>
+        {% endcompress %}
+
+    {% else %}
+        {% compress js file playlist_detail_md %}
+            <script type="text/javascript" src="{% static 'js/app_markdown.js' %}?v=as9qweswk"></script>
+            <script>
+                function check_form() {
+                    var unit_content = $.trim($('#wmd-input').val());
+
+                    if (!unit_content) {
+                        alert('Bitte beschreibe deine Einheit ausführlicher.');
+                        return false;
+                    }
+
+                    return true;
+                }
+            </script>
+        {% endcompress %}
+    {% endif %}
+{% endblock %}
+
+
+

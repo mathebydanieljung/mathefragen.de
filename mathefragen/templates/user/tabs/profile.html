@@ -1,0 +1,631 @@
+{% load static custom_tags %}
+
+<div class="custom_row mt-4 pl-4 pr-4 mb-3">
+    <div class="col-xl-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="custom_row">
+                    <div class="col-lg-3 col-3">
+                        <img src="{{ profile.get_profile_image }}" alt="profile_bild" class="w-95 {% if request.user.id == profile.user_id %}profile_image{% endif %}">
+                        {% if request.user.id == profile.user_id %}<i class="fal fa-camera-retro change_profile_image_pencil text-white d-none"></i>{% endif %}
+                    </div>
+                    <div class="col-lg-9">
+                        <h6 class="mt-2 mb-0 font18">
+                            {% if profile.get_full_name and not profile.hide_full_name %}
+                                {{ profile.get_full_name|title }}
+                            {% endif %}
+                            {% if profile.verified %}
+                                <i class="fa fa-badge-check"></i>
+                            {% endif %}
+                            {% if not profile.hide_full_name %}
+                                <br>
+                            {% endif %}
+                            <small>{{ profile.username }}</small>
+                        </h6>
+                        <small class="mt-2 d-inline-block font10 help-block">
+                            {% if not profile.last_active %}
+                                Nicht online
+                            {% else %}
+                                gesehen {{ profile.last_active|naturaltime_v2}}
+                            {% endif %}
+                        </small>
+
+                        {% if profile.user.user_socials.count %}
+                            <p class="mt-1">
+                                {% for sm in profile.user.user_socials.all %}
+                                    <a href="{{ sm.link }}" target="_blank"
+                                       class="no_color_link font18 {% if not forloop.first %}ml-2{% endif %}">
+                                        {% if sm.type == 'ytb' %}
+                                            <i class="fab fa-youtube"></i>
+                                        {% elif sm.type == 'in' %}
+                                            <i class="fab fa-linkedin"></i>
+                                        {% elif sm.type == 'site' %}
+                                            <i class="fas fa-link"></i>
+                                        {% elif sm.type == 'tw' %}
+                                            <i class="fab fa-twitter twitter_color"></i>
+                                        {% elif sm.type == 'xg' %}
+                                            <i class="fab fa-xing-square xing_color"></i>
+                                        {% elif sm.type == 'insta' %}
+                                            <i class="fab fa-instagram insta_color"></i>
+                                        {% elif sm.type == 'tt' %}
+                                            <img src="{% static 'images/tiktok.svg' %}" width="12">
+                                        {% endif %}
+                                    </a>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+
+                        {% if request.user.is_authenticated and profile.user_id != request.user.id %}
+                            <small class="mt-2 mb-2 d-block font10 help-block">
+                                {% already_follow_user request.user profile.user_id as already_following %}
+                                {% if already_following %}
+                                    <button class="btn btn-sm valign-inherit btn-outline-info active already_followed_user">
+                                        ich folge
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm valign-inherit btn-outline-info user_follow_btn">
+                                        Folgen
+                                    </button>
+                                {% endif %}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="">
+                    {% if profile.bio_text %}
+                        <span class="font13 blockquote-text d-block mt-2">
+                        {{ profile.bio_text }}
+                    </span>
+                    {% endif %}
+
+                    {% if profile.status and not profile.status == 'sonstiges' %}
+                        <span class="font13 mt-2 d-block">
+                        {% if profile.other_status %}
+                            {{ profile.other_status }}
+                        {% else %}
+                            {{ profile.get_status_display }}
+                        {% endif %}
+                    </span>
+                    {% endif %}
+
+                    {% if profile.skills %}
+                        <span class="font13 mt-2 d-block">
+                            Besonders gut in: {{ profile.skills }}
+                        </span>
+                    {% endif %}
+                    <span class="font13 mt-2 d-block">
+                        Member seit {{ profile.user.date_joined|timesince }}
+                    </span>
+
+                    {% if profile.user_id == request.user.id and not profile.bio_text %}
+                        <a href="{% url 'profile_settings' profile.user_id %}#id_username"
+                           class="font13 mt-4 d-inline-block">
+                            Ein kurzer Satz über dich?
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 font13 text-muted text-uppercase ">Reputation</h6>
+                <div class="mt-2 d-flex" style="box-sizing: border-box">
+                    <span style="font-size: 1.57692308rem!important;box-sizing: border-box">
+                         {{ profile.points }}
+                    </span>
+                    {% if reputation_progress %}
+                    <span class="font18 ml-2 progress_up progress_points" title="In diesem Monat">
+                        +{{ profile.reputation_progress }}
+                    </span>
+                    {% endif %}
+                </div>
+                <hr>
+                <p class="font13 mb-1">
+                    {% if profile.is_helper %}
+                        <b>{{ profile.total_answers|cool_number }}</b> mal geholfen in
+                        {{ profile.linked_most_helped_tags|safe }}
+                    {% endif %}
+                </p>
+                {% if profile.has_confirmed_hashtags %}
+                    <div class="font13 mb-3 mt-3">
+                        <span class="d-block mb-1">Bestätigte Kenntnisse:</span>
+                        <div class="{% if profile.confirmed_hashtags|length > 5 %}profile_confirmed_tags{% endif %}">
+                            {% for tag, confirms in profile.confirmed_hashtags %}
+                                <button type="button"
+                                        class="btn btn-sm valign-inherit {% if forloop.counter > 5 %}d-none{% endif %} btn-outline-info mr-2 mb-2">
+                                    {{ tag|capfirst }} &nbsp;
+                                    {{ confirms }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                        {% if profile.confirmed_hashtags|length > 5 %}
+                            <span class="text-bold link_color cursor_pointer see_more_hashtag_confirms">Mehr sehen</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if profile.number_good_questions %}
+                    <p class="font13 mb-1">
+                        {{ profile.number_good_questions|cool_number }}
+                        gute Frage{% if profile.number_good_questions > 1 %}n{% endif %} gestellt.
+                    </p>
+                {% endif %}
+                <p class="font13 mb-0">
+                    Bisher erreichte Leute: <b>{{ profile.reached_ppl|cool_number }}</b>
+                </p>
+                {% for badge in profile.get_badges %}
+                    <small class="profile_badge badge_{{ badge|concat }}">{{ badge|capfirst }}</small> &nbsp;
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if profile.can_tutor and profile.user.tutor_setting.is_active %}
+<div class="custom_row pl-4 pr-4 mb-4" id="tutor_video_intro">
+    <div class="col-xl-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Nachhilfe</h6>
+                {% if sessions.count %}
+                    <h6 class="mt-3">
+                        Bisher {{ sessions.count }} Nachhilfe Sitzung{{ sessions.count|pluralize:',en' }}
+                        mit {{ number_hours_given_tutoring }} Stunde{{ number_hours_given_tutoring|pluralize:',n' }}
+                        insgesamt
+                    </h6>
+                {% endif %}
+                <hr>
+                <div class="custom_row">
+                    <div class="col">
+                        {% if profile.user.tutor_setting.video %}
+                        <div>
+                            <video poster="" id="player" playsinline controls preload="auto">
+                                <source src="{{ profile.user.tutor_setting.video.url }}" type="video/mp4"/>
+                            </video>
+                        </div>
+                        {% endif %}
+                        {% if not profile.user.tutor_setting.video %}
+                            <p class="mb-4">
+                                <span class="light_bold font15 d-block mb-3">Zielgruppe:</span>
+                                {% if profile.user.tutor_setting.sek_1 %}
+                                    <small class="font13 d-block mb-2">
+                                        - <span class="light_bold">Sekundarstufe I: </span>
+                                        <small class="d-block font12">
+                                            Hauptschule, Realschule, Gesamtschule, Oberschule in
+                                            Bremen, Stadtteilschule in Hamburg
+                                            (jeweils bis einschließlich Klasse 10), das Gymnasium (bis
+                                            einschließlich Klasse 9 bzw.
+                                            Klasse 10) und die Sonderschule (Förderschule).
+                                        </small>
+                                    </small>
+                                {% endif %}
+                                {% if profile.user.tutor_setting.sek_2 %}
+                                    <small class="font13 d-block mb-2">
+                                        - <span class="light_bold">Sekundarstufe II: </span>
+                                        <small class="d-block font12">Gymnasiale Oberstufe, berufsbildende Schulen,
+                                            Weiterbildungsschulen für Erwachsene (Abendschulen und Kollegs)</small>
+                                    </small>
+                                {% endif %}
+                                {% if profile.user.tutor_setting.university_modules %}
+                                    <small class="font13 d-block mb-2">
+                                        - <span class="light_bold">Uni: </span>
+                                        <small class="d-block font12">
+                                            {{ profile.user.tutor_setting.university_modules|better_list }}
+                                        </small>
+                                    </small>
+                                {% endif %}
+                                {% if profile.user.tutor_setting.note %}
+                                    <small class="font13 d-block mb-2">
+                                        - <span class="light_bold">Bemerkung: </span>
+                                        <small class="d-block font12">{{ profile.user.tutor_setting.note }}</small>
+                                    </small>
+                                {% endif %}
+                            </p>
+
+                            {% if profile.user.received_tutor_reviews.count %}
+                                {% define profile.user.received_tutor_reviews.last as review %}
+                                <p class="font15 light_bold">Feedback:</p>
+                                <p class="font13 mb-0" style="height: auto">
+                                    <i class="fa fa-quote-left valign-super grey_text font10 mr-1"></i>
+                                    {{ review.text }}
+                                </p>
+                                <p class="mt-0 font13">
+                                    <small>
+                                        <a href="{{ review.given_by.profile.get_absolute_url }}" target="_blank"
+                                           class="text-bold link_color">
+                                            {{ review.given_by.profile.username }}
+                                        </a> {{ review.idate|naturaltime_v2}}
+                                    </small>
+                                </p>
+                            {% endif %}
+
+                        {% endif %}
+                        <p class="mt-2">
+                            <span class="light_bold font15">Preise</span>: <br>
+                            {% if profile.user.tutor_setting.half_hourly_rate %}
+                                <small class="light_bold">30 Minuten: {{ profile.user.tutor_setting.half_hourly_rate }}
+                                    EUR</small>
+                            {% endif %}
+                            {% if profile.user.tutor_setting.hourly_rate %}
+                                &nbsp;
+                                <small class="light_bold">60 Minuten: {{ profile.user.tutor_setting.hourly_rate }}
+                                    EUR</small>
+                            {% endif %}
+                            {% if profile.user.tutor_setting.ninety_min_rate %}
+                              &nbsp;
+                                <small class="light_bold">90 Minuten: {{ profile.user.tutor_setting.ninety_min_rate }}
+                                    EUR</small>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <a href="{% url 'ask_single_tutor' profile.hash_id %}">
+                                <button class="btn lrm-button font18"
+                                        style="background-color: #f48024!important;">
+                                    Jetzt private Nachhilfe anfragen
+                                </button>
+                            </a>
+                        </p>
+                    </div>
+                    {% if profile.user.tutor_setting.video %}
+                        <div class="col">
+                        <p class="mb-4">
+                            <span class="light_bold font15 d-block mb-3">Zielgruppe:</span>
+                            {% if profile.user.tutor_setting.sek_1 %}
+                                <small class="font13 d-block mb-2">
+                                    - <span class="light_bold">Sekundarstufe I: </span>
+                                    <small class="d-block font12">
+                                        Hauptschule, Realschule, Gesamtschule, Oberschule in
+                                        Bremen, Stadtteilschule in Hamburg
+                                        (jeweils bis einschließlich Klasse 10), das Gymnasium (bis
+                                        einschließlich Klasse 9 bzw.
+                                        Klasse 10) und die Sonderschule (Förderschule).
+                                    </small>
+                                </small>
+                            {% endif %}
+                            {% if profile.user.tutor_setting.sek_2 %}
+                                <small class="font13 d-block mb-2">
+                                    - <span class="light_bold">Sekundarstufe II: </span>
+                                    <small class="d-block font12">Gymnasiale Oberstufe, berufsbildende Schulen,
+                                        Weiterbildungsschulen für Erwachsene (Abendschulen und Kollegs)</small>
+                                </small>
+                            {% endif %}
+                            {% if profile.user.tutor_setting.university_modules %}
+                                <small class="font13 d-block mb-2">
+                                    - <span class="light_bold">Uni: </span>
+                                    <small class="d-block font12">
+                                        {{ profile.user.tutor_setting.university_modules|better_list }}
+                                    </small>
+                                </small>
+                            {% endif %}
+                            {% if profile.user.tutor_setting.note %}
+                                <small class="font13 d-block mb-2">
+                                    - <span class="light_bold">Bemerkung: </span>
+                                    <small class="d-block font12">{{ profile.user.tutor_setting.note }}</small>
+                                </small>
+                            {% endif %}
+                        </p>
+
+                        {% if profile.user.received_tutor_reviews.count %}
+                            {% define profile.user.received_tutor_reviews.last as review %}
+                            <p class="font15 light_bold">Feedback:</p>
+                            <p class="font13 mb-0" style="height: auto">
+                                <i class="fa fa-quote-left valign-super grey_text font10 mr-1"></i>
+                                {{ review.text }}
+                            </p>
+                            <p class="mt-0 font13">
+                                <small>
+                                    <a href="{{ review.given_by.profile.get_absolute_url }}" target="_blank"
+                                       class="text-bold link_color">
+                                        {{ review.given_by.profile.username }}
+                                    </a> {{ review.idate|naturaltime_v2}}
+                                </small>
+                            </p>
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if profile.user_id == request.user.id %}
+    {% define profile.all_playlists as user_playlists %}
+{% else %}
+    {% define profile.finished_playlists as user_playlists %}
+{% endif %}
+
+{% if user_playlists.count %}
+    <div class="custom_row mt-3 pl-4 pr-4 mb-4">
+        <div class="col-xl-12">
+            <h6 class="card-subtitle mb-2 text-muted">
+                <a class="link_color light_bold" href="{% url 'profile_playlists' profile.hash_id %}">
+                    <i class="fa fa-list"></i> &nbsp;
+                    {{ user_playlists.count }} Lernplaylist{{ user_playlists.count|pluralize:'e,en' }}
+                </a>
+            </h6>
+            <hr>
+            <div class="custom_row mb-4">
+
+                {% for pl in user_playlists %}
+                    {% if pl.is_active or request.user.id == pl.user_id %}
+                    <div class="col-6 col-sm-6 col-md-3 mt-3 mb-2">
+                        <a href="{{ pl.get_absolute_url }}">
+                            <div class="box_shadow_custom text-center p-2 h-100">
+                                <p class="font15 mb-0 pt-2 link_color light_bold" style="height: auto">
+                                    {{ pl.name }}
+                                </p>
+                                <p class="font14 grey_text">
+                                    <small>
+                                        {{ pl.playlist_units.count }} Einheiten, {{ pl.vote_points }}
+                                        Votes, {{ pl.views }} Aufrufe
+                                    </small>{% if not pl.is_active %}
+                                        , <small class="red_color">Offline</small>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if profile.user_id == request.user.id %}
+                    <div class="col-6 col-sm-6 col-md-3 mt-3 mb-2">
+                        <a href="{% url 'add_playlist' request.user.profile.hash_id %}">
+                            <div class="text-center p-2 add_box h-100">
+                                <p class="grey_text" style="padding-top: 20px;">+ Lernplayliste erstellen</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if profile.all_tutor_sessions.count %}
+    <div class="custom_row mt-3 pl-4 pr-4 mb-5">
+        <div class="col-xl-12">
+            <h6 class="card-subtitle mb-2 text-muted">
+                <a class="link_color light_bold" {% if profile.user_id == request.user.id %} href="{% url 'tutoring_sessions' profile.hash_id %}"{% endif %}>
+                    <i class="fa fa-chalkboard-teacher"></i> &nbsp; {{ profile.all_tutor_sessions.count }}
+                    Nachhilfe-Sitzung{{ profile.all_tutor_sessions.count|pluralize:',en' }}
+                </a>
+            </h6>
+            <hr>
+
+            <div class="custom_row mb-4">
+                {% for session in profile.latest_tutoring_sessions %}
+                    <div class="col-8 col-sm-12 col-md-4 mb-2">
+                        <a {% if profile.user_id == request.user.id %}href="{{ session.get_absolute_url }}"{% endif %} class="no_color_link">
+                            <div class="box_shadow_custom p-2 h-100">
+                                <div class="row pl-2">
+                                    <div class="col">
+                                        {% if session.user_id %}
+                                            <img src="{{ session.user.profile.get_profile_image }}" alt=".." width="20px">
+                                            <small class="d-inline-block font12 mt-2">{{ session.user.profile.get_full_name }}</small>
+                                        {% else %}
+                                            <small class="d-inline-block font12 mt-2">Inaktiver Nutzer</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        <img src="{{ session.tutor.profile.get_profile_image }}" alt=".." width="20px">
+                                        <small class="d-inline-block font12 mt-2">{{ session.tutor.profile.get_full_name }}</small>
+                                    </div>
+                                </div>
+                                <hr class="mb-1">
+                                <p class="font12 p-2">
+                                    {{ session.idate }}
+                                    {% if session.request_reviews.count %}, <br>
+                                        "{{ session.request_reviews.last.text }}"
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+<div class="custom_row mt-3 pl-4 pr-4">
+    {% if profile.user.received_user_reviews.count %}
+    {% with profile.user.received_user_reviews.last as latest_review %}
+        {% if latest_review %}
+            <div class="col-xl-12">
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <a class="link_color light_bold" href="{% url 'profile_reviews' profile.user_id %}">
+                        <i class="fa fa-hands-helping"></i> &nbsp; {{ profile.user.received_user_reviews.count }} Bewertung{{ profile.user.received_user_reviews.count|pluralize:',en' }}
+                    </a>
+                </h6>
+                <hr>
+                <div>
+                    <p class="font13 mb-0" style="height: auto">
+                        <i class="fa fa-quote-left valign-super grey_text font10 mr-1"></i> {{ latest_review.text }}
+                    </p>
+                    <p class="mt-0 font13">
+                        <small>
+                            <a href="{{ latest_review.given_by.profile.get_absolute_url }}" class="text-bold link_color">
+                                {{ latest_review.given_by.profile.username }}
+                            </a> {{ latest_review.idate|naturaltime_v2}}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
+    {% endif %}
+    {% if profile.user_id != request.user.id %}
+        {% already_reviewed request.user profile.user_id as already_reviewed_this_user %}
+        {% if not already_reviewed_this_user %}
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                <a href="{% url 'add_review' profile.user_id profile.user_id %}" class="light_bold font14 link_color">
+                    &rightarrow; Jetzt für {{ profile.get_full_name|capfirst|default:profile.username }} Bewertung schreiben &
+                    Kenntnisse bestätigen
+                </a>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<div class="custom_row mt-4">
+    <div class="col-xl-12 pr-0">
+        <ul class="nav nav-tabs profile_tabs pl-4 pr-4">
+                <li class="nav-item">
+                    <a class="nav-link no_color_link {% if request.resolver_match.view_name == 'public_profile_hashed' %}active{% endif %}"
+                       href="{{ profile.get_absolute_url }}">
+                        {{ profile.total_questions|cool_number }} Frage{{ profile.total_questions|pluralize:",n" }}
+                    </a>
+                </li>
+
+            {% if profile.total_answers %}
+                <li class="nav-item">
+                    <a class="nav-link no_color_link {% if request.resolver_match.view_name == 'public_profile_answers' %}active{% endif %}"
+                       href="{% url 'public_profile_answers' profile.user_id %}">
+                        {{ profile.total_answers|cool_number }} Antwort{{ profile.total_answers|pluralize:",en" }}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if profile.written_articles.count %}
+                <li class="nav-item">
+                    <a class="nav-link no_color_link {% if request.resolver_match.view_name == 'public_profile_articles' %}active{% endif %}"
+                       href="{% url 'public_profile_articles' profile.user_id %}">
+                        {{ profile.written_articles.count|cool_number }} Mathe-Artikel
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if profile.user_id == request.user.id %}
+                <li class="nav-item">
+                    <a class="nav-link no_color_link {% if request.resolver_match.view_name == 'public_profile_following_content' %}active{% endif %}"
+                       href="{% url 'public_profile_following_content' profile.user_id %}">
+                        Ich folge
+                    </a>
+                </li>
+            {% endif %}
+
+        </ul>
+    </div>
+
+    {% if request.resolver_match.view_name == 'public_profile_hashed' %}
+        <div class="col-xl-12 mt-4 pl-5">
+            <div>
+                {% if not profile.total_questions %}
+                    <p class="font15">Bisher keine Fragen gestellt.</p>
+                {% endif %}
+                {% for question in profile.user_latest_questions %}
+                    <p>
+                        <span class="d-inline-block mini_stats_box {% if question.closed %}accepted_mini_box{% endif %}">
+                            {{ question.vote_points }}
+                        </span>
+                        <a href="{{ question.get_absolute_url }}" class="link_color light_bold font15">
+                            {{ question.title|capfirst }}
+                        </a>
+                        <br>
+                        {% if question.last_acted_user_username %}
+                            <a href="{{ question.last_acted_user_url }}"
+                               class="link_color light_bold font13">
+                                {{ profile.username }}{% if question.last_acted_user_verified %} <i class="fa fa-badge-check"></i>{% endif %},
+                            </a>
+                        {% endif %}
+                        <small class="font13">{{ question.rank_reason }} {{ question.rank_date|naturaltime_v2}}</small>
+                    </p>
+                    <hr class="light_hr">
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if request.resolver_match.view_name == 'public_profile_answers' %}
+        <div class="col-xl-12 mt-4 pl-5">
+            <div>
+                {% for answer in given_answers %}
+                    <p>
+                        <span class="d-inline-block mini_stats_box {% if answer.accepted %}accepted_mini_box{% endif %}">
+                            {{ answer.vote_points }}
+                        </span>
+                        <a href="{{ answer.question.get_absolute_url }}" class="link_color light_bold font15">
+                            {{ answer.question.title|capfirst }}
+                        </a>
+                        <br>
+                        <small class="font13">beantwortet {{ answer.idate|naturaltime_v2}}</small>
+                    </p>
+                    <hr class="light_hr">
+                {% endfor %}
+
+                {% if profile.total_answers > 5 %}
+                    <p class="">
+                        <a class="mf_color font13 cursor_pointer"
+                           href="{% url 'index' %}?answered_user={{ profile.user_id }}">Alle Antworten sehen</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if request.resolver_match.view_name == 'public_profile_articles' %}
+        <div class="col-xl-12 mt-4 pl-5">
+            <div>
+                {% for article in profile.written_articles.all %}
+                    <p>
+                        <a href="{{ article.get_absolute_url }}" class="link_color light_bold font15">
+                            {{ article.title|capfirst }}
+                        </a>
+                        <br>
+                        {% if article.last_acted_user_username %}
+                            <a href="{{ article.last_acted_user_url }}"
+                               class="link_color light_bold font13">
+                                {{ profile.username }}{% if article.last_acted_user_verified %}
+                                            <i class="fa fa-badge-check"></i>{% endif %},
+                            </a>
+                        {% endif %}
+                        <small class="font13">{{ article.rank_reason }} {{ article.rank_date|naturaltime_v2}}</small>
+                    </p>
+                    <hr class="light_hr">
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if request.resolver_match.view_name == 'public_profile_following_content' %}
+        <div class="col-xl-12 mt-4 pl-5">
+            <div>
+                <small class="d-block mb-3">
+                    {% if profile.following_content.count %}
+                        Du folgst {{ profile.user.following_hashtags.count }} Tag{{ profile.user.following_hashtags.count|pluralize:",s" }},
+                        {{ profile.user.following_questions.count }} Frage{{ profile.user.following_questions.count|pluralize:",n" }} und
+                        {{ profile.user.following_users.count }} Nutzern.
+                    {% else %}
+                        Folge jetzt Hashtags, Fragen oder Nutzer, um dich am laufenden zu halten.
+                    {% endif %}
+                </small>
+                {% for question in profile.following_content %}
+                    <p>
+                        <a href="{{ question.get_absolute_url }}" class="link_color light_bold font15">
+                            {{ question.title|capfirst }}
+                        </a>
+                        <br>
+                        {% if question.last_acted_user_username %}
+                            <a href="{{ question.last_acted_user_url }}"
+                               class="link_color light_bold font13">
+                                {{ profile.username }}{% if question.last_acted_user_verified %}
+                                            <i class="fa fa-badge-check"></i>{% endif %},
+                            </a>
+                        {% endif %}
+                        <small class="font13">{{ question.rank_reason }} {{ question.rank_date|naturaltime_v2}}</small>
+                    </p>
+                    <hr class="light_hr">
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+

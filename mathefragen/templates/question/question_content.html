@@ -1,0 +1,307 @@
+{% load static custom_tags markdownify %}
+
+<article class="post mt-2 mb-1">
+    <hr>
+    <div class="blog-detail-description feed_l_padding">
+
+        <div class="custom_row {% if not question.is_active %}readonly_content{% endif %}">
+            <div class="col-2 col-md-1">
+
+                <div class="vote">
+                    {% question_already_up_voted question.id request.user.id as already_upvoted %}
+                    {% question_already_down_voted question.id request.user.id as already_downvoted %}
+
+                    <div class="increment up arrow-up confetti-button {% if already_upvoted %}already_upvoted{% endif %}"
+                         data-id="{{ question.id }}"
+                         data-owner-id="{{ question.user_id }}"
+                         data-type="question"></div>
+                    <div class="num_votes mt-1 mb-1" itemprop="upvoteCount">{{ question.vote_points }}</div>
+                    <div class="increment down arrow-down {% if already_downvoted %}already_downvoted{% endif %}"
+                         data-id="{{ question.id }}"
+                         id="question_downvote_{{ question.id }}"
+                         data-owner-id="{{ question.user_id }}"
+                         data-type="question"></div>
+                </div>
+
+                {% if question.is_article %}
+                    <div class="text-center mt-2">
+                        <i class="fal fa-clipboard-check community_paper_icon"
+                           data-toggle="tooltip"
+                           data-placement="bottom"
+                           title="<small>Mathe Artikel</small>"></i>
+                    </div>
+                {% endif %}
+
+            </div>
+            <div class="col-md-11 col-10 word_break_all">
+                <div itemprop="text" id="question_text_div"
+                     class="mb-3 {% if request.user_agent.is_mobile %}image_size_mobile{% endif %}">
+                    {% if settings.question_editor == 'tiny' %}
+                        {{ question.text|safe }}
+                    {% else %}
+                        {{ question.text|markdownify }}
+                    {% endif %}
+                </div>
+                <div class="float-left">
+
+                    <div class="tagcloud" id="id_question_tags_div">
+                        {% for tag in question.tag_names|listify %}
+                            <a class="tag"
+                               href="{% url 'questions_with_tag' %}?tag={{ tag|remove_hash }}">{{ tag|capfirst }}</a>
+                        {% endfor %}
+                        {% if request.user.profile.verified or request.user.id == question.user_id %}
+                            <a class="text-bold d-inline-block link_color cursor_pointer ml-2" id="id_question_tags_edit_clk"
+                               style="border: none!important;background-color: transparent">Tags bearbeiten</a>
+                        {% endif %}
+                    </div>
+
+                    <div id="id_question_tags_edit_div" style="min-width: 420px">
+                    </div>
+                    <div class="mt-2 mb-3 line_height_30">
+                        <span class="share_link_in_detail"
+                              data-title="{{ question.title|capfirst }}"
+                              data-hashtags="letsrockmathe,danieljung"
+                              data-subject="Frage '{{ question.title|capfirst }}'"
+                              data-body="Kannst du mir bei Frage '{{ question.title|capfirst }}' helfen?!"
+                              data-url="https://{{ site_domain }}{{ question.get_absolute_url }}">
+                            <i class="fal fa-share-alt"></i>&nbsp; Teilen
+                        </span>
+                        {% already_question_reported question.id request.user.id as q_already_reported %}
+                        <span class="ml-2 font12 cursor_pointer {% if not q_already_reported %}report_content{% endif %}"
+                              data-object-type="question"
+                              data-object-id="{{ question.id }}">
+                            {% if question.is_article %}
+                                Diesen Artikel melden
+                            {% else %}
+                                Diese Frage melden
+                            {% endif %}
+                            {% if question.question_reports.count %} ({{ question.question_reports.count }}){% endif %}
+                        </span>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.id == question.user_id %}
+                            <div class="mt-1 mb-3">
+                                <small class="line_height_30 edit_question_link">
+                                    <a href="{% url 'edit_question' question.id %}" class="font12 link_color mr-3">Bearbeiten</a>
+                                </small>
+                            </div>
+                        {% elif request.user.profile.is_moderator %}
+                            <div class="mt-1 mb-3">
+                                <small class="line_height_30 edit_question_link">
+                                    <a href="{% url 'edit_question' question.id %}" class="font12 link_color mr-3">Bearbeiten</a>
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% include 'question/includes/question_user_box.html' %}
+                <div class="clearfix"></div>
+                <!-- this is tutor snippet -->
+
+                {% if show_tutor_button %}
+                    <div class="mt-2 mb-4 d-block">
+                        <h6>Du brauchst dringend Hilfe?</h6>
+                        <a
+                                href="{% url 'ask_tutors' %}?question={{ question.hash_id }}">
+                            <button class="btn valign-inherit btn-outline-info active font14">
+                                Jetzt Helfer anfragen
+                            </button>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if question.is_active %}
+            <div class="custom_row mb-5 font13">
+                <div class="col-2 col-md-1">
+                    &nbsp;
+                </div>
+                <div class="col-10 col-md-11">
+                    {% for comment in question.all_question_comments %}
+                        {% if comment.is_active %}
+                            <hr class="mt-2 mb-2">
+                            <div class="comment_box word_break_all" id="question_comment_{{ comment.id }}">
+                                <div class="custom_row">
+                                    <div class="col-1" style="display: contents;">
+                                        <div class="js-comment-actions comment-actions">
+                                            <div class="comment-score">
+                                                <span class="comment-{{ comment.id }}-votes">{{ comment.vote_points|default:'' }}</span>
+                                            </div>
+                                            {% if request.user.id != comment.user_id %}
+                                                <div class="comment-voting js-comment-edit-hide">
+                                                    {% comment_voted comment.id request.user.id 'question' as already_comment_voted %}
+                                                    <a tabindex="0" role="button"
+                                                       class="comment-vup {% if already_comment_voted %}comment-vup-on{% else %}comment-vup-off{% endif %}"
+                                                       aria-label="Upvote Comment"
+                                                       data-object-type="question"
+                                                       data-comment-id="{{ comment.id }}"
+                                                       data-vote-counter="{{ comment.vote_points|default:0 }}"
+                                                       title="Dieser Kommentar fügt dem Beitrag etwas Nützliches hinzu.">
+                                                        <svg aria-hidden="true" class="svg-icon iconArrowUp" width="18"
+                                                             height="18"
+                                                             viewBox="0 0 18 18">
+                                                            <path d="M1 13h16L9 5l-8 8z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col pl-1">
+                                        <span id="question_comment_{{ comment.id }}_text"
+                                              class="comment_text_div font13">
+                                            {% if settings.question_editor == 'tiny' %}
+                                                {{ comment.text|safe|linebreaksbr|urlize }}
+                                            {% else %}
+                                                {{ comment.text|safe|linebreaksbr|urlize|markdownify }}
+                                            {% endif %}
+                                        </span>
+                                        <textarea class="hidden"
+                                                  id="id_raw_question_comment_{{ comment.id }}">{{ comment.text }}</textarea>
+                                        <span class="comment_owner_span font12 grey_text">
+                                             &nbsp; &#9472; &nbsp; <a href="{{ comment.user.profile.get_absolute_url }}"
+                                                                      class="text-bold link_color">
+                                                {{ comment.user.profile.username }}
+                                            {% if comment.user.profile.verified %}
+                                                <i class="fa fa-badge-check"></i>
+                                            {% endif %}
+                                            </a>
+                                            <span class="font12 pl-1">{{ comment.idate|naturaltime_v2 }}</span>
+                                        </span>
+                                        {% if comment.user_id == request.user.id %}
+                                            <span class="font12 link_color cursor_pointer ml-3 edit-question-comment"
+                                                  data-comment-id="{{ comment.id }}"
+                                                  data-question-id="{{ question.id }}">Bearbeiten</span>
+                                            <span class="font12 text-danger ml-3 delete-question-comment"
+                                                  data-comment-id="{{ comment.id }}">Löschen</span>
+                                        {% endif %}
+                                        {% if request.user.is_staff %}
+                                            <span class="font12 link_color cursor_pointer ml-3 convert_comment_to_answer"
+                                                  data-comment-id="{{ comment.id }}">in eine Antwort umwandeln</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="mt-3 d-block">
+                        <div id="question_comment_append_place"></div>
+                        <div class="hidden mt-4" id="question_comment_box_{{ question.id }}">
+                            <textarea rows="3"
+                                      data-previewing="false"
+                                      id="question_comment_textarea_{{ question.id }}"
+                                      placeholder="Verwende Kommentare, um weitere Informationen anzufordern oder Verbesserungen vorzuschlagen. Vermeide die Beantwortung von Fragen in den Kommentaren."
+                                      class="form-control question_comment_txtarea resizable-textarea"></textarea>
+                            <br>
+                            <div id="question_comment_preview" style="visibility:hidden; position:absolute;"></div>
+                            <div id="question_comment_preview_buffer"
+                                 style="visibility:hidden; position:absolute;"></div>
+                            <button class="btn btn-very-small font12 lrm-button save-question-comment mt-3 btn-primary"
+                                    data-question-id="{{ question.id }}" type="button">
+                                Kommentar hinzufügen
+                            </button>
+                            {% if settings.question_editor != 'tiny' %}
+                                <small class="font12 valign-bottom ml-1">
+                                    <a href="https://www.markdownguide.org/basic-syntax/" class="link_color"
+                                       target="_blank">Markdown</a> wird unterstützt.
+                                </small>
+                            {% endif %}
+                        </div>
+
+                        {% if question.is_active %}
+                            <span class="write_question_comment link_color mt-4" data-question-id="{{ question.id }}">
+                                Kommentar schreiben
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not question.is_active %}
+            <div class="custom_row mb-4">
+                <div class="col-xl-12 mt-4 mr-auto">
+                    <div class="readonly_hint_text">
+                        Leider scheint diese Frage Unstimmigkeiten zu enthalten und muss korrigiert werden.
+
+                        {% if request.user.id != question.user_id %}
+                            {{ question.user.username|capfirst }} wurde bereits informiert.
+                        {% else %}
+                            <p class="mt-3">
+                                <a href="{% url 'edit_question' question.id %}">Jetzt Bearbeiten</a>
+                            </p>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if question.is_active %}
+            <div class="mt-2 mb-3">
+
+                {% if request.user_agent.is_mobile %}
+                    {% if not request.user.is_authenticated or request.user.id == question.user_id %}
+                        <div class="mt-2 mb-4">
+                            <p class="mb-1">Du hast eine spezielle Frage?</p>
+                            <a href="{% url 'create_question' %}" class="text-center">
+                                <button class="btn lrm-button text-bold font17 w-100">
+                                    Jetzt kostenlos Frage stellen
+                                </button>
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <h5 class="mb-0">
+                    <span>
+                        <span itemprop="answerCount">{{ question.number_answers }}</span>
+                        Antwort{{ question.number_answers|pluralize:",en" }}
+                    </span>
+                </h5>
+            </div>
+        {% endif %}
+
+        <div id="no_answers_yet" class="d-inline-block text-bold"></div>
+
+        <button class="btn btn-danger ml-3 mb-3 d-none cursor_pointer" id="reload_page_btn">
+            <i class="fas fa-redo"></i>
+            Jetzt die Seite neuladen
+        </button>
+
+    </div>
+</article>
+
+{% if question.is_active %}
+
+    {% for answer in question.latest_question_answers %}
+        {% if answer.user.profile.is_active %}
+            {% include 'question/answer_content.html' %}
+        {% endif %}
+    {% endfor %}
+
+{% endif %}
+
+
+{% if question.is_active %}
+
+    {% if request.user.is_authenticated and request.user.id != question.user_id and question.is_active and not question.solved_with_tutor_id %}
+        {% include 'question/answer_form.html' %}
+    {% endif %}
+
+    {% if not request.user.is_authenticated %}
+        <div class=" mb-5">
+            <div class="col-xl-12 mb-5 pl-5 pr-5">
+                <hr>
+                <a href="{% url 'login' %}?next={{ question.get_absolute_url }}" class="btn btn-primary btn-big mb-3"  {% if request.user_agent.is_mobile %}style="width: 100%!important;"{% endif %}>
+                    Jetzt Antwort schreiben
+                </a>
+
+            </div>
+        </div>
+    {% endif %}
+
+{% endif %}

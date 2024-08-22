@@ -1,0 +1,140 @@
+{% load humanize l10n %}
+
+<h5 class="mt-4 mb-1 pl-5" id="add_new_unit">
+    Lerneinheit hinzufügen
+</h5>
+<article class="post" style="margin-bottom: 200px">
+    <div class="blog-detail-description feed_l_padding">
+        <form method="post" class="mt-4" action="{% url 'add_playlist_unit' playlist.hash_id %}"
+              onsubmit="return check_form();">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <input type="text"
+                               class="form-control"
+                               name="name"
+                                {% if playlist.playlist_units.count < 2 or unit %}
+                               autofocus
+                                {% endif %}
+                               required=""
+                               {% if unit %}value="{{ unit.name }}"{% endif %}
+                               placeholder="Titel der Einheit"
+                               title="name">
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom_row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        {% if settings.question_editor == 'md' %}
+                            <div id="wmd-button-bar"></div>
+                            {% include 'question/includes/image_upload.html' %}
+                        {% endif %}
+                        <textarea class="form-control wmd-input"
+                                  id="wmd-input"
+                                  rows="10"
+                                  placeholder="Inhalt der Einheit"
+                                  name="unit_content">{% if unit %}
+                            {{ unit.description }}{% endif %}</textarea>
+                        <input type="hidden" name="existing_unit" value="{{ unit.hash_id }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom_row">
+                <div class="col">
+                    <div class="form-group" style="width: 220px">
+                        <label for="id_unit_order">Reihenfolge in der Playliste </label>
+                        <input class="form-control input-sm" id="id_unit_order"
+                               name="order"
+                               required
+                                {% if unit %}
+                               value="{{ unit.int_order|unlocalize }}"
+                                {% endif %}
+                               placeholder="z.B. 1, 1.1, 1.2, 2 ..."
+                               step="0.01"
+                               type="number">
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom_row mt-2">
+                <div class="col-sm-12">
+                    <label>Vorschau</label>
+                    <hr>
+                    {% if settings.question_editor == 'tiny' %}
+                        <div id="MathPreview"></div>
+                        <div id="MathBuffer"></div>
+                    {% else %}
+                        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                    {% endif %}
+
+                    <div class="hidden" id="chosen_videos_from_modal"></div>
+                    <div class="mr-5">
+                        <div class="custom_row mt-2 mb-3" id="suggest_video_previews">
+                            {% for recommendation in unit.unit_vid_recommendations.all %}
+                                <div class="col-md-3 col-lg-3 col-sm-3 mb-4">
+                                    <i class="fas fa-times-circle delete_selected_video"
+                                       data-video-id="{{ recommendation.youtube_id }}"
+                                       aria-hidden="true"></i>
+                                    <iframe data-name="youtube"
+                                            data-src="https://www.youtube.com/embed/{{ recommendation.youtube_id }}"
+                                            frameborder="0" width="100%"
+                                            allowfullscreen="allowfullscreen"
+                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom_row mt-3">
+                <div class="col-sm-12">
+                    <div class="form-group">
+
+                        <button name="submit"
+                                type="submit"
+                                id="submit_new_unit_btn"
+                                class="btn mr-2 lrm-button font17">
+                            {% if unit %}
+                                Lerneinheit speichern
+                            {% else %}
+                                Lerneinheit hinzufügen
+                            {% endif %}
+                        </button>
+
+                        {% if unit %}
+                            <button type="button"
+                                    class="delete-unit mr-2 btn-danger btn no_text_transform font17"
+                                    data-unit-hash="{{ unit.hash_id }}">
+                                Löschen
+                            </button>
+                        {% endif %}
+
+                        <button name="button"
+                                type="button"
+                                id="suggest_videos"
+                                class="btn btn-outline-primary no_text_transform font17"
+                                {% if request.user_agent.is_mobile %}
+                                style="width: 100%!important;"
+                                {% else %}
+                                style="width: 200px!important;"
+                                {% endif %}
+                                data-toggle="modal" data-target="#suggest_videos_modal">
+                            <i class="fab fa-youtube"></i> Videos vorschlagen
+                        </button>
+
+                        {% if error %}
+                            <p class="mt-3 text-danger text-bold">
+                                {{ error }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</article>

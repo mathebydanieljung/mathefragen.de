@@ -1,0 +1,41 @@
+<div class="modal fade" id="tutor_feedback_modal" tabindex="-1" role="dialog" aria-labelledby="TutorFeedbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TutorFeedbackLabel">
+                    Wie war die Nachhilfe mit {{ profile.username }}?
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    <div class="custom_row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-group">
+                                <label for="tutor_feedback_text">Deine Bewertung</label>
+                                <textarea class="form-control"
+                                          rows="6"
+                                          required
+                                          name="tutor_review"
+                                          id="tutor_feedback_text"
+                                          placeholder="Wie gut ist {{ profile.username }} auf deine Frage-/Problemstellung eingegangen? Konnte {{ profile.username }} die fachliche Thematik gut erläutern?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom_row mt-3">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <button name="button" type="button" class="save_tutor_review btn lrm-button w-100">
+                                    Bewertung absenden
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

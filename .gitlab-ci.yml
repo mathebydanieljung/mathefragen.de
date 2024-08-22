@@ -1,0 +1,91 @@
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+stages:
+  - build
+  - deploy
+
+build-sit:
+  stage: build
+  tags:
+    - sit
+  script:
+    - docker build -t registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG .
+    - docker push registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG
+  only:
+    - /^[0-9]+(?:.[0-9]+)+[a-z]*-sit$/
+  except:
+    - branches
+
+#deploy-sit:
+#  stage: deploy
+#  tags:
+#    - sit
+#  script:
+#    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force math_mathefragen-server
+#    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force api-mathe_mathefragen-server
+#  only:
+#    - /^[0-9]+(?:.[0-9]+)+[a-z]*-sit$/
+#  except:
+#    - branches
+
+build-prod:
+  stage: build
+  tags:
+    - prod
+  script:
+    - docker build -t registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG .
+    - docker push registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG
+  only:
+    - /^[0-9]+(?:.[0-9]+)+$/
+  except:
+    - branches
+
+deploy-prod:
+  stage: deploy
+  tags:
+    - prod
+  script:
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force bio_biofragen-server
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force chemi_chemiefragen-server
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force informatic_informatikfragen-server
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force math_mathefragen-server
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force meta_metafragen-server
+    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force physik_physikfragen-server
+  only:
+    - /^[0-9]+(?:.[0-9]+)+$/
+  except:
+    - branches
+
+#default:
+#  image: debian:10
+#  services:
+#    - postgres:11.7
+#    - redis:latest
+#  cache:
+#    paths:
+#      - ~/.cache/pip/
+#  before_script:
+#    - apt -y update
+#    - apt -y install apt-utils
+#    - apt -y install net-tools python3 python3-pip
+#    - apt -y install postgresql postgresql-contrib
+#    - apt -y upgrade
+#    - pip3 install -r requirements.txt
+#
+#
+#migrations:
+#  stage: build
+#  script:
+#    - python3 manage.py makemigrations
+#    - python3 manage.py migrate
+#    - python3 manage.py check
+#
+#
+#django-tests:
+#  stage: test
+#  script:
+#    # - python3 manage.py test, we need to solve this migration issue later on once we start writing new tests
+#    # django.db.utils.ProgrammingError: relation "user_review" does not exist
+#    - python3 manage.py check
+#

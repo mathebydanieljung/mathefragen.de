@@ -1,0 +1,13 @@
+<div id="insertImageDialog" title="Insert Image">
+    <p>
+        Vom Web
+    </p>
+    <p>
+        <input type="text" id="image_upload_input"
+               placeholder="URL eingeben e.g. http://seite.com/image.jpg"/>
+    </p>
+    <p>
+        Hier hochladen
+    </p>
+    <input type="file" name="file" id="file" data-action="{% url 'upload_image' %}"/>
+</div>
