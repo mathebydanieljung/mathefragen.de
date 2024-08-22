@@ -368,7 +368,7 @@ if not DEBUG:
         'host': None,
         'port': None,
         'db': 0,
-        'password': env('REDIS_PASSWORD'),
+        'password': env('REDIS_PASSWORD', default=''),
         'prefix': 'session',
         'socket_timeout': 1,
         'retry_on_timeout': True
@@ -376,12 +376,12 @@ if not DEBUG:
 
     SESSION_REDIS_SENTINEL_LIST = [
         (
-            env('REDIS_SENTINEL_1'),
-            env('REDIS_SENTINEL_1_PORT')
+            env('REDIS_SENTINEL_1', default=''),
+            env('REDIS_SENTINEL_1_PORT', default='')
         ),
         (
-            env('REDIS_SENTINEL_2'),
-            env('REDIS_SENTINEL_2_PORT')
+            env('REDIS_SENTINEL_2', default=''),
+            env('REDIS_SENTINEL_2_PORT', default='')
         )
     ]
 
