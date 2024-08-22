@@ -1,4 +1,34 @@
+<p align="center">
+  <a href="https://mathefragen.de">
+    <picture>
+      <img src="https://github.com/user-attachments/assets/d7a8c81b-4ff0-4093-a979-a0028110bb00" height="80" alt="Logo of mathefragen.de">
+    </picture>
+    <div align="center">Die Lernplattform von Mathe by Daniel Jung</div>
+  </a>
+</p>
+
+<div style="display: flex; justify-content: space-between;" align="center">
+    <a href="https://www.paypal.com/donate?token=_RiBsYo3dohGLEDX0j4ReVH6PY3zoRbdWYOPYxfJYW_uVWeE8la7cmknoH4twTIJmp5jWSErURHZUYxi">
+      <picture>
+        <img src="https://github.com/user-attachments/assets/d0372ef1-cbec-4404-a7f6-4e3b8d074e1f" height="40" alt="PayPal Donate Button">
+      </picture>
+    </a>
+</div>
+
+<img width="1348" alt="Screenshot of mathefragen.de" src="https://github.com/user-attachments/assets/ddf2fc7d-c3c9-4fa0-b63e-2b5d8498015e">
+
 # mathefragen.de
+
+This is the official repository of the mathefragen.de and affiliated projects. We are constantly working on improving the platform and adding
+new features. Please feel free to contribute to the project by opening issues or pull requests.
+
+Find the project at https://mathefragen.de
+
+## Support this project
+
+This software is maintained and run on the infrastructure of the [Daniel Jung Media GmbH](https://danieljung.io). If you
+like the project and want to support us, please consider donating to us. This pays the infrastructure and new features
+for this project.
 
 ## Development
 
