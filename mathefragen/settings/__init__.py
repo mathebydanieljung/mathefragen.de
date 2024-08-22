@@ -139,11 +139,11 @@ WSGI_APPLICATION = 'mathefragen.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": env("DB_NAME", "mathefragen"),
-        "USER": env("DB_USER", "mathefragen"),
-        "PASSWORD": env("DB_PWD", "mathefragen"),
-        "HOST": env("DB_HOST", "localhost"),
-        "PORT": env("DB_PORT", "5432")
+        "NAME": env("DB_NAME", default="mathefragen"),
+        "USER": env("DB_USER", default="mathefragen"),
+        "PASSWORD": env("DB_PWD", default="mathefragen"),
+        "HOST": env("DB_HOST", default="localhost"),
+        "PORT": env("DB_PORT", default="5432")
     }
 }
 
@@ -225,7 +225,7 @@ USE_TZ = False
 
 # 10 years
 SESSION_COOKIE_AGE = 315569520
-SESSION_COOKIE_NAME = env('COOKIE_NAME', 'session_dv')
+SESSION_COOKIE_NAME = env('COOKIE_NAME', default='session_dv')
 
 # push server
 ENABLE_WEBSOCKETS = env('ENABLE_WEBSOCKETS', default=False)
