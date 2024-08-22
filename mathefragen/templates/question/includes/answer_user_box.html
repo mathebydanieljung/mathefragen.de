@@ -1,0 +1,49 @@
+{% load static custom_tags %}
+
+<div class="float-right user_right_box">
+    <div class="question_bottom_box font12">
+        <small class="font12 pb-1">geantwortet
+            <time itemprop="dateCreated"
+                  datetime="{{ answer.idate|convert_utc_iso }}">{{ answer.idate|naturaltime_v2 }}</time>
+        </small>
+        <div class="custom_row mt-1">
+            <div class="col-3">
+                {% if answer.user.profile.profile_image %}
+                    <img src="{{ answer.user.profile.profile_image.url }}" alt="" width="32">
+                {% else %}
+                    <img src="https://www.gravatar.com/avatar/{{ answer.user.profile.hash_id }}?s=32&d=identicon&r=PG&f=1"
+                         alt="" width="32" height="32" class="bar-sm">
+                {% endif %}
+            </div>
+            <div class="col">
+                <div class="font12">
+                    <a href="{{ answer.user.profile.get_absolute_url }}" class="text-bold link_color font12">
+                        <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                            <span itemprop="name">{{ answer.user.profile.username }}</span>
+                        </span>
+                        {% if answer.user.profile.verified %}
+                            <i class="fa fa-badge-check"></i>
+                        {% endif %}
+                    </a>
+                    <br>
+                    <small class="font-weight-600 font11">
+                        {% if answer.user.profile.other_status %}
+                            {{ answer.user.profile.other_status }},
+                        {% elif answer.user.profile.status %}
+                            {{ answer.user.profile.get_status_display }},
+                        {% endif %}
+                        Punkte: {{ answer.user.profile.points|cool_number }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="font11 mt-2">
+        {% if answer.edited_by_id and answer.edited_by_id != answer.user_id %}
+            <a href="{{ answer.edited_by.profile.get_absolute_url }}"
+               class="text-bold link_color">
+                {{ answer.edited_by.profile.username }}
+            </a> hat {{ answer.edited_at|naturaltime_v2 }} bearbeitet
+        {% endif %}
+    </p>
+</div>

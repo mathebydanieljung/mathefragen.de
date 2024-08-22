@@ -1,0 +1,21 @@
+name: Django
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: "poetry"
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+      - name: Test
+        run: poetry run python manage.py test

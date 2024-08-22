@@ -1,0 +1,44 @@
+<div class="modal fade" id="channel_suggest_modal" tabindex="-1" role="dialog" aria-labelledby="channel_suggestLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="channel_suggestLabel">
+                    Dein Vorschlag für ein Mathe Lerntool
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    {% csrf_token %}
+                    <div class="custom_row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-group">
+                                <select class="form-control" id="channel_suggestion_category">
+                                    <option value="youtube">Youtube Channel</option>
+                                    <option value="app">App</option>
+                                    <option value="website">Webseite</option>
+                                    <option value="book">Buch</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" rows="6" required name="channel_suggest_description" id="channel_suggest_description"
+                                          placeholder="Dein Vorschlag"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom_row mt-3">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <button name="button" type="button" class="send_channel_suggestion btn lrm-button w-100">
+                                    Vorschlag jetzt abschicken
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

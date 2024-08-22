@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% load static custom_tags humanize %}
+
+{% block title %}
+    {{ site_domain }} - Bezahlen & weiter zur Videokonferenz
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/jquery.datetimepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'css/chat.css' %}?v=e3eee3f" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+{% endblock %}
+
+{% block main %}
+
+    {% include 'modals/decline_tutoring_request.html' %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content pt-5">
+                    <p class="float-right">
+                        <a href="{% url 'tutoring_sessions' request.user.profile.hash_id %}" class="font12 link_color font-weight-bold">Alle Sitzungen</a>
+                    </p>
+                    <div class="clearfix"></div>
+                    <h3 class="mb-1 font22 question_title text-center">
+                        {{ help_request.duration }} Minuten Nachhilfe
+                    </h3>
+                    <p class="text-center font15">
+                        {% if help_request.tutor_id == request.user.id %}
+                            Du
+                        {% else %}
+                            <a target="_blank" href="{{ help_request.tutor.profile.get_absolute_url }}" class="link_color light_bold">
+                                {{ help_request.tutor.get_full_name }}
+                            </a>
+                        {% endif %}
+                        und
+                        {% if help_request.user_id == request.user.id %}
+                            Du
+                        {% else %}
+                            <a target="_blank" href="{{ help_request.user.profile.get_absolute_url }}" class="link_color light_bold">
+                                {{ help_request.user.get_full_name }}
+                            </a>
+                        {% endif %}
+                    </p>
+                    <article class="post mt-2 mb-5">
+                        <div class="justify-content-center">
+
+                            <div class="custom_row justify-content-center">
+                                <div class="col-md-6 col-sm-12">
+
+                                    {% if help_request.question %}
+                                        <label class="font15">Frage:</label>
+                                        <p class="">
+                                            <a class="link_color" href="{{ help_request.question.get_absolute_url }}"
+                                               target="_blank">
+                                                {{ help_request.question.title }}
+                                            </a>
+                                        </p>
+                                    {% endif %}
+
+                                    <div>
+                                        <div id="suggested_time">
+                                            <label class="font15">Datum & Uhrzeit:</label>
+                                            <br>
+                                            {% if help_request.accepted_date_time %}
+                                                <span class="font15 mb-2 w-40">
+                                                        {{ help_request.accepted_date_time|date:'l' }},
+                                                        {{ help_request.accepted_date_time|date:'d.m.Y' }}
+                                                        um {{ help_request.accepted_date_time|date:'H:i' }} Uhr
+                                                </span>
+                                                <i class="fa fa-check-circle font18 ml-2 text-success"></i>
+                                            {% else %}
+                                                <div class="custom_row">
+                                                    <div class="{% if help_request.last_acted_user_id != request.user.id %}col-6{% else %}col-12{% endif %}">
+                                                    <span class="font15 mb-2 w-40">
+                                                        {{ help_request.date_time1|date:'l' }},
+                                                        {{ help_request.date_time1|date:'d.m.Y' }}
+                                                        um {{ help_request.date_time1|date:'H:i' }} Uhr
+                                                    </span>
+                                                    </div>
+                                                    {% if help_request.last_acted_user_id != request.user.id %}
+                                                        <div class="col-6 text-right" id="col_date_time1">
+                                                            <input type="checkbox" name="date_time" required id="date_time1"
+                                                                   value="date_time1">
+                                                            <label class="form-check-label" for="date_time1">
+                                                                Annehmen
+                                                            </label>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+
+                                                {% if help_request.date_time2 %}
+                                                    <hr>
+                                                    <div class="custom_row">
+                                                        <div class="{% if help_request.last_acted_user_id != request.user.id %}col-6{% else %}col-12{% endif %}">
+                                                        <span class="font15 mb-2 w-40">
+                                                            {{ help_request.date_time2|date:'l' }},
+                                                            {{ help_request.date_time2|date:'d.m.Y' }}
+                                                            um {{ help_request.date_time2|date:'H:i' }} Uhr
+                                                        </span>
+                                                        </div>
+                                                        {% if help_request.last_acted_user_id != request.user.id %}
+                                                            <div class="col-6 text-right" id="col_date_time2">
+                                                                <input type="checkbox" name="date_time" required id="date_time2"
+                                                                       value="date_time2">
+                                                                <label class="form-check-label" for="date_time2">
+                                                                    Annehmen
+                                                                </label>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <hr>
+                                                {% endif %}
+                                                {% if help_request.date_time3 %}
+                                                    <div class="custom_row">
+                                                        <div class="{% if help_request.last_acted_user_id != request.user.id %}col-6{% else %}col-12{% endif %}">
+                                                        <span class="font15 mb-2 w-40">
+                                                            {{ help_request.date_time3|date:'l' }},
+                                                            {{ help_request.date_time3|date:'d.m.Y' }}
+                                                            um {{ help_request.date_time3|date:'H:i' }} Uhr
+                                                        </span>
+                                                        </div>
+                                                        {% if help_request.last_acted_user_id != request.user.id %}
+                                                            <div class="col-6 text-right" id="col_date_time3">
+                                                                <input type="checkbox" name="date_time" required id="date_time3"
+                                                                       value="date_time3">
+                                                                <label class="form-check-label" for="date_time3">
+                                                                    Annehmen
+                                                                </label>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                        <hr class="mt-3">
+                                        <div id="other_time_div" class="d-none">
+                                            <form method="post" id="suggest_time_form">
+                                                {% csrf_token %}
+                                                <label for="datetimepicker1">Wann kannst du? *</label>
+                                                <input id="datetimepicker1" name="date_time1" class="form-control"
+                                                       required placeholder="Datum/Zeit auswählen * ">
+                                                <input id="datetimepicker2" name="date_time2" class="form-control mt-3"
+                                                       placeholder="Alternative auswählen">
+                                                <input id="datetimepicker3" name="date_time3" class="form-control mt-3"
+                                                       placeholder="Alternative auswählen">
+                                            </form>
+                                            {% if help_request.last_acted_user_id != request.user.id %}
+                                                <form method="post" id="confirm_deal_form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" id="confirmed_date_time"
+                                                           name="confirmed_date_time"
+                                                           value="{% if not help_request.has_alternative_dates %}date_time1{% endif %}">
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="chat pt-3 mb-4">
+                                        <div class="chat-history" data-token="{{ access_token }}">
+                                            <ul>
+                                                {% for msg in help_request.ordered_messages %}
+                                                    <li {% if msg.sender_id == request.user.id %}class="clearfix"{% endif %}>
+                                                        <div class="message-data {% if msg.sender_id == request.user.id %}align-right{% endif %}">
+                                                            {% if msg.sender_id == request.user.id %}
+                                                                <span class="message-data-time font14">{{ msg.idate }}</span> &nbsp; &nbsp;
+                                                                <span class="message-data-name font14 light_bold">Du &nbsp;&nbsp;&nbsp;</span>
+                                                            {% else %}
+                                                                <span class="message-data-name font14 light_bold">
+                                                                    {{ msg.sender.get_full_name }}
+                                                                </span>
+                                                                <span class="message-data-time font14">{{ msg.idate }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="message {% if msg.sender_id == request.user.id %}other-message float-right{% else %}my-message{% endif %}">
+                                                            {{ msg.message }}
+                                                        </div>
+                                                    </li>
+                                                {% endfor %}
+                                                <li>
+                                                    <div class="chat-message clearfix">
+                                                        <form action="{% url 'message_send' help_request.hash_id %}"
+                                                              method="post">
+                                                            {% csrf_token %}
+                                                            <textarea name="message-to-send"
+                                                                      id="message-to-send"
+                                                                      placeholder="Deine Nachricht"
+                                                                      rows="3"></textarea>
+
+                                                            <div class="d-none">
+                                                                <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
+                                                                <i class="fa fa-file-image-o"></i>
+                                                            </div>
+                                                            <button class="btn lrm-button" type="submit">Nachricht
+                                                                senden
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div> <!-- end chat-history -->
+                                    </div>
+                                    {% if help_request.accepted_at %}
+                                        <p class="font15 font-weight-bold mt-2 d-none" id="remaining_secs_p">
+                                            in <span id="remaining_secs"></span> Sekunden kann es losgehen.
+                                        </p>
+
+                                        {% if request.user.id == help_request.tutor_id %}
+                                            {% if help_request.can_begin %}
+                                                <a class="link_color" target="_blank" href="{% url 'request_detail' help_request.hash_id %}?status=start">
+                                                    <button class="btn lrm-button font17 w-100 mt-3">Videokonferenz beitreten</button>
+                                                </a>
+                                            {% else %}
+                                                <button class="btn lrm-button font17 w-100 mt-3 mb-3 break_text" disabled>
+                                                    {{ help_request.remaining_time_until_begin }}
+                                                </button>
+                                                {% if not help_request.is_completed %}
+                                                    <a class="link_color font13"
+                                                       target="_blank"
+                                                       href="{{ google_cal_link }}">
+                                                        in Google Calendar hinzufügen.
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                            {% if not help_request.is_paid %}
+                                                <p class="mb-1">
+                                                    Nachdem die Rahmenbedingungen geklärt sind kann es fast losgehen.
+                                                    Du musst nur noch den ausgemachten Betrag bezahlen.
+                                                </p>
+                                                <a href="{% url 'pay_and_join' help_request.hash_id %}">
+                                                    <button class="btn lrm-button w-100 mt-1 font17">
+                                                        Jetzt {{ help_request.amount_to_pay|intcomma }} EUR zahlen und buchen
+                                                    </button>
+                                                </a>
+                                            {% elif help_request.can_begin %}
+                                                <a class="link_color" target="_blank" href="{% url 'request_detail' help_request.hash_id %}?status=start">
+                                                    <button class="btn lrm-button w-100 font17 mt-3">Videokonferenz beitreten</button>
+                                                </a>
+                                            {% else %}
+                                                <button class="btn lrm-button w-100 mt-3 font17 mb-3 break_text" disabled>
+                                                    {{ help_request.remaining_time_until_begin }}
+                                                </button>
+                                                {% if not help_request.is_completed %}
+                                                    <a class="link_color font13"
+                                                       target="_blank"
+                                                       href="{{ google_cal_link }}">
+                                                        in Google Calendar hinzufügen.
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% else %}
+                                        {% if help_request.last_acted_user_id == request.user.id %}
+                                            <button class="btn lrm-button w-100 mt-3 font17" disabled>
+                                                Warten auf Bestätigung
+                                            </button>
+                                        {% else %}
+                                            <a href="{{ request.build_absolute_uri }}" class="d-none cancel_change">
+                                                <button class="btn btn-outline-danger mb-3 mt-5 w-100">Abbrechen</button>
+                                            </a>
+                                            <button class="btn btn-outline-primary font17 w-100 suggest_other_time">
+                                                Andere Zeit vorschlagen
+                                            </button>
+                                            <button class="btn lrm-button w-100 mt-3 font17 confirm_deal" {% if help_request.has_alternative_dates %}disabled{% endif %}>Bestätigen</button>
+
+                                            {# Tutor can cancel the request with message. #}
+                                            {% if request.user.id == help_request.tutor_id %}
+                                                <button class="btn btn-outline-danger w-100 mt-3 font17 decline_request">Anfrage ablehnen</button>
+                                            {% endif %}
+
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script src="{% static 'js/jquery.datetimepicker.js' %}"></script>
+    <script src="{% static 'js/countdown.js' %}"></script>
+    <script>
+        $(function () {
+            const remaining_secs = {% if remaining_secs %}{{ remaining_secs }}{% else %}0{% endif %};
+            if (remaining_secs) {
+                var countdown = new Counter({
+                    // number of seconds to count down
+                    seconds: remaining_secs,
+
+                    // callback function for each second
+                    onUpdateStatus: function (second) {
+                        if (second <= 300){
+                            $('#remaining_secs_p').removeClass('d-none');
+                            $('#remaining_secs').text(second);
+                        }
+                        console.log('second: ', second);
+                    },
+
+                    // callback function for final action after countdown
+                    onCounterEnd: function () {
+                        location.reload();
+                    }
+                });
+                countdown.start();
+            }
+
+            $('#datetimepicker1, #datetimepicker2, #datetimepicker3').datetimepicker({
+                format: 'd.m.Y H:i',
+                lang: 'de',
+                minDate: 0,
+                minTime: 0,
+                closeOnDateSelect: true
+            });
+
+            $('#date_time1, #date_time2, #date_time3').on('change', function (){
+
+                var cols = ['#col_date_time1', '#col_date_time2', '#col_date_time3'];
+                if ($(this).is(':checked')) {
+                    // activate confirm button
+                    $('.confirm_deal').removeAttr('disabled');
+
+                    $('#confirmed_date_time').val($(this).val());
+                    var checked_col = '#col_' + $(this).attr('id');
+                    $.each(cols, function (i, val) {
+                        if (val !== checked_col) {
+                            $(val).addClass('d-none');
+                            $(val).prev('div').addClass('grey_text');
+                        } else {
+                            $(val).prev('div').addClass('light_bold');
+                        }
+                    });
+                } else {
+                    // activate confirm button
+                    $('.confirm_deal').attr('disabled', 'disabled');
+
+                    $('#confirmed_date_time').val('');
+                    // unlock all
+                    $.each(cols, function (i, val) {
+                        $(val).removeClass('d-none');
+                        $(val).prev('div').removeClass('grey_text light_bold');
+                    });
+                }
+            });
+
+            $('.suggest_other_time').on('click', function (){
+                $(this).text('Vorschlag abschicken');
+                $('.cancel_change').removeClass('d-none');
+                $('.chat').addClass('d-none');
+
+                if ($(this).hasClass('ready_to_submit')) {
+                    $('#suggest_time_form').submit();
+                } else {
+                    $(this).addClass('ready_to_submit');
+                    $(this).removeClass('btn-outline-primary');
+                    $(this).addClass('lrm-button');
+                    $('.confirm_deal').addClass('d-none');
+                    $('#suggested_time').addClass('d-none');
+                    $('#other_time_div').removeClass('d-none');
+                    $('#datetimepicker').focus();
+                }
+            });
+
+            $('.confirm_deal').on('click', function (){
+                $('#confirm_deal_form').submit();
+            });
+
+            $('.decline_request').on('click', function (){
+                $('#decline_tutoring_request').modal('show');
+            });
+        });
+    </script>
+{% endblock %}
+

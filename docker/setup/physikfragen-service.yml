@@ -1,0 +1,16 @@
+version: '3'
+networks:
+  nl-net:
+    external: true
+services:
+  physikfragen-server:
+    container_name: physikfragen-server
+    image: registry.gitlab.com/new-learning/mathefragen.de/app:latest
+    volumes:
+      - /var/www/aiedn/apps/mathefragen.de/.env.physik:/code/.env
+      - /var/log/aiedn/physikfragen.de/log:/code/log
+    environment:
+      - TZ=Europe/Berlin
+    restart: always
+    networks:
+      - nl-net

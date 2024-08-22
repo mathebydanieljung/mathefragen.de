@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block extra_head %}
+    {% if settings.question_editor == 'tiny' %}
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    {% else %}
+        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+
+                <div class="col-xl-9 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} pl-0">
+
+                    <h4 class="mb-2" style="padding-left: 35px!important;">
+                        <span class="inbox_name">
+                            <a class="link_color" href="{% url 'inbox' pk %}">Inbox</a>
+                        </span>
+                    </h4>
+
+                    <div class="mb-3" style="padding-left: 35px!important;">
+                        {% if answer_types_count %}
+                            <a class="font12 link_color text-bold" href="?type=Antwort">{{ answer_types_count }} Antwort{{ answer_types_count|pluralize:',en' }}</a>&nbsp; &nbsp;
+                        {% endif %}
+                        {% if comment_types_count %}
+                            <a class="font12 link_color text-bold" href="?type=Kommentar">{{ comment_types_count }} Kommentar{{ comment_types_count|pluralize:',e' }}</a>&nbsp; &nbsp;
+                        {% endif %}
+                        {% if review_types_count %}
+                            <a class="font12 link_color text-bold" href="?type=Bewertung">{{ review_types_count }} Bewertung{{ review_types_count|pluralize:',en' }}</a>&nbsp; &nbsp;
+                        {% endif %}
+                        {% if accepted_answers %}
+                            <a class="font12 link_color text-bold" href="?type=Akzeptiert">{{ accepted_answers }} Akzeptiert</a>&nbsp; &nbsp;
+                        {% endif %}
+                        {% if help_requests %}
+                            <a class="font12 link_color text-bold" href="?type=Nachhilfe">{{ help_requests }} Nachhilfe Anfragen</a>&nbsp; &nbsp;
+                        {% endif %}
+                        {% if upvote_types_count|add:downvote_types_count %}
+                            <a class="font12 link_color text-bold" href="?type=vote">{{ upvote_types_count|add:downvote_types_count }} Vote{{ upvote_types_count|add:downvote_types_count|pluralize:',s' }}</a>
+                        {% endif %}
+                    </div>
+
+                    {% for message in messages %}
+                        <article class="post post_index_padding pl-5 {% if forloop.first %}border-top-line{% endif %} {% if forloop.counter|divisibleby:2 %}changing_background{% endif %}" style="margin-bottom: 0; padding-left: 20px!important;padding-right: 20px!important;">
+
+                            <div class="post-header">
+                                <div class="custom_row">
+                                    <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1 ml-3">
+                                        {% if message.type|first_letter|capfirst == 'U' %}
+                                            <div class="message_type_box vote">
+                                                <div class="increment up arrow-up arrow-up_{{ message.type|first_letter|capfirst }}"></div>
+                                            </div>
+                                        {% elif message.type|first_letter|capfirst == 'D' %}
+                                            <div class="message_type_box vote">
+                                                <div class="increment up arrow-down arrow-down_{{ message.type|first_letter|capfirst }}"></div>
+                                            </div>
+                                        {% elif message.type == 'Akzeptiert' %}
+                                            <div class="message_type_box p-0 pt-1 message_type_box_{{ message.type|first_letter|capfirst }}">
+                                                <svg aria-hidden="true" class="accepted" style="fill: #00800066;" width="36" height="36"
+                                                     viewBox="0 0 36 36">
+                                                    <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
+                                                </svg>
+                                            </div>
+                                        {% elif message.type|first_letter|capfirst == 'D' %}
+                                            <div class="message_type_box vote">
+                                                <div class="increment up arrow-down arrow-down_{{ message.type|first_letter|capfirst }}"></div>
+                                            </div>
+                                        {% else %}
+                                            <div class="message_type_box message_type_box_{{ message.type|first_letter|capfirst }}">{{ message.type|first_letter|capfirst }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                        <h5 class="font14 mb-2">
+                                            <small class="font10 d-block mb-2">{{ message.type }}, {{ message.idate }}</small>
+                                            <a class="link_color" href="{% if message.link %}{{ message.link }}{% else %}#no_link_only_read{% endif %}">
+                                                {{ message.title }}
+                                            </a>
+                                        </h5>
+                                        <p class="font14 mb-0">
+                                             {{ message.message|linebreaksbr|safe }}
+                                        </p>
+                                        <div class="clearfix"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+
+                    {% if messages %}
+                        <div class="custom_row mt-4 mb-4">
+                            <div class="col-lg-12 ml-4">
+                                <ul class="pagination">
+
+                                    {% if messages.has_previous %}
+                                        <li class="prev">
+                                            <a href="?page={{ messages.previous_page_number }}">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="active font12">
+                                        {{ messages.number }} von {{ messages.paginator.num_pages }}
+                                    </li>
+
+                                    {% if messages.has_next %}
+                                        <li class="next">
+                                            <a href="?page={{ messages.next_page_number }}">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if not messages %}
+                        <div class="custom_row mt-3 mb-3">
+                            <div class="col-xl-9 ml-2">
+                                <small>
+                                    Keine Ergebnisse
+                                </small>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+{% endblock %}

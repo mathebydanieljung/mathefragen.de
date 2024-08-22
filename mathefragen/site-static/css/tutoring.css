@@ -1,0 +1,13 @@
+.pricing-card-title{
+    font-size: 1.00rem!important;
+    padding: 9px;
+}
+
+.selected_price {
+    background-color: #abc2d775;
+}
+
+.selected_tutor_card {
+    border: 1px solid var(--ci-shadow);
+    box-shadow: -2px 4px 11px 1px var(--ci-shadow)!important;
+}

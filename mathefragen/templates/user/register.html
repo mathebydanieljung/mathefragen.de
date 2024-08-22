@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block wrapper_extra_class %}math_background{% endblock %}
+
+{% block main %}
+
+    <section class="pt-5" style="padding-bottom: 300px">
+        <div class="container login_container">
+
+            <div class="custom_row justify-content-center">
+                <div class="col-lg-5 col-md-6 col-sm-8 col-xl-5">
+
+                    <div class="card login_card">
+                        <div class="card-header text-center" style="border-bottom: none">
+                            {% if settings.logo_icon %}
+                                <a href="/">
+                                    <img src="{{ settings.logo_icon.url }}" width="70%" alt="Logo der Plattform">
+                                </a>
+                            {% endif %}
+
+                            {% if settings.slogan %}
+                            <h4 class="mb-2">
+                                {{ settings.slogan }}
+                            </h4>
+                            {% endif %}
+
+                            {% if recommended_by %}
+                            <p>
+                                <small class="font12">Empfohlen von</small>
+                                <a href="{{ recommended_by.link }}" target="_blank">
+                                    <img src="{{ recommended_by.logo.url }}" width="130" alt="">
+                                </a>
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body">
+                            {% if new_question_hash %}
+                            <h4 class="text-center mb-5">
+                                Melde Dich jetzt an,<br> um Deine Frage zu stellen.
+                            </h4>
+                            {% endif %}
+
+                            <ul class="nav nav-tabs profile_tabs mb-4">
+                                <li class="nav-item w-50">
+                                    {% if new_question_hash %}
+                                        <a class="nav-link no_color_link text-center font17 h-100 pl-4" href="{% url 'login' %}?nqh={{ new_question_hash|default:'' }}">Login</a>
+                                    {% else %}
+                                        <a class="nav-link no_color_link text-center font17 h-100 pl-4" href="{% url 'login' %}?next={{ request.GET.next|default:'/' }}">Login</a>
+                                    {% endif %}
+                                </li>
+                                <li class="nav-item w-50">
+                                    {% if new_question_hash %}
+                                        <a class="nav-link active text-center no_color_link font17" href="{% url 'register' %}?nqh={{ new_question_hash|default:'/' }}">
+                                            Neu hier?
+                                        </a>
+                                    {% else %}
+                                        <a class="nav-link active text-center no_color_link font17" href="{% url 'register' %}?next={{ request.GET.next|default:'/' }}">
+                                            Neu hier?
+                                        </a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+
+                            <h6 class="mb-4 text-center">
+                                Bisher {{ request.stats.total_questions }} Fragen
+                                und {{ request.stats.percent_answered }}% davon beantwortet.
+                            </h6>
+
+                            <div class="card-text">
+                                <form method="post" class="mt-1" onsubmit="return submit_register_form();">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.GET.next|default:'/' }}">
+                                    <input type="hidden" name="nqh" value="{{ new_question_hash|default:'' }}">
+
+                                        <div class="mb-3">
+                                            {{ register_form.username }}
+                                            <small>{{ register_form.username.help_text }}</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ register_form.email }}
+                                            <small>
+                                                Wir benachrichtigen Dich per Mail, wenn Du Antworten erhältst.<br>
+                                                Deine E-Mail-Adresse wird nicht veröffentlicht.
+                                            </small>
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ register_form.password }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <button name="submit"
+                                                    type="submit"
+                                                    id="submit"
+                                                    class="btn lrm-button w-100 font22 h-100 cursor_pointer">
+                                                Jetzt kostenlos registrieren
+                                            </button>
+                                        </div>
+
+                                        <div class="">
+                                            {% if error %}
+                                                <p class="mt-3 text-danger text-bold">
+                                                    {{ error }}
+                                                </p>
+                                            {% endif %}
+
+                                            {% if request.GET.auth_email_exists %}
+                                                <p class="mt-3 text-danger text-bold">
+                                                    Diese E-Mail Adresse ist bereits mit einem anderen Account verbunden.
+                                                    Bitte versuche mit einer anderen E-Mail Adresse oder setze dein Passwort zurück.
+                                                </p>
+                                            {% endif %}
+
+                                            {% if request.GET.login_failed %}
+                                                <p class="mt-3 text-danger text-bold">
+                                                    Anmeldung fehlgeschlagen. Bitte versuche mit einer anderen E-Mail Adresse.
+                                                </p>
+                                            {% endif %}
+
+                                            {% if request.GET.please_confirm %}
+                                                <div class="alert alert-success alert-dismissible fade show"
+                                                     role="alert">
+                                                    Du hast Post. Bitte bestätige deine Registrierung.
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+
+                                        </div>
+
+                                </form>
+
+                                <div class="font14">
+                                    <p>
+                                        Diese Lernplattform wird von Lernwilligen aller Altersklassen
+                                        besucht.
+                                        Deswegen bitten wir dich bei der Wahl deines Benutzernamen
+                                        auf unangemessene Ausdrücke zu verzichten.
+                                    </p>
+                                    <p>
+                                        Durch die Registrierung stimmst du den
+                                        <a href="{% url 'privacy' %}" class="mf_color">Datenschutzbestimmungen</a>
+                                        und
+                                        <a href="{% url 'terms' %}" class="mf_color">Nutzungsbedingungen</a> zu.
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file register %}
+    <script type="text/javascript">
+        function submit_register_form(){
+            // track mixpanel event
+            if (typeof mixpanel != "undefined") {
+                mixpanel.track('registrieren', {'register_type': 'email'});
+            }
+            return true;
+        }
+        $(function () {
+
+            $('#id_username').on('keyup', function () {
+                var username = $.trim($(this).val());
+                var regex = new RegExp("^[a-zA-Z0-9.]+$");
+                if (!regex.test(username)) {
+                    $(this).addClass('error_field');
+                    $('#submit').attr('disabled', 'disabled');
+                } else {
+                    $(this).removeClass('error_field');
+                    $('#submit').removeAttr('disabled');
+                }
+            });
+        });
+    </script>
+    {% endcompress %}
+{% endblock %}

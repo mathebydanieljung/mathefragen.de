@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5" style="padding-bottom: 140px">
+
+                    <h5 class="mt-3 text-center">
+                        Bewertung für {{ target_username|title }} schreiben
+                    </h5>
+
+                    <div class="mt-4" style="width: 65%;margin: 0 auto;">
+                        {% if errors %}
+                            {{ errors }}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'add_review' profile.user_id given_to %}">
+                            <input name="social_id" type="hidden" value="{{ social.id }}">
+                            {% csrf_token %}
+
+                            <label for="id_text">Deine Bewertung</label>
+                            {{ form.text }}
+
+                            {% if not coming_from_question %}
+                                <label id="id_relation_source" class="mt-4">Woher kennst du {{ target_username|title }}?</label>
+                                {{ form.relation_source }}
+                            {% endif %}
+
+                            <input type="hidden" name="review_id" value="{{ review_id }}">
+                            <input type="hidden" name="source_question_id" value="{{ request.GET.source_question }}">
+
+                            {% if hashtag_ids %}
+                                <div class="mt-4 mb-4 text-justify">
+                                    <label class="d-block">Kenntnisse von {{ target_username|title }} bestätigen</label>
+                                    {% for hashtag in hashtag_ids %}
+                                        <button type="button"
+                                                class="btn btn-outline-info helper_knowledge mb-3 mr-2 {% if coming_from_question %}active{% endif %}"
+                                                data-hashtag-id="{{ hashtag.id }}">
+                                            {{ hashtag.name|capfirst }} &nbsp;
+
+                                            <span>
+                                                {% if coming_from_question %}
+                                                    <i class="fas fa-check" aria-hidden="true"></i>
+                                                    <input type="hidden" name="selected_hashtag" value="{{ hashtag.id }}">
+                                                {% else %}
+                                                    <i class="fas fa-plus" aria-hidden="true"></i>
+                                                {% endif %}
+                                            </span>
+
+
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <button class="btn lrm-button btn-lg mt-3" type="submit">
+                                {% if review_id %}
+                                    Änderung speichern
+                                {% else %}
+                                    Bewertung speichern
+                                {% endif %}
+                            </button>
+
+                            <a href="javascript:window.history.back()" class="valign-bottom ml-4 linked_in_color">
+                                <small>Abbrechen</small>
+                            </a>
+
+                        </form>
+                        <p class="mt-4">
+
+                        </p>
+
+
+                    </div>
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script>
+        $(function () {
+
+            // set placeholder dynamically
+            $('#id_text').attr('placeholder', 'Jetzt kannst du {{ target_username|capfirst }} helfen durch dein Feedback');
+
+            $('.helper_knowledge').on('click', function () {
+                var hashtag_id = $(this).data('hashtag-id');
+                if ($(this).hasClass('active')) {
+                    // un-select
+                    var un_confirmed_icon = document.createElement('i');
+                    un_confirmed_icon.classList.add('fas');
+                    un_confirmed_icon.classList.add('fa-plus');
+
+                    $(this).find('span').html('');
+                    $(this).find('span').html(un_confirmed_icon);
+                    $(this).removeClass('active');
+
+                } else {
+                    // select
+                    var confirmed_icon = document.createElement('i');
+                    confirmed_icon.classList.add('fas');
+                    confirmed_icon.classList.add('fa-check');
+
+                    var input_for_form = document.createElement('input');
+                    input_for_form.type = 'hidden';
+                    input_for_form.name = 'selected_hashtag';
+                    input_for_form.value = hashtag_id;
+
+                    $(this).find('span').html('');
+                    $(this).find('span').html(confirmed_icon);
+                    $(this).find('span').append(input_for_form);
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+{% endblock %}

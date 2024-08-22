@@ -1,0 +1,137 @@
+
+.chat {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.chat .chat-header {
+    padding: 20px;
+    border-bottom: 2px solid white;
+}
+
+.chat .chat-header img {
+    float: left;
+}
+
+.chat .chat-header .chat-about {
+    float: left;
+    padding-left: 10px;
+    margin-top: 6px;
+}
+
+.chat .chat-header .chat-with {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.chat .chat-header .chat-num-messages {
+    color: #92959E;
+}
+
+.chat .chat-header .fa-star {
+    float: right;
+    color: #D8DADF;
+    font-size: 20px;
+    margin-top: 12px;
+}
+
+.chat .chat-history {
+    overflow-y: scroll;
+}
+
+.chat .chat-history ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.chat .chat-history .message-data {
+    margin-bottom: 15px;
+}
+
+.chat .chat-history .message-data-time {
+    color: #a8aab1;
+    padding-left: 6px;
+}
+
+.chat .chat-history .message {
+    padding: 18px 20px;
+    line-height: 26px;
+    font-size: 15px;
+    border-radius: 7px;
+    width: 90%;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.chat .chat-history .message:after {
+    bottom: 100%;
+    left: 7%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    border-bottom-color: #94C2ED;
+    pointer-events: none;
+    border-width: 10px;
+    margin-left: -10px;
+}
+
+.chat .chat-history .my-message {
+    background: #abc2d71f;
+    border: 1px solid #abc2d7ad;
+}
+
+.chat .chat-history .other-message {
+    background: #abc2d71f;
+    border: 1px solid #abc2d7ad;
+}
+
+.chat .chat-history .other-message:after {
+    border-bottom-color: #94C2ED;
+    left: 93%;
+}
+
+.chat .chat-message textarea {
+    width: 100%;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    resize: none;
+    outline: none!important;
+}
+
+.chat .chat-message textarea:focus {
+    border-color: #6cbbf7;
+    box-shadow: 0 0 0 2px rgba(0, 149, 255, 0.15);
+}
+
+.chat .chat-message .fa-file-o, .chat .chat-message .fa-file-image-o {
+    font-size: 16px;
+    color: gray;
+    cursor: pointer;
+}
+
+.chat .chat-message button {
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.chat .chat-message button:hover {
+    color: #75b1e8;
+}
+
+.align-left {
+    text-align: left;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.float-right {
+    float: right;
+}
+

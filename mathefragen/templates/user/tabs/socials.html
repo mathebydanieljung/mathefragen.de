@@ -1,0 +1,83 @@
+{% load static %}
+
+<div class="mt-4">
+    <div class="custom_row mt-3 pl-4 pr-4">
+        {% for social in socials %}
+            <div class="col-lg-3 col-sm-5 col-xs-6 mb-4">
+                <div class="card" style="width: 15rem;">
+                    <div class="card-body">
+                        <a href="{{ social.link }}" class="no_color_link">
+                        <h5 class="card-title">
+                            {% if social.type == 'ytb' %}
+                                <i class="fab fa-youtube"></i>
+                                Youtube
+                            {% elif social.type == 'in' %}
+                                <i class="fab fa-linkedin"></i>
+                                LinkedIn
+                            {% elif social.type == 'site' %}
+                                <i class="fas fa-link"></i>
+                                Webseite
+                            {% elif social.type == 'tw' %}
+                                <i class="fab fa-twitter twitter_color"></i>
+                                Twitter
+                            {% elif social.type == 'xg' %}
+                                <i class="fab fa-xing-square xing_color"></i>
+                                Xing
+                            {% elif social.type == 'insta' %}
+                                <i class="fab fa-instagram insta_color"></i>
+                                Instagram
+                            {% elif social.type == 'tt' %}
+                                <img src="{% static 'images/tiktok.svg' %}" width="15">
+                                TikTok
+                            {% endif %}
+                        </h5>
+                        <p class="card-text">
+                            <small>
+                                {{ social.description|truncatechars:140 }}
+                            </small>
+                        </p>
+                        </a>
+                        {% if request.user.id == profile.user_id %}
+                            <div style="position: absolute; bottom: 5px">
+                                <a href="{% url 'edit_socials' profile.user_id social.id %}" class="small link_color">
+                                    Bearbeiten
+                                </a>
+                                <a data-delete-link="{% url 'delete_social' profile.user_id social.id %}" href="#"
+                                   class="ml-3 delete_social link_color cursor_pointer small">
+                                    Löschen
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        {% if not socials %}
+            <div class="col-xl-11 col-lg-9 col-md-9 col-sm-12 mb-4">
+                Wir legen hier großen Wert darauf echte Menschen zusammenzuführen. Durch das Einbinden von sozialen
+                Netzwerken verifiziert ihr euch nicht nur als solche, sondern gebt anderen, mit den selben Problemen,
+                die Chance sich mit euch zusammen zutun. Außerdem werden wir über die Zeit immer mehr Möglichkeiten
+                einbauen, eure Leistungen (vor allem die der Helfer) zu zertifizieren. Dies kann euch im Berufsleben neue
+                Chancen eröffnen.
+            </div>
+        {% endif %}
+
+        {% if request.user.id == profile.user_id %}
+            <div class="col-lg-3 col-sm-5 col-xs-6 mb-4">
+                <a href="{% url 'add_socials' profile.user_id %}" class="no_color_link">
+                    <div class="add_card card" style="width: 15rem;border: 1px dashed grey">
+                        <div class="card-body">
+                            <p class="card-text text-center grey_text">
+                                + Social hinzufügen
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+

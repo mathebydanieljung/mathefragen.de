@@ -1,0 +1,34 @@
+{% load static %}
+
+<div class="modal fade" id="suggest_videos_modal" tabindex="-1" role="dialog" aria-labelledby="videos_label" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videos_label">
+                    Videosuche auf Youtube
+                </h5>
+                <button class="btn lrm-button add_chosen_videos hidden">Hinzufügen</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body share_modal_body">
+                <div class="custom_row">
+                    <div class="col-sm-6 col-md-12 col-lg-12 text-center">
+
+                        <input type="text"
+                               class="form-control suggest_videos_input w-75 d-inline"
+                               placeholder="z.B. Stochastik">
+                        <button class="btn lrm-button suggest_videos_btn" style="height: 42px!important;">Suchen</button>
+                    </div>
+                </div>
+                <div class="custom_row justify-content-center">
+                    <div id="waiting_for_ytb_result" class="hidden">
+                        <img src="{% static 'images/loader_new.gif' %}" alt="" class="text-center">
+                    </div>
+                </div>
+                <div class="custom_row justify-content-center mt-3" id="ytb_search_result"></div>
+            </div>
+        </div>
+    </div>
+</div>

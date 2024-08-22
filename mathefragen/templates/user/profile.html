@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block og_data %}
+    <meta property="og:url" content="https://{{ site_domain }}{{ profile.get_absolute_url }}"/>
+    <meta property="og:title" content="{{ profile.get_full_name }} in {{ site_domain }}"/>
+    <meta property="og:description" content="{{ profile.get_full_name }}"/>
+{% endblock %}
+
+{% block title %}
+    {{ site_domain }} - {{ profile.get_full_name }}
+{% endblock %}
+
+{% block description %}
+    {{ profile.get_full_name }}
+{% endblock %}
+
+{% block extra_head %}
+    {% if settings.question_editor == 'tiny' %}
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    {% else %}
+        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/plyr.css' %}?v=2KssI" />
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}?v=2wewwweweKssI" />
+{% endblock %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row" style="min-height: 800px">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5">
+                    {% include 'user/nav.html' %}
+                    {% include 'user/tabs/profile.html' %}
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script src="{% static 'js/plyr.min.js' %}"></script>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+    <script>
+        const player = new Plyr('#player');
+        var profileImageUploader = cloudinary.createUploadWidget({
+                cloudName: 'dqajvdtr3',
+                uploadPreset: 'cedtoerb',
+                multiple: false,
+                maxImageFileSize: 1500000,
+                showPoweredBy: false,
+                language: 'de',
+                text: {
+                    "de": {
+                        "or": "Oder",
+                        "Browse": "Bilder durchsuchen",
+                        "back": "Zurück",
+                        "close": "Schließen",
+                        "no_results": "Keine Ergebnisse",
+                        "local": {
+                            "browse": "Browsen",
+                            "dd_title_single": "Bild hierher ziehen",
+                            "dd_title_multi": "Bild hierher ziehen",
+                            "drop_title_single": "Bild hierher ziehen",
+                            "drop_title_multiple": "Bild hierher ziehen"
+                        },
+                        "crop": {
+                            "title": "Zuschneiden",
+                            "crop_btn": "Zuschneiden",
+                            "skip_btn": "Hochladen",
+                            "reset_btn": "Zurücksetzen",
+                            "close_btn": "Ja",
+                            "close_prompt": "Durch das Schließen werden alle Uploads abgebrochen. Bist du dir sicher?",
+                            "image_error": "Fehler beim Laden",
+                            "corner_tooltip": "Ziehe die Ecke, um die Größe zu ändern",
+                            "handle_tooltip": "Ziehe den Griff, um die Größe zu ändern"
+                        },
+                        "instagram": {
+                            "no_auth_title": "Lade Bilder von deinem Instagram-Konto hoch.",
+                            "no_auth_action": "Mit Instagram verbinden",
+                            "header_title": "Deine neuesten Instagram-Fotos",
+                            "authenticating": "Authentifizierung..."
+                        },
+                        "facebook": {
+                            "no_photos": "Keine Bilder vorhanden...",
+                            "no_auth_title": "Lade Bilder von deinem Facebook-Konto hoch.",
+                            "no_auth_action": "Mit Facebook verbinden",
+                            "no_auth_statement": "Wir werden nichts ohne deine Erlaubnis veröffentlichen.",
+                            "album_subtitle": "{{count}} Bilder",
+                            "menu": {
+                                "uploaded": "Deine Bilder",
+                                "tagged": "Deine Bilder",
+                                "albums": "Alben"
+                            }
+                        },
+                        "camera": {
+                            "capture": "Aufnehmen",
+                            "cancel": "Abbrechen",
+                            "take_pic": "Aufnehmen und hochladen",
+                            "explanation": "Stelle sicher, dass deine Kamera angeschlossen ist und Browser die Kameraerfassung ermöglicht. Wenn du fertig bist, klicke auf Aufnehmen.",
+                            "camera_error": "Zugriff auf Kamera fehlgeschlagen",
+                            "retry": "Erneut aufnehmen",
+                            "file_name": "Camera_{{time}}"
+                        },
+                        "menu": {
+                            "files": "Meine Bilder",
+                            "web": "Web Adresse",
+                            "camera": "Kamera",
+                            "facebook": "Facebook",
+                            "instagram": "Instagram"
+                        },
+                    }
+                },
+                singleUploadAutoClose: false,
+                sources: [ 'local', 'camera', 'facebook', 'instagram'],
+            }, (error, result) => {
+                if (!error && result && result.event === "success") {
+                    var image_url = result.info['secure_url'];
+                    $('.profile_image').attr('src', image_url);
+                    $.ajax({
+                        url: '{% url "set_profile_image" profile.hash_id %}',
+                        type: 'post',
+                        data: {
+                            cloudinary_response: JSON.stringify(result.info),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        }
+                    });
+                }
+            }
+        )
+    </script>
+    <script>
+        $(function () {
+
+            $('.points_explain').on('click', function () {
+                $(this).popover();
+            });
+
+            $('.profile_image').on('mouseover', function (){
+                $('.change_profile_image_pencil').removeClass('d-none');
+            });
+            $('.profile_image').on('mouseleave', function (){
+                $('.change_profile_image_pencil').addClass('d-none');
+                $('.profile_image').removeClass('bg_dark_hover');
+            });
+            $('.profile_image').on('click', function (){
+                profileImageUploader.open();
+            });
+
+            var tutor_should_be_reviewed = '{{ request.GET.finished_session }}';
+            if (tutor_should_be_reviewed){
+                $('#tutor_feedback_modal').modal('show');
+            }
+
+            $('.save_tutor_review').on('click', function (){
+                var tutor_feedback_text = $.trim($('#tutor_feedback_text').val());
+                if (tutor_feedback_text && tutor_should_be_reviewed){
+                    $.ajax({
+                        url: '{% url "save_tutor_review" request.GET.finished_session|default:"nohash" %}',
+                        type: 'post',
+                        data: {
+                            csrfmiddlewaretoken: csrf_token,
+                            tutor_feedback_text: tutor_feedback_text
+                        }
+                    }).done(function (){
+                        location.href = '{% url "request_detail" request.GET.finished_session|default:"nohash" %}?status=review_given';
+                    });
+                }
+            });
+
+            $(document).on('click', '.user_follow_btn', function () {
+                var clicked_btn = $(this);
+                $.get("{% url 'follow_user' %}?user_to_follow=" + {{ profile.user_id }}, function (data, status) {
+                    clicked_btn.text('ich folge');
+                    clicked_btn.addClass('active');
+                    clicked_btn.addClass('already_followed_user');
+                    clicked_btn.removeClass('user_follow_btn');
+                });
+            });
+
+            $(document).on('click', '.already_followed_user', function () {
+                var clicked_btn = $(this);
+                $.get("{% url 'unfollow_user' %}?user_to_unfollow=" + {{ profile.user_id }}, function (data, status) {
+                    clicked_btn.text('Folgen');
+                    clicked_btn.removeClass('active');
+                    clicked_btn.removeClass('already_followed_user');
+                    clicked_btn.addClass('user_follow_btn');
+                });
+            });
+
+            $('.see_more_hashtag_confirms').on('click', function () {
+                if ($(this).hasClass('open')){
+                    $(this).text('Mehr sehen').removeClass('open');
+                    $('.profile_confirmed_tags').removeAttr('style');
+                    $('.profile_confirmed_tags button:nth-child(n+5)').addClass('d-none');
+                } else {
+                    $(this).text('Weniger sehen').addClass('open');
+                    $('.profile_confirmed_tags').attr('style', 'height: auto');
+                    $('.profile_confirmed_tags button').removeClass('d-none');
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

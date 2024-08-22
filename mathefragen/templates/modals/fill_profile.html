@@ -1,0 +1,51 @@
+{% load custom_tags %}
+
+<div class="modal fade" id="complete_profile_modal" tabindex="-1" role="dialog" aria-labelledby="complete_profile_label" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="complete_profile_label">
+                    Vervollständige dein Profil
+                </h5>
+                <button type="button" class="close skip_profile_completion" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    {% csrf_token %}
+                    <p>
+                        Hilf uns, dir besser zu helfen. Vervollständige dein Profil.
+                        Deine Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
+                    </p>
+                    <form action="{% url 'fill_missing_data' request.user.pk %}" method="post">
+                        {% csrf_token %}
+                        <div class="custom_row">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-group">
+                                    {% render_complete_profile_form request as form %}
+                                    {{ form.0.as_p }}
+                                    <input type="hidden" name="fields_to_save" value="{{ form.1 }}">
+                                    <input type="hidden" name="url_to_return" value="{{ request.path }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom_row mt-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <button name="button" type="submit"
+                                            class="btn lrm-button w-50">
+                                        Speichern
+                                    </button>
+                                    <a class="font14 ml-4 skip_profile_completion cursor_pointer">
+                                        Überspringen
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

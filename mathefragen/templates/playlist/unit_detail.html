@@ -1,0 +1,73 @@
+{% load static custom_tags markdownify l10n %}
+
+<article class="post mb-0" id="post_{{ unit.id }}">
+    <div class="blog-detail-description feed_l_padding mb-2">
+
+        <div class="custom_row">
+            <div class="col-2 col-md-1 hidden">
+                <div class="vote text-center">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="col-md-12 col-10 mt-2 word_break_all question_text_div">
+                <div id="div_2_hide_{{ unit.id }}">
+                    <div class="mb-3">
+                        <h5>{{ unit.int_order|unlocalize }}. {{ unit.name|capfirst }}</h5>
+                    </div>
+                    <div class="answer_text_div">
+                        {% if settings.question_editor == 'tiny' %}
+                            {{ unit.description|safe }}
+                        {% else %}
+                            {{ unit.description|markdownify }}
+                        {% endif %}
+                    </div>
+
+                    {% if unit.unit_vid_recommendations.count %}
+                        <div class="mt-5">
+                            <h6>Vorgeschlagene Videos</h6>
+                            <div class="custom_row">
+                                {% for recommendation in unit.unit_vid_recommendations.all %}
+                                    <div class="col-md-3 col-lg-3 col-sm-3 mb-4">
+                                        <iframe width="100%"
+                                                data-name="youtube"
+                                                data-src="https://www.youtube.com/embed/{{ recommendation.youtube_id }}"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen></iframe>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="custom_row mb-4 font12">
+            <div class="col-2 col-md-1 hidden">
+                &nbsp;
+            </div>
+            <div class="col-md-12 col-10">
+
+                <small class="mt-5 d-block">
+
+                    {% if request.user.is_authenticated and request.user.id == playlist.user_id %}
+                        <a class="edit_unit font12 link_color mr-3"
+                           href="{{ playlist.get_absolute_url }}?unit={{ unit.id }}">Bearbeiten</a>
+                    {% endif %}
+
+                    <span class="share_link_in_detail mf_color"
+                          data-title="{{ unit.name|capfirst }}"
+                          data-hashtags="letsrockmathe,{{ site_domain }},danieljung"
+                          data-subject="Lerneinheit '{{ unit.name|capfirst }}'"
+                          data-body="in Lernplayliste '{{ playlist.name|capfirst }}'"
+                          data-url="https://{{ site_domain }}{{ playlist.get_absolute_url }}">
+                        <i class="fal fa-share-alt"></i>&nbsp; Teilen
+                    </span>
+
+                </small>
+            </div>
+        </div>
+
+    </div>
+</article>

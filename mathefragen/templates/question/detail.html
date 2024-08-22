@@ -1,0 +1,1063 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block og_data %}
+    <meta property="og:url" content="https://{{ site_domain }}{{ question.get_absolute_url }}"/>
+    <meta property="og:title" content="{{ site_domain }} - {{ question.title|capfirst }}"/>
+    <meta property="og:description" content="{{ question.title|capfirst }}"/>
+{% endblock %}
+
+{% block title %}
+    {{ site_domain }} - {{ question.title|capfirst }}
+{% endblock %}
+
+{% block description %}
+    {{ question.title|capfirst }}
+{% endblock %}
+
+{% block extra_head %}
+    <link href="{% static 'css/vote.css' %}?v=4rdf" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/confetti.css' %}?v=09ie" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{% static 'js/jquery.tokeninput.js' %}?v=2323rwe"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/tokeninput/token-input-facebook.css' %}?v=1wee4" />
+    {% if settings.question_editor == 'tiny' %}
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        <script src="https://cdn.tiny.cloud/1/1am3gvm21paktqtr11shw5n7d24t9vh3h9oduf216blqq11h/tinymce/5/tinymce.min.js"></script>
+    {% else %}
+        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=23"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
+        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+    {% endif %}
+    <script>
+        var accept_url = "{% url 'accept_answer' %}";
+        var prePopulateTags = {{ question.tag_names|listify|safe }};
+        var question_id = {{ question.id }};
+        var answer_delete_url = "{% url 'delete_answer' %}";
+        var reload_tags_url = "{% url 'reload_tags' question.id question.slug %}";
+        var follow_question_url = "{% url 'follow_question' %}";
+        var unfollow_question_url = "{% url 'unfollow_question' %}";
+        var save_question_comment_url = "{% url 'save_question_comment' %}";
+        var report_content_url = "{% url 'report_content' %}";
+        var save_answer_comment_url = "{% url 'save_answer_comment' %}";
+        var vote_comment_url = "{% url 'vote_comment' %}";
+        var question_comment_delete_url = "{% url 'delete_question_comment' %}";
+        var answer_comment_delete_url = "{% url 'delete_answer_comment' %}";
+        var answer_in_GET = '{{ request.GET.answer }}';
+        var question_inactive = {% if not question.is_active and question.confirmed and request.user.id != question.user_id %}true{% else %}false{% endif %};
+        var question_deleted = {% if question.soft_deleted and request.user.id != question.user_id %}true{% else %}false{% endif %};
+        var help_request = '{{ help_request.hash_id|default_if_none:"" }}';
+        var mark_as_solved_with_tutor_url = '{% url "mark_as_solved_with_tutor" %}?question_id={{ question.id }}&help_request_hash={{ help_request.hash_id|default_if_none:"nohash" }}';
+        var show_ask_question_modal = {% if show_ask_question_modal %}true{% else %}false{% endif %};
+    </script>
+{% endblock %}
+
+{% block body_extra_attr %}itemscope itemtype="https://schema.org/QAPage"{% endblock %}
+
+{% block main %}
+    {% if help_request %}
+    {% include 'modals/ask_if_question_settled.html' %}
+    {% endif %}
+    {% include 'modals/ask_now_modal_v1.html' %}
+    {% include 'modals/downvote.html' %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div itemprop="mainEntity" itemscope itemtype="https://schema.org/Question" class="col-xl-9 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+                    <div class="custom_row">
+                        <div class="col-sm-12 {% if request.user_agent.is_mobile %}col-md-12{% else %}col-md-10{% endif %} mb-2">
+                            <div class="px-3 w-90">
+                                <a href="{{ question.get_absolute_url }}" class="no_color_link">
+                                    <h3 class="mb-0 font22 question_title mb-1" itemprop="name">
+                                        {{ question.title|capfirst }}
+                                    </h3>
+                                </a>
+                                {% if question.confirmed %}
+                                <div>
+                                    {% if question.is_first_question %}
+                                        <span class="badge badge-pill badge-warning mr-2" data-toggle="tooltip" data-placement="bottom" title="Das ist die erste Frage von {{ question.user.profile.username }}. Sei nett, respektvoll und geduldig.">Erste Frage</span>
+                                    {% endif %}
+                                    <small class="font12 mr-2">
+                                        Aufrufe: {{ question.views }}
+                                        &nbsp; &nbsp;
+                                        {% if question.rank_date %}
+                                        Aktiv: {{ question.rank_date|naturaltime_v2}}
+                                        {% endif %}
+                                    </small>
+                                    {% if question.user_id and question.user_id != request.user.id %}
+                                    <small class="font10 help-block d-inline-block">
+                                        {% already_follow_question request.user question.id as already_following %}
+                                        {% if already_following %}
+                                            <button class="btn btn-sm valign-inherit btn-outline-info active already_followed_question">
+                                                ich folge
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-sm valign-inherit btn-outline-info question_follow_btn">
+                                                folgen
+                                            </button>
+                                        {% endif %}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if not request.user_agent.is_mobile and question.confirmed %}
+                        <div class="col-sm-12 col-md-2">
+                            <a href="{% url 'create_question' %}" class="btn btn-big btn-primary main_question_button_clck text-center float-right mr-5">Jetzt Frage stellen</a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% include 'question/question_content.html' %}
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file question_detail_base_v1 %}
+        <script type="text/javascript" src="{% static 'js/question_v1.js' %}?v=1we2"></script>
+        <script type="text/javascript" src="{% static 'js/answer_v1.js' %}?v=1we2"></script>
+        <script>
+            var animateVote = function (el) {
+                //reset animation
+                el.removeClass('animate');
+                el.addClass('animate');
+                setTimeout(function () {
+                    el.removeClass('animate');
+                }, 700);
+            };
+            function open_ask_modal(){
+                var hide_ask_question_modal_ckie = getCookie("hide_ask_question_modal_ckie");
+                if(!$('.modal.show').length && hide_ask_question_modal_ckie === "") {
+                    const ask_now_modals = ["ask_now_modal_v1"];
+                    const random_idx = Math.floor(Math.random() * ask_now_modals.length);
+                    const random_modal_id = ask_now_modals[random_idx];
+
+                    $('#' + random_modal_id + '_click').attr('data-version', random_modal_id);
+                    console.log('modal_id: ', '#' + random_modal_id);
+                    $('#' + random_modal_id).modal('show');
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track(
+                            'fragestellen_dialog_cta_show',
+                            {'dialog_variant': random_modal_id}
+                        );
+                    }
+                }
+            }
+            $(function () {
+
+                $('#id_question_tags_edit_clk').on('click', function (){
+                    $('#id_question_tags_div').addClass('d-none');
+                    $('#id_question_tags_edit_div').load(reload_tags_url);
+                });
+
+                $('body').on('click', '#id_cancel_tags_edit', function (){
+                    $('#id_question_tags_edit_div').html('&nbsp;');
+                    $('#id_question_tags_div').removeClass('d-none');
+                });
+
+                $('.hide_ask_question_modal').on('click', function (){
+                    console.log('hide_ask_question_modal');
+                    setCookie("hide_ask_question_modal_ckie", 'y', 30);
+                });
+
+                $('.fragestellen_dialog_cta_click').on('click', function (e){
+                    // prevent default
+                    e.preventDefault();
+                    var href = $(this).attr('href');
+                    var modal_version = $(this).data('version');
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track(
+                            'fragestellen_dialog_cta_click',
+                            {'dialog_variant': modal_version}
+                        );
+                    }
+                    location.href = href;
+                });
+
+                $('.main_question_button_clck').on('click', function (e){
+                    // prevent default
+                    e.preventDefault();
+                    var href = $(this).attr('href');
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track(
+                            'main_question_button_clck',
+                            {'location': 'detail_page'}
+                        );
+                    }
+                    location.href = href;
+                });
+
+                $(document).mouseleave(function () {
+                    if (show_ask_question_modal) {
+                        open_ask_modal();
+                    }
+                });
+
+                window.setTimeout(function () {
+                    if (show_ask_question_modal) {
+                        open_ask_modal();
+                    }
+                }, 8000);
+
+                $('.comment-vup').on('click', function (){
+                    var et = '';
+                    var new_counter;
+                    if ($(this).hasClass('comment-vup-off')){
+                        $(this).removeClass('comment-vup-off');
+                        $(this).addClass('comment-vup-on');
+                        et = 'add';
+                    } else {
+                        $(this).addClass('comment-vup-off');
+                        $(this).removeClass('comment-vup-on');
+                        et = 'remove';
+                    }
+                    var vote_counter = $(this).data('vote-counter');
+                    var ot = $(this).data('object-type');
+                    var comment_id = $(this).data('comment-id');
+                    if (et === 'add'){
+                        new_counter = vote_counter + 1;
+                    } else {
+                        if (vote_counter > 0){
+                            new_counter = vote_counter - 1;
+                        } else {
+                            new_counter = 0;
+                        }
+                    }
+                    if (new_counter){
+                        $('.comment-' + comment_id + '-votes').text(new_counter);
+                    } else {
+                        $('.comment-' + comment_id + '-votes').text('');
+                    }
+                    $(this).attr('data-vote-counter', new_counter);
+                    $.ajax({
+                        url: vote_comment_url + '?comment_id=' + comment_id + '&ot=' + ot + '&et=' + et,
+                        type: 'post',
+                        data: {
+                            csrfmiddlewaretoken: csrf_token
+                        }
+                    });
+                });
+
+                if (help_request && user_logged_in){
+                    $('#after_session_check_modal').modal('show');
+                }
+
+                $('.question_settled_clk').on('click', function (){
+                    $.ajax({
+                        url: mark_as_solved_with_tutor_url,
+                        type: 'get'
+                    }).done(function (response) {
+                        $('#after_session_check_modal').modal('hide');
+                    })
+                });
+
+                $(document).on('click', '.ping_helper', function () {
+                    var clicked_el = $(this);
+                    var needed_time = $('#needed_time').val();
+                    var hash_id = $(this).data('hash-id');
+                    $.ajax({
+                        url: ping_tutor + '?hash_id=' + hash_id + '&question_id=' + question_id + '&t=' + needed_time,
+                        type: 'get'
+                    }).done(function (response){
+                        clicked_el.html('<i class="fas fa-check"></i> &nbsp; benachrichtigt');
+                        clicked_el.addClass('active');
+                    }).fail(function (err){
+                        alert('Whoopsala, etwas ist schief gelaufen. Bitte kontaktiere uns über Feedback Funktion links unten.')
+                    });
+
+                });
+
+                // attach rotate button to image tags
+                var rotate_btn = document.createElement('button');
+                rotate_btn.className = 'rotate_image_btn btn btn-sm';
+                var rotate_btn_text = document.createTextNode('Bild drehen ');
+                var rotate_icon = document.createElement('i');
+                rotate_icon.className = 'fas fa-redo-alt';
+
+                rotate_btn.appendChild(rotate_btn_text);
+                rotate_btn.appendChild(rotate_icon);
+
+                $(rotate_btn).insertAfter($('#question_text_div img'));
+
+                $(document).on('click', '.rotate_image_btn', function () {
+                    var image = $(this).prev('img');
+                    if (image.hasClass('deg90')) {
+                        image.removeClass('deg90');
+                        image.addClass('deg180');
+                    } else if (image.hasClass('deg180')) {
+                        image.removeClass('deg180');
+                        image.addClass('deg270');
+                    } else if (image.hasClass('deg270')) {
+                        image.removeClass('deg270');
+                        image.addClass('deg360');
+                    } else if (image.hasClass('deg360')) {
+                        image.removeClass('deg360');
+                        image.addClass('deg90');
+                    } else {
+                        image.addClass('deg90');
+                    }
+                });
+
+                $(document).on('click', '.question_follow_btn', function () {
+                    var clicked_btn = $(this);
+                    $.get(follow_question_url + '?question=' + questionId, function (data, status) {
+                        clicked_btn.text('Ich folge');
+                        clicked_btn.addClass('active');
+                        clicked_btn.addClass('already_followed_question');
+                        clicked_btn.removeClass('question_follow_btn');
+                    });
+                });
+
+                $(document).on('click', '.already_followed_question', function () {
+                    var clicked_btn = $(this);
+                    $.get(unfollow_question_url + '?question=' + questionId, function (data, status) {
+                        clicked_btn.text('Folgen');
+                        clicked_btn.removeClass('active');
+                        clicked_btn.removeClass('already_followed_question');
+                        clicked_btn.addClass('question_follow_btn');
+                    });
+                });
+
+                if (question_inactive) {
+                    location.replace('/?inactive=1');
+                }
+
+                if (question_deleted) {
+                    location.replace('/?deleted=s');
+                }
+
+                // add target blank to urls
+                $('#question_text_div a').attr('target', '_blank');
+                $('#question_text_div a').addClass('link_color light_bold');
+                $('.answer_text_div a').attr('target', '_blank');
+                $('.comment_text_div a').attr('target', '_blank');
+
+                if (!isMobile) {
+                    // websocket connections
+                    var url = question_wss_url + questionId;
+                    QuestionWSConnection(url);
+                }
+
+                $('.suggest_videos_input').on('keydown', function (e) {
+                    if (e.which === 13) {
+                        var search_term = $.trim($('.suggest_videos_input').val());
+                        if (search_term) {
+                            search_ytb(search_term);
+                        }
+                    }
+                });
+
+                $('.suggest_videos_btn').on('click', function () {
+                    var search_term = $.trim($('.suggest_videos_input').val());
+                    if (search_term) {
+                        search_ytb(search_term);
+                    }
+                });
+
+                function search_ytb(search_term) {
+                    $('#waiting_for_ytb_result').removeClass('hidden');
+
+                    $.get({
+                        url: youtubeSearchUrl,
+                        type: 'get',
+                        data: {
+                            'search_term': search_term
+                        }
+                    }).done(function (result_data) {
+
+                        var result_box = $('#ytb_search_result');
+
+                        $('#waiting_for_ytb_result').addClass('hidden');
+
+                        // empty the box before adding new content
+                        result_box.empty();
+
+                        var result_to_show = [];
+                        var found_videos = result_data['items'];
+
+                        $.each(found_videos, function (i, item) {
+
+                            var iframe_ = document.createElement('iframe');
+                            iframe_.src = 'https://www.youtube.com/embed/' + item.id.videoId;
+                            iframe_.frameBorder = 0;
+                            iframe_.width = '80%';
+                            iframe_.setAttribute('allowfullscreen', 'allowfullscreen');
+                            iframe_.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+
+                            var add_btn = document.createElement('i');
+                            add_btn.classList.add('fal');
+                            add_btn.classList.add('fa-plus-circle');
+                            add_btn.classList.add('add_this_video');
+                            add_btn.setAttribute('data-video-id', item.id.videoId);
+
+                            var video_div = document.createElement('div');
+                            video_div.classList.add('video_div');
+                            video_div.classList.add('mt-3');
+
+                            video_div.appendChild(iframe_);
+                            video_div.appendChild(add_btn);
+
+                            result_to_show.push(video_div);
+                        });
+
+                        result_box.append(result_to_show);
+
+                    });
+                }
+
+                $('.add_chosen_videos').on('click', function () {
+                    var chosen_videos = $('#ytb_search_result').find('.this_video_added');
+                    var videos_for_preview = [];
+                    $.each(chosen_videos, function () {
+
+                        var video_input_tag = document.createElement('input');
+                        video_input_tag.name = 'suggested_videos';
+                        video_input_tag.type = 'hidden';
+                        video_input_tag.value = $(this).data('video-id');
+                        $('#chosen_videos_from_modal').append(video_input_tag);
+
+                        // add for preview
+                        var iframe_div = document.createElement('div');
+                        iframe_div.classList.add('col-md-3');
+                        iframe_div.classList.add('col-lg-3');
+                        iframe_div.classList.add('col-sm-3');
+                        iframe_div.classList.add('mb-4');
+
+                        var iframe_ = document.createElement('iframe');
+                        iframe_.src = 'https://www.youtube.com/embed/' + $(this).data('video-id');
+                        iframe_.frameBorder = 0;
+                        iframe_.width = '100%';
+                        iframe_.setAttribute('allowfullscreen', 'allowfullscreen');
+                        iframe_.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+
+                        var delete_icon = document.createElement('i');
+                        delete_icon.classList.add('fas');
+                        delete_icon.classList.add('fa-times-circle');
+                        delete_icon.classList.add('delete_selected_video');
+                        delete_icon.setAttribute('data-video-id', $(this).data('video-id'));
+
+                        iframe_div.appendChild(delete_icon);
+                        iframe_div.appendChild(iframe_);
+
+                        videos_for_preview.push(iframe_div);
+                    });
+
+                    // empty out the result box in modal
+                    $('#ytb_search_result').empty();
+
+                    $('#suggest_video_previews').append(videos_for_preview);
+
+                    // close modal
+                    $('.suggest_videos_input').val('');
+                    $('#suggest_videos_modal').modal('hide');
+                });
+
+                $('body').on('click', '.add_this_video', function () {
+                    $(this).removeClass('fal');
+                    $(this).removeClass('fa-plus-circle');
+                    $(this).removeClass('add_this_video');
+
+                    $(this).addClass('fas');
+                    $(this).addClass('fa-check-circle');
+                    $(this).addClass('this_video_added');
+
+                    $('.add_chosen_videos').removeClass('hidden');
+                });
+
+                $('body').on('click', '.delete_selected_video', function () {
+                    var video_id = $(this).data('video-id');
+
+                    // remove iframe first and delete icon itself
+                    $(this).next('iframe').remove();
+                    $(this).parent('div').remove();
+                    $(this).remove();
+
+                    // remove the input field from form
+                    $('#chosen_videos_from_modal').find('input[value="' + video_id + '"]').remove();
+                });
+
+                $('input[name="grasp_level"]').on('change', function () {
+                    $('#accept_answer_btn').removeAttr('disabled');
+                });
+
+                // hightlight box if hash in url exists
+                if (window.location.hash) {
+                    $(window.location.hash).addClass('highlight_box');
+                    $('html, body').animate({scrollTop: $(window.location.hash).offset().top - 200}, "slow");
+                }
+
+                Question_v1.init(questionId);
+
+                $('#id_send_downvote_from_modal').on('click', function (){
+                    const target_clk_id = $(this).data('target-clk-id');
+                    const downvote_reason_div_id = target_clk_id + '_reason';
+                    // append invisible div
+                    var downvote_reason_div = document.createElement('div');
+                    downvote_reason_div.id = downvote_reason_div_id;
+                    downvote_reason_div.style.display = 'none';
+                    downvote_reason_div.innerText = $('#downvote_reason').val();
+                    $('#' + target_clk_id).append(downvote_reason_div);
+                    $('#' + target_clk_id).click();
+                    $('#downvote_reason').val('');
+                    $('#downvote_modal').modal('hide');
+                });
+
+                $(".increment").click(function () {
+                    var this_jq = $(this);
+                    const data_owner_id = $(this).data('owner-id');
+                    const downvote_reason_div_id = '#' + this_jq.attr('id') + '_reason';
+
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+
+                    // owner can't vote
+                    if (user_id === data_owner_id) {
+                        alert('Das Voten von eigener Frage oder Antwort ist nicht erlaubt');
+                        return;
+                    }
+
+                    if ($(this).hasClass("up")) {
+
+                        if (this_jq.hasClass('already_upvoted')) {
+
+                            this_jq.removeClass("already_upvoted");
+
+                            var dataType = $(this).data('type');
+                            var dataId = $(this).data('id');
+                            var unvoteUrl = '/vote/question/' + dataId + '/undo/';
+                            if (dataType === 'answer') {
+                                unvoteUrl = '/vote/answer/' + dataId + '/undo/';
+                            }
+                            $.ajax({
+                                url: unvoteUrl,
+                                type: 'post',
+                                data: {
+                                    vote_type: 'up',
+                                    csrfmiddlewaretoken: csrf_token
+                                }
+                            }).done(function (res){
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+                            return false;
+                        }
+
+                        animateVote(this_jq);
+
+                        if ($(this).data('type') === 'question') {
+
+                            // track mixpanel event
+                            if (typeof mixpanel != "undefined") {
+                                mixpanel.track('upvote_frage');
+                            }
+
+                            this_jq.parent('.vote').children('.increment').removeClass('already_downvoted');
+                            this_jq.addClass("already_upvoted");
+
+                            Question_v1.vote('up', '').then(function (res) {
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+
+                        } else {
+                            var answer_id = $(this).data('id');
+
+                            // track mixpanel event
+                            if (typeof mixpanel != "undefined") {
+                                mixpanel.track('upvote_antwort');
+                            }
+
+                            this_jq.parent('.vote').children('.increment').removeClass('already_downvoted');
+                            this_jq.addClass("already_upvoted");
+
+                            Answer_v1.init(answer_id);
+                            Answer_v1.vote('up', '').then(function (res) {
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+                        }
+
+                    } else {
+
+                        if (this_jq.hasClass('already_downvoted')) {
+                            this_jq.removeClass("already_downvoted");
+                            var dataId = $(this).data('id');
+                            var dataType = $(this).data('type');
+                            var unvoteUrl = '/vote/question/' + dataId + '/undo/';
+                            if (dataType === 'answer') {
+                                unvoteUrl = '/vote/answer/' + dataId + '/undo/';
+                            }
+                            $.ajax({
+                                url: unvoteUrl,
+                                type: 'post',
+                                data: {
+                                    vote_type: 'down',
+                                    csrfmiddlewaretoken: csrf_token
+                                }
+                            }).done(function (res) {
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+                            return false;
+                        }
+
+                        const down_vote_reason = $(downvote_reason_div_id).text();
+                        if (!down_vote_reason){
+                            $('#id_send_downvote_from_modal').attr('data-target-clk-id', this_jq.attr('id'));
+                            $('#downvote_modal').modal('show');
+                            return;
+                        }
+
+                        if ($(this).data('type') === 'question') {
+
+                            // track mixpanel event
+                            if (typeof mixpanel != "undefined") {
+                                mixpanel.track('downvote_frage');
+                            }
+
+                            this_jq.parent('.vote').children('.increment').removeClass('already_upvoted');
+                            this_jq.addClass("already_downvoted");
+
+                            Question_v1.vote('down', down_vote_reason).then(function (res) {
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+                        } else {
+                            var answer_id = $(this).data('id');
+
+                            // track mixpanel event
+                            if (typeof mixpanel != "undefined") {
+                                mixpanel.track('downvote_antwort');
+                            }
+
+                            Answer_v1.init(answer_id);
+
+                            this_jq.parent('.vote').children('.increment').removeClass('already_upvoted');
+                            this_jq.addClass("already_downvoted");
+
+                            Answer_v1.vote('down', down_vote_reason).then(function (res) {
+                                var vote_response = JSON.parse(res);
+                                this_jq.parent('.vote').find('.num_votes').text(vote_response.new_votes);
+                            });
+                        }
+                    }
+                });
+
+                $('.accept_answer').on('click', function () {
+
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+
+                    var answer_id = $(this).data('answer-id');
+                    $('#answer_id_to_accept').val(answer_id);
+
+                    // dont accept twice
+                    if ($(this).hasClass('accepted')) {
+                        return;
+                    }
+
+                    // show grasp level first
+                    $('#grasp_level_modal').modal('show');
+
+                });
+
+                $('#accept_answer_btn').on('click', function () {
+                    var grasp_level = $('input[name="grasp_level"]:checked').val();
+                    var answer_id_to_accept = $('#answer_id_to_accept').val();
+
+                    // accept_answer_ID
+                    Answer_v1.init(answer_id_to_accept);
+                    Answer_v1.mark_accepted(grasp_level);
+
+                    $('#grasp_level_modal').modal('hide');
+
+                    $('#accept_answer_' + answer_id_to_accept).find('svg').removeClass('unaccepted');
+                    $('#accept_answer_' + answer_id_to_accept).find('svg').addClass('accepted');
+
+                    $('#id_review_user_' + answer_id_to_accept).removeClass('d-none');
+
+                });
+
+                // show question comment box
+                $('.write_question_comment').on('click', function () {
+                    $(this).addClass('hidden');
+                    $('.edit_question_link').addClass('hidden');
+                    var question_id = $(this).data('question-id');
+                    $('#question_comment_box_' + question_id).removeClass('hidden');
+                    $('#question_comment_textarea_' + question_id).val('');
+                    $('#question_comment_textarea_' + question_id).focus();
+                });
+
+                // todo: separate these js codes in own files soon.
+                $('.question_comment_txtarea').on('keyup', function (){
+                    var comment_txtarea_id = $(this).attr('id');
+                    Preview.Init(
+                        comment_txtarea_id,
+                        'question_comment_preview',
+                        'question_comment_preview_buffer',
+                        false
+                    );
+                    Preview.Update();
+                });
+
+                $('.answer_comment_txtarea').on('keyup', function (){
+                    var answer_id = $(this).attr('data-answer-id');
+                    var comment_txtarea_id = $(this).attr('id');
+                    Preview.Init(
+                        comment_txtarea_id,
+                        'answer_comment_preview_' + answer_id,
+                        'answer_comment_preview_buffer_' + answer_id,
+                        false
+                    );
+                    Preview.Update();
+                });
+
+                // edit question comment
+                $('.edit-question-comment').on('click', function () {
+                    var comment_id = $(this).data('comment-id');
+                    var question_id = $(this).data('question-id');
+                    var comment_text_to_edit = $('#id_raw_question_comment_' + comment_id).text();
+
+                    $('.save-question-comment').attr('data-comment-id', comment_id);
+
+                    // clean and set next content
+                    var comment_box = $('#question_comment_textarea_' + question_id);
+                    comment_box.val('');
+                    comment_box.val(comment_text_to_edit);
+
+                    // later dynamic height depending on comment
+                    comment_box.attr('rows', '6');
+                    comment_box.focus();
+
+                    $('#question_comment_box_' + question_id).removeClass('hidden');
+                    Preview.Init(
+                        'question_comment_textarea_' + question_id,
+                        'question_comment_preview',
+                        'question_comment_preview_buffer',
+                        false
+                    );
+                    Preview.Update();
+                });
+
+                $('.write_answer_comment').on('click', function () {
+                    $(this).addClass('hidden');
+                    $('.edit_answer_link').addClass('hidden');
+                    var answer_id = $(this).data('answer-id');
+                    $('#answer_comment_box_' + answer_id).removeClass('hidden');
+                    $('#answer_comment_textarea_' + answer_id).val('');
+                    $('#answer_comment_textarea_' + answer_id).focus();
+                });
+
+                // edit answer comment
+                $('.edit-answer-comment').on('click', function () {
+                    var comment_id = $(this).data('comment-id');
+                    var answer_id = $(this).data('answer-id');
+                    var comment_text_to_edit = $('#id_raw_answer_comment_' + comment_id).text();
+
+                    $('.save-answer-comment').attr('data-comment-id', comment_id);
+
+                    // clean and set next content
+                    var comment_box = $('#answer_comment_textarea_' + answer_id);
+                    comment_box.val('');
+                    comment_box.val(comment_text_to_edit);
+                    comment_box.focus();
+
+                    $('#answer_comment_box_' + answer_id).removeClass('hidden');
+
+                    Preview.Init(
+                        'answer_comment_textarea_' + answer_id,
+                        'answer_comment_preview_' + answer_id,
+                        'answer_comment_preview_buffer_' + answer_id,
+                        false
+                    );
+                    Preview.Update();
+                });
+
+                // save question comment
+                $('.save-question-comment').on('click', function () {
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+                    var question_id = $(this).data('question-id');
+                    $('#question_comment_box_' + question_id).removeClass('hidden');
+                    var comment_text = $('#question_comment_textarea_' + question_id).val();
+
+                    // empty textarea
+                    $('#question_comment_textarea_' + question_id).val('');
+
+                    var link_ = save_question_comment_url;
+                    if ($(this).data('comment-id')) {
+                        link_ += '?comment-id=' + $(this).data('comment-id');
+                    }
+
+                    // track mixpanel event
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('kommentar_posten', {'location': 'Frage'});
+                    }
+
+                    $.ajax({
+                        url: link_,
+                        type: 'post',
+                        data: {
+                            question: question_id,
+                            comment_text: comment_text,
+                            csrfmiddlewaretoken: csrf_token
+                        }
+                    }).done(function () {
+                        window.location.reload();
+                    });
+
+                });
+
+                $('.convert_comment_to_answer').on('click', function () {
+                    $('#id_convert_object_id').val($(this).data('comment-id'));
+                    $('#convert_comment_to_answer').modal('show');
+                });
+
+                $('.report_content').on('click', function () {
+                    var object_id = $(this).data('object-id');
+                    var object_type = $(this).data('object-type');
+
+                    $('#reported_object').attr('data-object-id', object_id);
+                    $('#reported_object').attr('data-object-type', object_type);
+
+                    $('#report_modal').modal('show');
+                });
+
+                $('.send_report').on('click', function () {
+                    // send the data and then
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+
+                    var report_reason = $('input[name=report_reason]:checked').val();
+                    var object_id = $('#reported_object').data('object-id');
+                    var object_type = $('#reported_object').data('object-type');
+
+                    if (!report_reason) {
+                        alert('Bitte einen Grund angeben');
+                        return;
+                    }
+
+                    $.ajax({
+                        url: report_content_url,
+                        type: 'post',
+                        data: {
+                            'csrfmiddlewaretoken': csrf_token,
+                            'report_reason': report_reason,
+                            'object_id': object_id,
+                            'object_type': object_type
+                        }
+                    }).done(function (response) {
+                        location.reload();
+                    });
+                });
+
+                // save question comment
+                $('.save-answer-comment').on('click', function () {
+                    if (!user_logged_in) {
+                        // show login modal
+                        $('#login_modal').modal('show');
+                        return;
+                    }
+                    var answer_id = $(this).data('answer-id');
+                    $('#answer_comment_box_' + answer_id).removeClass('hidden');
+                    var comment_text = $('#answer_comment_textarea_' + answer_id).val();
+
+                    // empty textarea
+                    $('#answer_comment_textarea_' + answer_id).val('');
+
+                    var link_ = save_answer_comment_url;
+                    if ($(this).data('comment-id')) {
+                        link_ += '?comment-id=' + $(this).data('comment-id');
+                    }
+
+                    // track mixpanel event
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('kommentar_posten', {'location': 'Antwort'});
+                    }
+                    $.ajax({
+                        url: link_,
+                        type: 'post',
+                        data: {
+                            answer: answer_id,
+                            comment_text: comment_text,
+                            csrfmiddlewaretoken: csrf_token
+                        }
+                    }).done(function () {
+                        window.location.reload();
+                    });
+                });
+
+                // delete-question-comment
+                $('.delete-question-comment').on('click', function () {
+                    var question_comment_id = $(this).data('comment-id');
+                    var confirm_deletion = confirm('Willst du deinen Kommentar wirklich löschen?');
+                    if (confirm_deletion) {
+                        $.ajax({
+                            url: question_comment_delete_url,
+                            type: 'post',
+                            data: {
+                                comment_id: question_comment_id,
+                                csrfmiddlewaretoken: csrf_token
+                            }
+                        }).done(function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                // delete-answer-comment
+                $('.delete-answer-comment').on('click', function () {
+                    var answer_comment_id = $(this).data('comment-id');
+                    var confirm_deletion = confirm('Willst du deinen Kommentar wirklich löschen?');
+                    if (confirm_deletion) {
+                        $.ajax({
+                            url: answer_comment_delete_url,
+                            type: 'post',
+                            data: {
+                                comment_id: answer_comment_id,
+                                csrfmiddlewaretoken: csrf_token
+                            }
+                        }).done(function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+
+                // cancel question comment
+                $('.cancel-question-comment').on('click', function () {
+                    var question_id = $(this).data('question-id');
+                    $('#question_comment_box_' + question_id).addClass('hidden');
+                });
+
+                // cancel answer comment
+                $('.cancel-answer-comment').on('click', function () {
+                    var answer_id = $(this).data('answer-id');
+                    $('#answer_comment_box_' + answer_id).addClass('hidden');
+                });
+
+                $('.delete-answer').on('click', function () {
+                    var answer_id = $(this).data('answer-id');
+                    $('#delete_answer_id_in_modal').val(answer_id);
+                    $('#delete_answer_modal').modal('show');
+                });
+
+                if (answer_in_GET) {
+                    $('html,body').animate({scrollTop: document.body.scrollHeight}, "fast");
+                }
+            });
+        </script>
+    {% endcompress %}
+
+    {% if settings.question_editor == 'tiny' %}
+        {% compress js file v1 %}
+            <script src="{% static 'js/mathjax_preview_v4.js' %}?v=98wijelq"></script>
+            <script src="{% static 'js/tinymce/plugins/custom_image_dialog/plugin.min.js' %}?v=wdww12"></script>
+            <script>
+                tinymce.init({
+                    selector: '#wmd-input',
+                    menubar: false,
+                    language: 'de',
+                    entity_encoding: "raw",
+                    force_br_newlines : true,
+                    force_p_newlines : false,
+                    forced_root_block : '',
+                    plugins: 'custom_image_dialog lists media link',
+                    toolbar: 'custom_image_dialog bold link italic forecolor backcolor underline numlist bullist',
+                    image_title: false,
+                    height: 400,
+                    content_css: tinymce_custom_css_path + '?bogus=w76ewejf',
+                    image_description: false,
+                    images_file_types: 'jpeg,JPEG,jpg,JPG,jpe,jfi,jif,jfif,png,PNG,gif,bmp,webp',
+                    images_upload_base_path: '/media/',
+                    image_advtab: false,
+                    setup: function (ed) {
+                        ed.on('keyup', function (e) {
+                            Preview.Update();
+                        });
+                        ed.on('focus', function (e) {
+                            var style = $('.tox-tinymce').attr('style');
+                            style += 'border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;';
+                            $('.tox-tinymce').attr('style', style);
+                        });
+                        ed.on('blur', function (e) {
+                            var style = $('.tox-tinymce').attr('style');
+                            style = style.replace('border-color: #6cbbf7!important;box-shadow: 0 0 0 4px rgb(0 149 255 / 15%)!important;', '');
+                            $('.tox-tinymce').attr('style', style);
+                        });
+                    },
+                    automatic_uploads: true,
+                    file_picker_types: 'image file media',
+                    file_browser_callback_types: 'image file media',
+                });
+
+                $(function () {
+                    Preview.Init('wmd-input', 'math_preview_answer', 'math_buffer_answer');
+                    if (answer_in_GET) {
+                        Preview.Update();
+                        $('html,body').animate({scrollTop: document.body.scrollHeight}, "fast");
+                    }
+                });
+                function submit_answer_form() {
+                    var answer_text = $.trim(tinymce.get('wmd-input').getContent({format : 'text'}));
+                    if (!answer_text) {
+                        alert('Bitte beschreibe deine Antwort ausführlicher.');
+                        return false;
+                    }
+
+                    // track mixpanel event
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('antwort_posten');
+                    }
+                    document.getElementById('submit_answer_btn').setAttribute('disabled', 'disabled');
+                    return true;
+                }
+            </script>
+
+        {% endcompress %}
+    {% else %}
+        {% compress js file %}
+            <script type="text/javascript" src="{% static 'js/app_markdown.js' %}?v=as9qweswk"></script>
+            <script>
+                function submit_answer_form() {
+                    const answer_text = $.trim($('#wmd-input').val());
+                    if (!answer_text) {
+                        alert('Bitte beschreibe deine Antwort ausführlicher.');
+                        return false;
+                    }
+
+                    // track mixpanel event
+                    if (typeof mixpanel != "undefined") {
+                        mixpanel.track('antwort_posten');
+                    }
+                    document.getElementById('submit_answer_btn').setAttribute('disabled', 'disabled');
+                    return true;
+                }
+            </script>
+        {% endcompress %}
+    {% endif %}
+{% endblock %}

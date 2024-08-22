@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5">
+
+                    {% include 'user/nav.html' %}
+                    {% include 'user/tabs/settings.html' %}
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+    {% include 'modals/missing_data_modal.html' %}
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script>
+        $(function () {
+
+            var email_not_confirmed = '{{ request.GET.email_confirmation_missing }}';
+            var fullname_missing = '{{ request.GET.fullname_missing }}';
+            if (fullname_missing) {
+                $('#missing_data_hint').text('Bitte trage deinen vollständigen Namen ein. Dieser ist wichtig für die Organisation und Kommunikation während der Nachhilfe.');
+                $('#missing_data_modal').modal('show');
+
+                if (!$('#id_first_name').val()) {
+                    $('#id_first_name').addClass('error_field');
+                }
+                if (!$('#id_last_name').val()) {
+                    $('#id_last_name').addClass('error_field');
+                }
+            }
+
+            if (email_not_confirmed){
+                $('#missing_data_hint').text('Bitte bestätige deine E-Mail Adresse. Damit wir sicher gehen können, dass wichtige Informationen nicht in falsche Hände geraten.');
+                $('#missing_data_modal').modal('show');
+                $('#id_email').addClass('error_field');
+            }
+
+            $('#id_status').on('change', function () {
+                if ($(this).val() === 'sonstiges') {
+                    $('.other_status').removeClass('hidden');
+                }
+            });
+
+            $('.confirm_email_resend').on('click', function (){
+                var clicked_link = $(this);
+                $(this).text('Bitte warten...');
+                $('#confirm_email_resent').removeClass('d-none');
+                $.ajax({
+                    url: '{% url "resend_confirm_email" profile.user_id %}',
+                    type: 'post',
+                    data: {
+                        'csrfmiddlewaretoken': csrf_token
+                    }
+                }).done(function (){
+                    clicked_link.text("Bestätigungsemail wurde erneut gesendet.");
+                });
+            });
+
+        });
+    </script>
+{% endblock %}
+

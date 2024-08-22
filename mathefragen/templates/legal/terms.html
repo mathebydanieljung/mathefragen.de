@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block extra_head %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+{% endblock %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+
+                    <h4 class="feed_l_padding">
+                        <span>
+                            Nutzungsbedingungen für alle registrierten Nutzer
+                        </span>
+                    </h4>
+                    <hr>
+
+                    <div class="custom_row mt-4 mb-5 feed_l_padding feed_r_padding">
+                        <div class="font13 col">
+                            <div class="wpb_wrapper">
+                                <div class="wpb_text_column wpb_content_element ">
+                                    <div class="wpb_wrapper">
+                                        <h6>1.1 Geltungsbereich</h6>
+                                        <p>Diese Nutzungsbedingungen gelten zwischen der Daniel Jung Media GmbH,
+                                            Altenberger Straße 19-21, 50668 Köln,
+                                            und demjenigen, der durch seine Registrierung mit
+                                            der {{ site_domain }} – Mathecommunity einen Vertrag über die Mitgliedschaft
+                                            bei {{ site_domain }} abschließt (nachfolgend „registrierter Nutzer“ bzw.
+                                            „Nutzer“ genannt).</p>
+                                        <p>Die Nutzungsbedingungen gelten nicht, wenn der Nutzer den Link eines
+                                            Drittanbieters anklickt und die Website von mathefragen.de verlässt.</p>
+                                        <h6>1.2 Registrierung bei mathefragen.de</h6>
+                                        <p>Bei der Registrierung haben Nutzer korrekte Angaben zu machen, insbesondere
+                                            den richtigen Vor- und Nachnamen anzugeben.</p>
+                                        <h6>1.3 Teilnehmerkennung</h6>
+                                        <p>Der registrierte Nutzer ist für den Schutz des ihm zugeteilten Accounts, also
+                                            seiner personengebundenen Teilnehmerkennung, verantwortlich. Eine Weitergabe
+                                            der Anmeldedaten an Dritte ist nicht erlaubt. Der registrierte Nutzer ist
+                                            verpflichtet, mathefragen.de unverzüglich über jede missbräuchliche
+                                            Benutzung zu unterrichten und zu informieren, wenn ein Dritter Kenntnis von
+                                            seinen Anmeldedaten erhält.</p>
+                                        <h6>1.4 Leistungen und Änderungen des Leistungsumfangs</h6>
+                                        <p>Die grundlegende Mitgliedschaft bei mathefragen.de ist kostenfrei. Dafür
+                                            bekommt der Nutzer verschiedene Leistungen; dazu gehören die Bereitstellung
+                                            einer Plattform, in der sich die Mitglieder über Themen der Mathematik
+                                            austauschen und die Aufbereitung bzw. Sammlung von Inhalten aus der Daniel
+                                            Jung Academy. Mathefragen.de kann die angebotenen Leistungen jederzeit
+                                            verändern, erweitern, einschränken oder einstellen. Registrierte Nutzer
+                                            können sich außerdem für Veranstaltungen, auf Stellenanzeigen und für das
+                                            mathefragen.de-Stipendium bewerben. Nähere Informationen enthalten die&nbsp;<u>FAQ</u>&nbsp;und&nbsp;<u>Datenschutzinformationen</u>.
+                                        </p>
+                                        <h6>1.5 Verantwortlichkeit für fremde Inhalte, Produkte oder
+                                            Dienstleistungen</h6>
+                                        <p>mathefragen.de erlaubt ausgewählten Drittanbietern, Inhalte, Produkte oder
+                                            Dienstleistungen (nachfolgend „Angebote Dritter“ genannt) auf der Website
+                                            von mathefragen.de darzustellen – zum Beispiel Lernhefte von StudyHelp
+                                            GmbH. Auf der jeweiligen Webseite findet sich dann ein entsprechender
+                                            Hinweis.</p>
+                                        <p>Die Nutzung solcher Angebote Dritter kann separaten Regelungen, Bedingungen
+                                            und Gebührenpflichten unterliegen. Die Angebote Dritter können jederzeit
+                                            ohne das Wissen von mathefragen.de geändert werden. Bei einem etwaigen
+                                            Vertrag, der zwischen dem registrierten Nutzer und dem Drittanbieter
+                                            zustande kommt, ist mathefragen.de nicht als Vertragspartner,
+                                            Erfüllungsgehilfe oder Vertreter beteiligt.</p>
+                                        <p>mathefragen.de übernimmt keine Haftung oder Gewähr für Art, Umfang und
+                                            Qualität der Angebote Dritter, die im Rahmen der Dienste von
+                                            mathefragen.de genutzt werden können, und macht sich diese ausdrücklich
+                                            nicht zu eigen. Weiterhin übernimmt mathefragen.de keine Haftung oder
+                                            Gewähr für die Erreichbarkeit, Funktionstauglichkeit, Kompatibilität mit
+                                            Systemen und Programmen sowie graphische, inhaltliche oder technische
+                                            Gestaltung dieser Angebote Dritter. mathefragen.de haftet auch nicht
+                                            dafür, wenn die Angebote Dritter Fehler oder Lücken aufweisen, insbesondere
+                                            wird auch keine Haftung für die Verwendung von Berechnungsergebnissen der
+                                            Online-Rechner übernommen.</p>
+                                        <h6>1.6 Nutzungsrechte an Inhalten von registrierten Nutzern</h6>
+                                        <p>Erstellt ein registrierter Nutzer einen Beitrag für die Webseiten von
+                                            mathefragen.de oder in der Community, so räumt er mathefragen.de ein
+                                            unbeschränktes, unwiderrufliches und übertragbares Nutzungsrecht an diesen
+                                            Inhalten ein, auch in Ausschnitten oder bearbeitet. Der registrierte Nutzer
+                                            ist dafür verantwortlich, dass er die erforderlichen Rechte an den von ihm
+                                            eingestellten Inhalten hat.</p>
+                                        <h6>1.7 Urheber- und Leistungsschutzrechte</h6>
+                                        <p>Die im Rahmen der Mitgliedschaft bei mathefragen.de zur Verfügung
+                                            gestellten Inhalte unterliegen dem deutschen Urheber- und
+                                            Leistungsschutzrecht. Jede vom deutschen Urheber- und Leistungsschutzrecht
+                                            nicht zugelassene Verwertung bedarf der vorherigen schriftlichen Zustimmung
+                                            des Anbieters oder jeweiligen Rechteinhabers. Dies gilt insbesondere für die
+                                            Vervielfältigung, Bearbeitung, Übersetzung, Speicherung, Verarbeitung bzw.
+                                            Wiedergabe von Inhalten in Datenbanken oder anderen elektronischen Medien
+                                            und Systemen. Die Darstellung dieser Website in fremden Frames ist nur mit
+                                            vorheriger schriftlicher Erlaubnis zulässig.</p>
+                                        <p>Inhalte Dritter werden als solche gekennzeichnet. Bei Inhalten Dritter bedarf
+                                            jede vom deutschen Urheber- und Leistungsschutzrecht nicht zugelassene
+                                            Verwertung der vorherigen schriftlichen Zustimmung des jeweiligen Autors,
+                                            Fotografen oder Erstellers.</p>
+                                        <h6>1.8 Kündigung der Mitgliedschaft</h6>
+                                        <p>Beide Parteien sind berechtigt, die Mitgliedschaft jederzeit ohne Angabe von
+                                            Gründen per E-Mail oder Brief zu kündigen. Weitere Informationen finden sich
+                                            in unseren&nbsp;<u>FAQ</u>.</p>
+                                        <h6>1.9 Datenschutz</h6>
+                                        <p>Mathefragen.de legt größten Wert auf den Schutz personenbezogener Daten. In
+                                            unseren&nbsp;<u>Datenschutzinformationen</u>&nbsp;finden sich ausführliche
+                                            Angaben darüber, zu welchen Zwecken Daten verwendet werden.</p>
+                                        <h6>1.10 Verfügbarkeit der Dienste; Haftung</h6>
+                                        <p>Ein Anspruch auf eine jederzeitige Verfügbarkeit der angebotenen Dienste
+                                            besteht nicht. Ist ein angebotener Dienst nicht oder vorübergehend nicht
+                                            verfügbar, so haftet mathefragen.de nicht hierfür.</p>
+                                        <p>Mathefragen.de haftet nur für Schäden, die durch mathefragen.de, seine
+                                            gesetzlichen Vertreter oder Erfüllungsgehilfen vorsätzlich oder grob
+                                            fahrlässig verursacht wurden oder auf der Verletzung von wesentlichen
+                                            Vertragspflichten beruhen (Verpflichtung, deren Erfüllung die ordnungsgemäße
+                                            Durchführung des Vertrags überhaupt erst ermöglicht, und auf deren
+                                            Einhaltung der registrierte Nutzer regelmäßig vertraut und vertrauen darf).
+                                            Eine bestehende Haftung wird auf den vertragstypisch vorhersehbaren Schaden
+                                            begrenzt. Eine Haftung nach dem Produkthaftungsgesetz oder aus der
+                                            Verletzung von Leben, Körper und Gesundheit bleibt unberührt. Im Übrigen ist
+                                            die Haftung ausgeschlossen.</p>
+                                        <h6>1.11 Änderung dieser Nutzungsbedingungen</h6>
+                                        <p>Mathefragen.de behält sich das Recht vor, diese Nutzungsbedingungen
+                                            jederzeit und ohne Nennung von Gründen zu ändern. Die geänderten
+                                            Nutzungsbedingungen werden dem registrierten Nutzer spätestens zwei Wochen
+                                            vor ihrem Inkrafttreten per E-Mail zugesendet. Die geänderten
+                                            Nutzungsbedingungen gelten als akzeptiert, wenn der registrierte Nutzer
+                                            diesen nicht innerhalb von zwei Wochen nach Empfang der E-Mail, die die
+                                            geänderten Nutzungsbedingungen enthält, widerspricht.</p>
+                                        <p>Bei der Bekanntgabe der geänderten Nutzungsbedingungen wird mathefragen.de
+                                            auf die Zweiwochenfrist und die Folge der Nichterhebung eines Widerspruchs
+                                            hinweisen. Falls ein Nutzer widerspricht, endet die Nutzungsberechtigung der
+                                            von mathefragen.de bereitgestellten Dienste mit Ablauf der
+                                            Widerspruchsfrist. Das berechtigt mathefragen.de zur Löschung des Accounts
+                                            und der Daten des jeweiligen Nutzers.</p>
+                                        <h6>1.12 Sonstiges</h6>
+                                        <p>Sofern eine Bestimmung dieser Nutzungsbedingungen unwirksam oder
+                                            undurchführbar ist, bleiben die übrigen Bestimmungen davon unberührt. Der
+                                            Nutzungsvertrag einschließlich dieser Nutzungsbedingungen unterliegt dem
+                                            materiellen Recht der Bundesrepublik Deutschland unter Ausschluss des
+                                            UN-Kaufrechts. Erfüllungsort ist der Sitz von mathefragen.de.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}

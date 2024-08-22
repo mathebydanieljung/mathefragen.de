@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static custom_tags %}
+
+{% block og_data %}
+    <meta property="og:url" content="https://{{ site_domain }}{{ release_note.get_absolute_url }}"/>
+    <meta property="og:title" content="{{ site_domain }} - {{ release_note.title|capfirst }}"/>
+    <meta property="og:description" content="{{ release_note.text|striptags|truncatewords:100 }}"/>
+{% endblock %}
+
+{% block title %}
+    {{ site_domain }} - Release Note {{ release_note.version }} - {{ release_note.title|capfirst }}
+{% endblock %}
+
+{% block description %}
+    {{ release_note.text|striptags|truncatewords:100 }}
+{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .news_content a {
+            color: #03689e!important;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+                    <a href="{{ release_note.get_absolute_url }}" class="no_color_link">
+                        <h3 class="mb-0 font18">
+                            {% if release_note %}
+                                Release Note {{ release_note.version }}: {{ release_note.title|capfirst }}
+                            {% else %}
+                                Keine Release Notes vorhanden.
+                            {% endif %}
+                        </h3>
+                    </a>
+                    <article class="post mt-2 mb-5">
+                        <hr>
+                        <small>{{ release_note.public_date }}</small>
+                        <div class="blog-detail-description">
+
+                            <div class="custom_row">
+                                <div class="col-md-12 col-12">
+                                    <p class="font15">
+                                    {{ release_note.text|safe|linebreaksbr }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {% if other_release_notes %}
+                                <h5 class="mb-4 mt-5">Vorherige Release Notes</h5>
+                                <div class="custom_row">
+                                    {% for rn in other_release_notes %}
+                                        <div class="col-md-10 col-12">
+                                            {% has_read_release_note request.user rn.id as has_read %}
+                                            <p class="font15 {% if not has_read %}new_release_note{% endif %}">
+                                                <a href="{{ rn.get_absolute_url }}" class="font17 light_bold link_color">
+                                                    {{ rn.version }} Release Notes
+                                                </a>
+                                            </p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+

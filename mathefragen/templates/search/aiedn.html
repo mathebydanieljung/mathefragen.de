@@ -1,0 +1,114 @@
+<script type="text/javascript" rel="preload">
+
+
+    function searchVideoWithAiedn() {
+        const aiednVideoContent = $('#aiedn-main-video'),
+              aiednVideoSkeleton = $('#skeleton-tile'),
+              aiednVideoSearchTitle = $('#aiedn-video-search-title');
+
+        const noVideoTitle = 'Es tut uns leid';
+        const noVideoMessage = `<div class="col-12">
+                                    Leider konnte kein passendes Video gefunden werden.
+                                </div>`;
+        
+
+        const noCookieUrl = (videoUrl) => {
+            return videoUrl.replace('https://www.youtube.com', 'https://www.youtube-nocookie.com')
+        }
+        const q = '{{ request.GET.q }}';
+        const url = '{% url "video_search" %}?q=' + q;
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            beforeSend: () => {
+                // Skeleton anzeigen, bevor die Daten geladen werden
+                aiednVideoSkeleton.show();
+            }
+        }).done((response) => {
+            const videos = response.data['videos'];
+
+            if (!videos || videos.length <= 0) {
+                aiednVideoSearchTitle.text(noVideoTitle).removeClass('loading');
+                aiednVideoContent.append(noVideoMessage);
+                aiednVideoSkeleton.hide();
+            } else {
+                $("#video-counter").text(videos.length);
+
+                videos.forEach((video, index) => {
+                const categoryList = $('<ul>', {class: "categories"}).append(
+                    video.categories.map(category =>
+                        $("<li>").append($(`<span>`).text(category))
+                    )
+                );
+                let content = `<div class="col-sm-12 col-md-4">
+                        <div class="card card-video" tabindex="${index}">
+                            <div class="embed-responsive embed-responsive-16by9 video-frame">
+                                <iframe
+                                    class="embed-responsive-item"
+                                    src="${noCookieUrl(video.embedUrl)}"
+                                    allowfullscreen></iframe>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">${video.name}</h4>
+                                <div class="card-text">
+                                    <blockquote class="bubble">
+                                        <div><p class="excerpt">${video.content}</p></div>
+                                    </blockquote>
+                                    <ul class="category-list">
+                                        ${$(categoryList[0]).html()}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    aiednVideoContent.append(content);
+                });
+                aiednVideoSkeleton.hide();
+                aiednVideoSearchTitle.text('Diese Videos könnten dir helfen:').removeClass('loading');
+            }
+
+        }).fail(() => {
+            aiednVideoSearchTitle.text(noVideoTitle).removeClass('loading');
+            aiednVideoSkeleton.hide();
+            aiednVideoContent.append(noVideoMessage);
+        }) ;
+    }
+    $(function () {
+        searchVideoWithAiedn();
+    });
+</script>
+
+<div class="container">
+    <div class="col-12 px-md-5">
+        <h1 class="search-heading mb-4">
+            <small class="search-summary">
+                <span class="q-counter">{{ number_of_questions }}</span> Frage{{ number_of_questions|pluralize:',n' }}
+                und <span id="video-counter"></span> Mathe-Video(s) zu:
+            </small>
+            <q class="search-term">{{ request.GET.q }}</q>
+        </h1>
+    </div>
+    <div class="col-12 bg-light py-4 px-md-5 mb-5">
+        <h2 id="aiedn-video-search-title" class="search-heading-videos loading">Wir suchen passende Videos, die dir helfen könnten. Einen Moment bitte.</h2>
+        <div id="aiedn-main-video" class="row aiedn-video-list">
+            <div id="skeleton-tile" class="col-sm-12 col-md-4" style="display:none;">
+                <div class="card card-video" tabindex="0">
+                    <div class="embed-responsive embed-responsive-16by9 video-frame">&nbsp;</div>
+                    <div class="card-body">
+                        <h4 class="card-title">&nbsp;</h4>
+                        <div class="card-text">
+                            <blockquote class="bubble">
+                                <div><p class="excerpt"><span class="loader p-3 w-12 h-12"></span></p></div>
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 px-md-5">
+    <h2 class="search-heading-questions">{{ number_of_questions }} Frage{{ number_of_questions|pluralize:',n' }} aus mathefragen.de</h2>
+</div>

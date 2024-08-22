@@ -1,0 +1,40 @@
+services:
+  django:
+    build: .
+    command: "./run_dev_server.sh"
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=mathefragen
+      - DB_USER=mathefragen
+      - DB_PASSWORD=mathefragen
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+  #      - redis
+  #      - redis-sentinel
+
+  postgres:
+    image: postgres:16.1-alpine
+    environment:
+      - POSTGRES_USER=mathefragen
+      - POSTGRES_PASSWORD=mathefragen
+      - POSTGRES_DB=mathefragen
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres/:/var/lib/postgresql/data/
+
+#  redis:
+#    image: docker.io/bitnami/redis:7.2
+#    environment:
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    volumes:
+#      - ./data/redis/:/bitnami
+#
+#  redis-sentinel:
+#    image: docker.io/bitnami/redis-sentinel:7.2
+#    volumes:
+#      - ./data/redis-sentinel/:/bitnami

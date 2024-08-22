@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load custom_tags static %}
+
+{% block extra_head %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    <link rel="stylesheet" href="{% static 'css/plyr.css' %}?v=2KssI" />
+{% endblock %}
+
+{% block main %}
+
+    <section class="mt-3">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 pr-0 pl-0 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} mb-5">
+
+                    {% include 'user/nav.html' %}
+                    {% include 'user/tabs/video_detail.html' %}
+
+                </div>
+
+                {% include 'includes/right_sidebar.html' %}
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    <script src="{% static 'js/plyr.min.js' %}"></script>
+    <script>
+        const player = new Plyr('#player');
+        player.on('playing', (event) => {
+            console.log('started playing');
+        });
+        player.on('progress', (event) => {
+            const instance = event.detail.plyr;
+            console.log('progress: ', instance.buffered);
+        });
+        player.on('timeupdate', (event) => {
+            const instance = event.detail.plyr;
+            console.log('timeupdate: ', instance.currentTime);
+        });
+        player.on('ended', (event) => {
+            console.log('finished watching');
+        });
+        player.on('seeking', (event) => {
+            console.log('forward or rewind');
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,25 @@
+.loading-small {
+    width: 16px;
+    height: 16px;
+    background: url('../images/loading.gif') no-repeat;
+    display: inline-block;
+}
+
+#insertImageDialog {
+    display: none;
+    padding: 10px;
+}
+
+#insertImageDialog h4 {
+    margin-bottom: 10px;
+}
+
+#insertImageDialog input[type=text] {
+    width: 260px;
+}
+
+#insertImageDialog .loading-small {
+    display: none;
+    float: left;
+    padding-right: 5px;
+}

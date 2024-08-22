@@ -1,0 +1,43 @@
+<div class="modal fade" id="decline_tutoring_request" tabindex="-1" role="dialog" aria-labelledby="DeclineTutoringLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DeclineTutoringLabel">
+                    Nachhilfe Anfrage ablehnen
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-1">
+                    <form action="{% url 'decline_tutoring_request' help_request.hash_id %}" method="post">
+                        {% csrf_token %}
+                        <div class="custom_row">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <label for="decline_tutoring_request_msg">Grund der Ablehnung</label>
+                                <div class="form-group">
+                                <textarea class="form-control" rows="6" name="decline_tutoring_request_msg"
+                                          id="decline_tutoring_request_msg"
+                                          placeholder="Möchtest du etwas mitteilen?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="custom_row mt-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <button name="button" type="submit"
+                                            class="decline_tutoring_request_clk font17 btn btn-danger w-100">
+                                        Jetzt Nachhilfe Anfrage ablehnen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  mathefragen-server:
+    image: registry.gitlab.com/new-learning/mathefragen.de/app:latest
+    volumes:
+      - .env:/code/.env
+    environment:
+      - TZ=Europe/Berlin
+    restart: always

@@ -1,0 +1,16 @@
+version: '3'
+networks:
+  nl-net:
+    external: true
+services:
+  chemiefragen-server:
+    container_name: chemiefragen-server
+    image: registry.gitlab.com/new-learning/mathefragen.de/app:latest
+    volumes:
+      - /var/www/aiedn/apps/mathefragen.de/.env.chemie.api:/code/.env
+      - /var/log/aiedn/api.chemie.aiedn.com/log:/code/log
+    environment:
+      - TZ=Europe/Berlin
+    restart: always
+    networks:
+      - nl-net

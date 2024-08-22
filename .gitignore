@@ -1,0 +1,14 @@
+*.pyc
+*/static/*
+*/media/*
+.idea/*
+.env
+restart.sh
+error_log*
+.DS_Store
+log/*
+*.log
+data/
+.tool-versions
+.venv/
+venv/

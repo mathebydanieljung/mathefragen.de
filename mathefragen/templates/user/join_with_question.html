@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block wrapper_extra_class %}math_background{% endblock %}
+
+{% block main %}
+    <section class="pt-5" style="padding-bottom: 400px">
+
+        <div class="container login_container">
+
+            <div class="custom_row justify-content-center">
+                <div class="col-lg-5 col-md-6 col-sm-8 col-xl-5">
+
+                    <div class="card login_card" style="background-color: transparent; box-shadow: none!important;">
+                        <div class="card-header" style="border-bottom: none">
+
+                            <p class="text-center">
+                                {% if settings.logo %}
+                                    <a href="/" target="_blank">
+                                        <img src="{{ settings.logo.url }}" width="200" alt="">
+                                    </a><br>
+                                {% endif %}
+                                <small class="font12">Empfohlen von</small>
+                                <a href="{{ recommended_by.link }}" target="_blank">
+                                    <img src="{{ recommended_by.logo.url }}" width="130" alt="">
+                                </a>
+                            </p>
+
+                            <h3 class="mb-2" style="margin-top: 100px">
+                                Das ist eine gute Frage!
+                            </h3>
+
+                        </div>
+
+                        <div class="card-body">
+                            <p class="mb-3">
+                                Melde Dich jetzt an, um Deine Frage zu stellen. Wir informieren Dich per Mail,
+                                wenn Du Antworten erhältst. Deine E-Mail-Adresse wird nicht veröffentlicht.
+                            </p>
+                            <p>
+                                Falls du bereits ein Profil hast, gib' unten die E-Mail-Adresse deines bestehenden
+                                Profils ein und klicke auf "Weiter".
+                            </p>
+
+                            <div class="card-text">
+                                <form method="post" class="mt-1" onsubmit="return submit_form();">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="nqh" value="{{ new_question_hash|default:'' }}">
+                                        <div class="mb-3">
+                                            {% if step == 1 %}
+                                                <input type="email"
+                                                       name="email"
+                                                       id="id_email"
+                                                       required
+                                                       autofocus
+                                                       class="form-control"
+                                                       placeholder="Deine E-Mail-Adresse">
+                                            {% else %}
+                                                <input name="final_step" type="hidden" value="yes">
+                                                <input name="user_type" type="hidden" value="{% if new_user %}new{% else %}existing{% endif %}">
+                                                <div class="mb-3">
+                                                    <input type="email"
+                                                           name="email"
+                                                           id="id_email"
+                                                           required
+                                                           class="form-control"
+                                                           value="{{ email }}"
+                                                           placeholder="Deine E-Mail-Adresse">
+                                                </div>
+                                                {% if new_user %}
+                                                    <label for="id_password">
+                                                        Gib' Dein neues Passwort ein
+                                                    </label>
+                                                {% endif %}
+                                                <div class="mb-3">
+                                                    <input type="password"
+                                                           name="password"
+                                                           autofocus
+                                                           class="form-control"
+                                                           placeholder="Passwort *"
+                                                           maxlength="200" required="" id="id_password">
+                                                </div>
+                                                {% if not new_user %}
+                                                    <p>
+                                                        <a class="link_color font13" target="_blank"
+                                                           href="{% url 'password_forgot' %}?qh={{ new_question_hash }}">
+                                                            Passwort vergessen?
+                                                        </a>
+                                                    </p>
+                                                {% endif %}
+
+                                                <p class="font13">
+                                                    Leider mussten wir die Anmeldung über Google/Facebook deaktivieren.
+                                                    Falls du noch kein Passwort für den Login gesetzt hast,
+                                                    <a class="link_color" target="_blank"
+                                                       href="{% url 'password_forgot' %}?qh={{ new_question_hash }}">
+                                                        setze hier ein neues Passwort.
+                                                    </a>
+                                                </p>
+
+                                                {% if new_user %}
+                                                    <small>
+                                                        Durch die Registrierung stimmst Du den
+                                                        <a href="{% url 'privacy' %}" class="mf_color">Datenschutzbestimmungen</a>
+                                                        und
+                                                        <a href="{% url 'terms' %}"
+                                                           class="mf_color">Nutzungsbedingungen</a> zu.
+                                                    </small>
+                                                {% endif %}
+
+                                                {% if error %}
+                                                    <p class="text-danger mb-4">
+                                                        {{ error }}
+                                                    </p>
+                                                {% endif %}
+
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-3">
+                                            <button name="submit"
+                                                    type="submit"
+                                                    id="submit"
+                                                    class="btn lrm-button w-100 font22 h-100 cursor_pointer">
+                                                Weiter
+                                            </button>
+                                        </div>
+                                </form>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+    {% compress js file login %}
+        <script type="text/javascript">
+            function submit_form() {
+                // track mixpanel event
+                if (typeof mixpanel != "undefined") {
+                    mixpanel.track('weiter');
+                }
+                return true;
+            }
+        </script>
+    {% endcompress %}
+{% endblock %}

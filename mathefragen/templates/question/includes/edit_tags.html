@@ -1,0 +1,46 @@
+<form action="{% url 'update_questions_tags' question.id question.slug %}" method="post">
+    {% csrf_token %}
+    <input id="id_question_tags_edit_input" name="edited_question_tags" type="text" class="d-none form-control w-100">
+    <div class="mt-3 mb-5">
+        <button type="submit" class="btn btn-very-small cursor_pointer lrm-button font12 save-answer-comment btn-primary">Speichern</button>
+        <a class="font12 link_color ml-3 cursor_pointer" id="id_cancel_tags_edit">Abbrechen</a>
+    </div>
+</form>
+<script>
+    $(function () {
+
+        console.log('prePopulateTags', prePopulateTags);
+        let options = {
+            theme: "facebook",
+            hintText: 'Nach passendem Tag suchen',
+            searchingText: 'wird gesucht ...',
+            noResultsText: 'Wir finden nichts',
+            preventDuplicates: true,
+            minChars: 2,
+            processPrePopulate: true,
+            prePopulate: {{ tags|safe }},
+            tokenValue: 'name'
+        }
+        $('#id_question_tags_edit_input').removeClass('d-none');
+        $("#id_question_tags_edit_input").tokenInput(searchForTag, options);
+
+        $('#token-input-id_question_tags_edit_input').on('keydown', function (e) {
+                if (e.keyCode === 32 || e.keyCode === 13) {
+                    var new_hashtag = $.trim($(this).val());
+                    if (new_hashtag && isVerifiedUser) {
+                        $("#id_question_tags_edit_input").tokenInput("add", {
+                            id: Math.floor(Math.random() * 10000),
+                            name: new_hashtag,
+                            new: 'yes'
+                        });
+                        e.preventDefault();
+                        return false;
+                    } else {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+
+            });
+    });
+</script>

@@ -1,0 +1,37 @@
+<ul class="nav nav-tabs profile_tabs pl-4 pr-4">
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.view_name == 'public_profile_hashed' %}active{% endif %} no_color_link" href="{{ profile.get_absolute_url }}">Profil</a>
+    </li>
+    {% if profile.user.user_socials.count or profile.user_id == request.user.id %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.view_name == 'profile_socials' %}active{% endif %} no_color_link"
+               href="{% url 'profile_socials' profile.user_id %}">
+                {{ profile.user.user_socials.count }} Socials
+            </a>
+        </li>
+    {% endif %}
+    {% if profile.user.received_user_reviews.count %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.view_name == 'profile_reviews' %}active{% endif %} no_color_link"
+               href="{% url 'profile_reviews' profile.user_id %}">
+                {{ profile.user.received_user_reviews.count }}
+                Bewertung{{ profile.user.received_user_reviews.count|pluralize:',en' }}
+            </a>
+        </li>
+    {% endif %}
+    {% if request.user.id == profile.user_id %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.view_name == 'profile_settings' %}active{% endif %} no_color_link" href="{% url 'profile_settings' profile.user_id %}">
+                Einstellungen
+            </a>
+        </li>
+    {% endif %}
+
+    {% if request.user.id == profile.user_id and request.user.profile.can_tutor %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.view_name == 'tutor_settings' %}active{% endif %} no_color_link" href="{% url 'tutor_settings' profile.user_id %}">
+                Nachhilfe {% if request.user.tutor_setting.is_active %}(<span class="text-success">Aktiv</span>){% endif %}
+            </a>
+        </li>
+    {% endif %}
+</ul>

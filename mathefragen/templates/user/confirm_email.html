@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static custom_tags compress %}
+
+{% block wrapper_extra_class %}math_background{% endblock %}
+
+{% block main %}
+    <section class="pt-5" style="padding-bottom: 400px">
+
+        <div class="container login_container mt-4">
+
+            <div class="custom_row justify-content-center">
+                <div class="col-lg-5 col-md-6 col-sm-8 col-xl-5">
+                    <h4 class="mb-4">
+                        Bestätige Deine Registrierung
+                    </h4>
+                    <p>
+                        Wir haben Dir eine E-Mail an folgende Adresse geschickt:
+                    </p>
+
+                    <p><b>{{ request.user.email }}</b></p>
+
+                    <p>
+                        Klicke in der E-Mail auf "E-Mail-Adresse bestätigen", um Deine Registrierung abzuschließen.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+

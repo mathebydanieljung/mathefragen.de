@@ -1,0 +1,586 @@
+{% load static custom_tags %}
+
+<div class="custom_row">
+    <div class="col-12 mt-4 ml-4 mr-4">
+        <div class="form-group">
+            <form action="{% url 'update_tutoring_status' request.user.id %}" method="post" id="id_tutoring_status_form">
+                {% csrf_token %}
+                <div class="form-check">
+                    {{ tutor_setting_form.is_active }}
+                    <label class="form-check-label w-75 cursor_pointer" for="id_is_active">
+                        Ich möchte Nachhilfeunterricht geben
+                    </label>
+                    <small class="d-block mt-2 w-75">
+                        Durch die Aktivierung bestätigst du, dass du
+                        mindestens 15 Jahre alt bist. Bei erfolgreicher Vermittlung berechnen wir von dem gezahlten
+                        Nachhilfepreis eine Provision in Höhe von 10%. Durch die Aktivierung bestätigst du, dass du mit dieser Provision ebenfalls einverstanden bist.
+                    </small>
+                </div>
+            </form>
+
+            {% if request.GET.tutor_status_updated %}
+                <span class="text-success font13 light_bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% if profile.user.tutor_setting.is_active %}
+<div class="card mt-2 ml-4 mr-4" id="tutor_video_promotion">
+    <div class="card-header text-bold">
+        Videovorstellung
+    </div>
+    <div class="card-body font14" id="video_promotion">
+        <form action="{% url 'update_video' request.user.id %}" method="post" id="video_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-12 mb-2">
+                    <p class="light_bold">
+                        Mit der Videovorstellung hast Du die Möglichkeit dich vorzustellen und die erste Verbindung zu
+                        deiner Zielgruppe aufzubauen.
+                    </p>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <p>
+                                {{ video_form.video }}
+                                {{ video_form.delete_video }}
+                            </p>
+                            <small class="d-block">
+                                Max. 70MB
+                            </small>
+                            <span id="too_big_video_file" class="text-danger d-none text-bold">
+                                Die Datei darf nicht größer als 70MB sein.
+                            </span>
+
+                            {% if profile.user.tutor_setting.video %}
+                                <p class="mt-2">
+                                    <span class="light_bold">Du hast aktuell 1 Video.</span>
+                                    <a href="{% url 'public_profile_hashed' profile.hash_id %}#tutor_video_intro"
+                                       class="text-bold link_color">
+                                        Jetzt ansehen
+                                    </a>
+                                </p>
+                            {% endif %}
+
+                            <button type="submit" class="btn mt-2 lrm-button" disabled id="id_upload_video_clk">
+                                Video hochladen
+                            </button>
+                            {% if profile.user.tutor_setting.video %}
+                                <button type="button" class="btn btn-danger ml-2" id="id_delete_video_clk">
+                                    Aktuelles Video löschen
+                                </button>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if request.GET.video_saved %}
+                <span class="d-block text-success font13 light_bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4 ml-4 mr-4" id="hourly_rates">
+    <div class="card-header text-bold">
+        Stundensatz
+    </div>
+    <div class="card-body font14" id="tutor_price">
+        <form action="{% url 'update_tutor_price' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    <label>Satz für 30 Minuten Nachhilfe</label>
+                    <p>{{ tutor_setting_form.half_hourly_rate }} <span class="pl-2">EUR</span></p>
+                </div>
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    <label>Satz für 60 Minuten Nachhilfe</label>
+                    <p>{{ tutor_setting_form.hourly_rate }} <span class="pl-2">EUR</span></p>
+                </div>
+                <div class="col-sm col-md-6 col-lg-4 mb-3">
+                    <label>Satz für 90 Minuten Nachhilfe</label>
+                    <p>{{ tutor_setting_form.ninety_min_rate }} <span class="pl-2">EUR</span></p>
+                </div>
+            </div>
+            <button type="submit" class="btn lrm-button">
+                Speichern
+            </button>
+            <small class="d-block mt-2">Wenn 0 EUR, wird diese Einheit ausgeblendet.</small>
+
+            {% if tutor_price_error %}
+                <span class="ml-2 text-danger text-bold">
+                    Ungültige Eingabe
+                </span>
+            {% endif %}
+
+            {% if request.GET.tutor_price_updated %}
+                <span class="mt-2 d-block text-success text-bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4 ml-4 mr-4" id="target_settings">
+    <div class="card-header text-bold">
+        Zielgruppe
+    </div>
+    <div class="card-body" id="security_card">
+        <form action="{% url 'update_target_group' request.user.id %}" method="post">
+            {% csrf_token %}
+            <div class="custom_row">
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ target_group_form.sek_1 }}
+                            <label class="form-check-label w-75" for="id_sek_1">
+                                Sekundarstufe I
+                            </label>
+                        </div>
+                        <p class="font13">
+                            Hauptschule, Realschule, Gesamtschule, Oberschule in Bremen, Stadtteilschule in Hamburg
+                            (jeweils bis einschließlich Klasse 10), das Gymnasium (bis einschließlich Klasse 9 bzw.
+                            Klasse 10) und die Sonderschule (Förderschule).
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ target_group_form.sek_2 }}
+                            <label class="form-check-label w-75" for="id_sek_2">
+                                Sekundarstufe II
+                            </label>
+                        </div>
+                        <p class="font13">
+                            Gymnasiale Oberstufe, berufsbildende Schulen, Weiterbildungsschulen für Erwachsene (Abendschulen und Kollegs)
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="custom_row">
+                        <div class="col-12 mb-3">
+                            <label>Uni</label><br>
+                            <small>Bitte wähle die Module aus, in denen du helfen kannst</small>
+                        </div>
+                    </div>
+                    <div class="custom_row">
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Analysis' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_module_analysis" value="Analysis">
+                                    <label class="form-check-label w-75" for="uni_module_analysis">
+                                        Analysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Stochastik' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_stoch" value="Stochastik">
+                                    <label class="form-check-label w-75" for="uni_mod_stoch">
+                                        Stochastik
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Statistik' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_stats" value="Statistik">
+                                    <label class="form-check-label w-75" for="uni_mod_stats">
+                                        Statistik
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Numerik' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_numeric" value="Numerik">
+                                    <label class="form-check-label w-75" for="uni_mod_numeric">
+                                        Numerik
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Geometrie' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_geom" value="Geometrie">
+                                    <label class="form-check-label w-75" for="uni_mod_geom">
+                                        Geometrie
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Vektoranalysis' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_vectors"
+                                           value="Vektoranalysis">
+                                    <label class="form-check-label w-75" for="uni_mod_vectors">
+                                        Vektoranalysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Mengenlehre' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_set" value="Mengenlehre">
+                                    <label class="form-check-label w-75" for="uni_mod_set">
+                                        Mengenlehre
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Algebra' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_algebra" value="Algebra">
+                                    <label class="form-check-label w-75" for="uni_mod_algebra">
+                                        Algebra
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Zahlentheorie' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_num_theory"
+                                           value="Zahlentheorie">
+                                    <label class="form-check-label w-75" for="uni_mod_num_theory">
+                                        Zahlentheorie
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Kombinatorik' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_combinatorics"
+                                           value="Kombinatorik">
+                                    <label class="form-check-label w-75" for="uni_mod_combinatorics">
+                                        Kombinatorik
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Funktionalanalysis' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_func_analysis"
+                                           value="Funktionalanalysis">
+                                    <label class="form-check-label w-75" for="uni_mod_func_analysis">
+                                        Funktionalanalysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'komplexe Analysis' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_complex_analysis"
+                                           value="komplexe Analysis">
+                                    <label class="form-check-label w-75" for="uni_mod_complex_analysis">
+                                        komplexe Analysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Graphentheorie' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_graph_theory"
+                                           value="Graphentheorie">
+                                    <label class="form-check-label w-75" for="uni_mod_graph_theory">
+                                        Graphentheorie
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Wirtschaftsmathematik' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_wi"
+                                           value="Wirtschaftsmathematik">
+                                    <label class="form-check-label w-75" for="uni_mod_wi">
+                                        Wirtschaftsmathematik
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Operations Research' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_op_research"
+                                           value="Operations Research">
+                                    <label class="form-check-label w-75" for="uni_mod_op_research">
+                                        Operations Research
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="uni_module"
+                                           {% uni_module_selected request.user 'Rechnen mit komplexen Zahlen' as checked %}
+                                           {% if checked %}checked{% endif %}
+                                           id="uni_mod_complex_numbers"
+                                           value="Rechnen mit komplexen Zahlen">
+                                    <label class="form-check-label w-75" for="uni_mod_complex_numbers">
+                                        Rechnen mit komplexen Zahlen
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="extra_comment">Bemerkung</label>
+                    <textarea id="extra_comment" name="note" class="form-control" placeholder="zusätzliche Bemerkungen">{{ tutor_setting.note }}</textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn lrm-button">
+                Speichern
+            </button>
+
+            {% if target_error %}
+                <span class="ml-2 text-danger font13 light_bold">
+                    Ungültige Eingabe
+                </span>
+            {% endif %}
+
+            {% if request.GET.target_updated %}
+                <span class="ml-2 text-success font13 light_bold">
+                    Erfolgreich gespeichert <i class="fas fa-check"></i>
+                </span>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="card mt-4 ml-4 mr-4" id="earnings">
+    <div class="card-header text-bold">
+        Sitzungen
+    </div>
+    <div class="card-body" id="security_card">
+
+        {% if sessions %}
+        <div class="custom_row">
+            <div class="col-12">
+                <span class="font17 light_bold">
+                    {{ sessions.count }} Nachhilfe Sitzung{{ sessions.count|pluralize:',en' }}
+                    mit {{ number_hours_given_tutoring }} Stunde{{ number_hours_given_tutoring|pluralize:',n' }}  insgesamt.
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="custom_row {% if sessions %}mt-4{% endif %}">
+            <div class="col-12 mb-3">
+                {% if not sessions %}
+                    <div class="custom_row mt-2 font14">
+                        <div class="col-12">
+                            <p>Keine Sitzungen bisher</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="light_bold font14">Sitzungen</p>
+                    <div class="custom_row mt-2 font14">
+                        <div class="col-4">Session</div>
+                        <div class="col-4">Datum</div>
+                        <div class="col-4">Verdient</div>
+                    </div>
+                    <hr>
+                {% endif %}
+
+                {% for session in sessions %}
+                    <div class="custom_row mt-2 font14">
+                        <div class="col-4">
+                            Nachhilfe mit
+                            <a href="{{ session.question.user.profile.get_absolute_url }}"
+                               target="_blank"
+                               class="font14 link_color">{{ session.question.user.username }}</a>
+                            <br>
+                            <a href="{{ session.question.get_absolute_url }}"
+                               target="_blank"
+                               class="font12 link_color">{{ session.question.title }}</a>
+                        </div>
+                        <div class="col-4">
+                            {% if not session.started_at %}
+                                <small>{{ session.accepted_date_time|date:'d.m.Y, H:i' }} Uhr</small>
+                            {% else %}
+                                {{ session.started_at }} - {{ session.completed_at|default_if_none:'Ausstehend' }}
+                            {% endif %}
+                        </div>
+                        <div class="col-4">
+                            {% if session.completed_at %}
+                                {{ session.users_share }} €<br>
+                                <small>Dauer: {{ session.duration }} Minuten</small>
+                            {% else %}
+                                <small>Ausstehend</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4 ml-4 mr-4" id="payouts">
+    <div class="card-header text-bold">
+        Verdienst
+    </div>
+    <div class="card-body" id="payouts_body">
+        <div class="custom_row">
+            <div class="col-lg-4 col-sm-12 mb-2">
+                <span class="font17 light_bold">Aktuell:
+                    <span class="text-success">{{ profile.current_earnings_as_tutor }} €</span>
+                </span>
+            </div>
+            <div class="col-lg-4 col-sm-12 mb-2">
+                <span class="font17 light_bold">
+                    {{ payout_requests.count|default:'Keine' }} Auszahlung{{ payout_requests.count|pluralize:',en' }}
+                </span>
+            </div>
+            <div class="col-lg-4 col-sm-12">
+                <span class="font17 light_bold">Gesamt verdient:
+                    <span class="text-success">
+                        {{ profile.total_earnings_as_tutor }} €
+                    </span>
+                </span>
+            </div>
+        </div>
+        <hr>
+        <div class="custom_row mt-3">
+            <div class="col-lg-4 col-sm-12">
+                <label>Zahlungsart</label>
+                {% if request.GET.change_payment or not tutor_setting.payment_type  %}
+                    <div id="change_payment_div">
+                        <form action="{% url 'change_payment_type' request.user.id %}" method="post">
+                            {% csrf_token %}
+                            {{ payment_method_form.payment_type }}
+                            {{ payment_method_form.paypal_email }}
+                            {{ payment_method_form.iban }}
+                            {{ payment_method_form.bic }}
+                            <button class="btn lrm-button mt-3 w-100" type="submit">Speichern</button>
+                            {% if request.GET.change_payment %}
+                                <a href="{% url 'tutor_settings' request.user.id %}#payouts"
+                                   class="d-block link_color font13 mt-3">Abbrechen</a>
+                            {% endif %}
+                        </form>
+                    </div>
+                {% else %}
+                    {% if tutor_setting.payment_confirmed_at %}
+                        <br>
+                        <small class="font14">{{ tutor_setting.get_payment_type_display }}</small><br>
+                        <small class="font14">
+                            {{ tutor_setting.current_payment_method }}
+                        </small> <i class="fa fa-check-circle text-success"></i>
+                        <p class="font14 mt-2">
+                            <a href="{% url 'tutor_settings' request.user.id %}?change_payment=l12ms6#payouts" class="link_color">Zahlungsart ändern</a>
+                        </p>
+                    {% elif tutor_setting.payment_changed_at %}
+                        <br>
+                        <small class="font14">{{ tutor_setting.get_payment_type_display }}</small><br>
+                        <small class="font14">
+                            {{ tutor_setting.current_payment_method }}
+                        </small> <i class="fa fa-clock text-danger"></i><br>
+                        <small class="text-danger">
+                            Wir senden dir 1 Cent über deine gewünschte Zahlungsart.
+                            Bitte bestätige diese neue Zahlungsart,
+                            indem du den 6-stelligen Code aus dem Verwendungszweck der Transaktion hier eingibst.
+                        </small>
+                        <form action="{% url 'confirm_payment_type' request.user.id %}" method="post">
+                            {% csrf_token %}
+                            {{ payment_confirm_form.payment_confirm_code }}
+                            <button class="btn lrm-button w-100 mt-2" type="submit">Zahlungsart bestätigen</button>
+                        </form>
+                        <form action="{% url 'delete_payment_type' request.user.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="setting_hash" value="{{ tutor_setting.hash_id }}">
+                            <button class="btn btn-outline-danger w-100 mt-2" type="submit">Abbrechen</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                {% if request.GET.payment_type_code_error %}
+                    <span class="mt-2 d-block text-danger light_bold font14">
+                        Code ist ungültig.
+                    </span>
+                {% endif %}
+
+                {% if request.GET.payment_type_error %}
+                    <span class="mt-2 d-block text-danger light_bold font13">
+                        Eingabe ungültig.
+                    </span>
+                {% endif %}
+
+                {% if request.GET.payment_type_updated %}
+                    <span class="mt-3 d-block text-success light_bold font13">
+                        Erfolgreich gespeichert <i class="fas fa-check"></i>
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4 col-sm-12">
+                <label>Auszahlung anfragen</label>
+                {% if profile.current_earnings_as_tutor > 0 and tutor_setting.payment_type and tutor_setting.payment_confirmed_at %}
+                    <form action="{% url 'request_payout' request.user.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="number"
+                               min="0"
+                               id="id_payout_amount"
+                               name="payout_amount"
+                               max="{{ profile.payable_amount }}"
+                               placeholder="Betrag eingeben, max. {{ profile.payable_amount }}"
+                               class="form-control">
+                        <button type="submit" class="btn lrm-button mt-3 w-100">
+                            Jetzt anfragen
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="font14">
+                        Auszahlung ist derzeit nicht möglich.
+                    </p>
+                {% endif %}
+            </div>
+            <div class="col-4">
+                &nbsp;
+            </div>
+        </div>
+        <div class="custom_row mt-5">
+            <div class="col-12 mb-3">
+                <p class="light_bold font14">Auszahlungen</p>
+                <hr>
+                {% if not payout_requests %}
+                    <p class="font14">
+                        Bisher keine Auszahlungen
+                    </p>
+                {% endif %}
+                {% for pr in payout_requests %}
+                    <div class="custom_row mt-2 font14">
+                        <div class="col-4">
+                            {{ pr.amount }}€
+                        </div>
+                        <div class="col-4">
+                            {{ pr.idate }}
+                        </div>
+                        <div class="col-4">
+                            {% if pr.status == 'paid' %}
+                                Abgeschlossen
+                            {% else %}
+                                Ausstehend
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+    <section class="pt-5" style="padding-bottom: 400px">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-10">
+                    <article class="post">
+
+                        <div class="blog-detail-description">
+
+                            {% if request.GET.verification_applied %}
+                                <div class="alert alert-success fade show" role="alert">
+                                    Antrag erfolgreich
+                                </div>
+                            {% endif %}
+
+                            <h4>Antrag auf Verifizierung des Accounts</h4>
+                            <p>
+                                Bitte beachte, dass die Verifizierung 1-2 Tage in Anspruch nehmen kann.
+                                Sobald wir deinen Account erfolgreich verifiziert haben, erscheint das Icon neben
+                                deinem Benutzernamen.
+                            </p>
+
+                            <form method="post" class="mt-4">
+                                {% csrf_token %}
+                                <div class="custom_row">
+                                    <div class="col-xl-5">
+                                        <div class="form-group">
+                                            {{ form.reason }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="custom_row mt-3">
+                                    <div class="col-xl-8">
+                                        <div class="form-group">
+                                            <button name="submit"
+                                                    type="submit"
+                                                    id="submit"
+                                                    class="btn lrm-button w-60">
+                                                Antrag abschicken
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}

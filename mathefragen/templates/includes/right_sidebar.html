@@ -1,0 +1,112 @@
+{% load custom_tags static %}
+
+<div class="col-xl-3 hidden-sm hidden-xs left_shadow">
+    <div class="sidebar mt-1">
+
+        <div class="widget widget_search">
+            {% right_promotions as promotions %}
+            {% for promotion in promotions %}
+                <p>
+                    <a href="{{ promotion.link }}">
+                        <button class="btn font13 box_shadow_custom cursor_pointer">
+                            {{ promotion.text }}
+                        </button>
+                    </a>
+                </p>
+            {% endfor %}
+        </div>
+
+        <!-- Kacheln-->
+        <aside class="widget widget_tag_cloud">
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade mt-3 show active" id="helper-week" role="tabpanel" aria-labelledby="helper-week-tab">
+                    <a href="https://amzn.to/3w0kVvH" target="_blank">
+                        <img class="sidebar-kachel" src="{% static 'images/kachel_lernhefte_300px.webp' %}" alt="Daniel vor einer Collage. 'Lernhefte' steht auf dem Bild.">
+                    </a>
+                    <a href="https://www.youtube.com/@MathebyDanielJung" target="_blank">
+                        <img class="sidebar-kachel" src="{% static 'images/kachel_mathevideos_300px.webp' %}" alt="Daniel vor einem Whiteboard. Der Text 'mathevideos' steht auf dem Bild.">
+                    </a>
+                    <a href="https://danieljung.io" target="_blank">
+                        <img class="sidebar-kachel" src="{% static 'images/kachel_about_300px.webp' %}" alt="Daniel auf einer Bühne. Der Text 'About Daniel' steht auf dem Bild.">
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Tags widget-->
+        <aside class="widget widget_tag_cloud">
+{# Section currently broken, see GitLab Issue #51 #}
+{#            <div class="widget-title">Top Helfer der Woche</div>#}
+{#            <div class="tab-content" id="nav-tabContent">#}
+{#                <div class="tab-pane fade mt-3 show active" id="helper-week" role="tabpanel" aria-labelledby="helper-week-tab">#}
+{#                    {% top_week_helpers as top_week_helpers %}#}
+{#                    {% for helper in top_week_helpers %}#}
+{#                        <p class="promotion_p">#}
+{#                            <a href="{{ helper.get_absolute_url }}" class="link_color light_bold">#}
+{#                                {{ helper.username }}#}
+{#                                {% if helper.verified %}#}
+{#                                    <i class="fa font11 fa-badge-check"></i>#}
+{#                                {% endif %}#}
+{#                            </a>#}
+{#                            <br>#}
+{#                            <small class="font11">#}
+{#                                {{ helper.answers_this_week|cool_number }} mal geholfen#}
+{#                            </small>#}
+{#                        </p>#}
+{#                    {% endfor %}#}
+{#                    {% if not top_week_helpers %}#}
+{#                        <p class="promotion_p">#}
+{#                            <i class="fa fa-mug-hot"></i> - <a href="?filter=no_answer" class="link_color">Jetzt helfen.</a>#}
+{#                        </p>#}
+{#                    {% endif %}#}
+{#                    <p class="promotion_p">#}
+{#                        <a href="{% url 'all_users' %}?sort=week_helper" class="light_bold link_color">→ Alle Helfer ansehen</a>#}
+{#                    </p>#}
+{#                </div>#}
+{#            </div>#}
+        </aside>
+
+{#    Zeigt Inhalte aus den anderen Netzwerken   #}
+{#        <aside class="widget widget_tag_cloud d-none" id="hot_questions_aside">#}
+{#            <div class="widget-title">Top Fragen aus anderen Portalen</div>#}
+{#            <div class="tab-content" id="nav-tabContent">#}
+{#                <div class="tab-pane fade mt-3 show active" role="tabpanel" aria-labelledby="helper-week-tab" id="hot_questions_parent_el">#}
+{#                    <p class="promotion_p">#}
+{#                        <a href="{{ helper.get_absolute_url }}" class="link_color light_bold">#}
+{#                            {{ helper.username }}#}
+{#                        </a>#}
+{#                    </p>#}
+{#                </div>#}
+{#            </div>#}
+{#        </aside>#}
+
+        <!-- Tags widget-->
+        {% top_playlists as playlists %}
+        {% if playlists.count %}
+        <aside class="widget widget_tag_cloud">
+            <div class="widget-title">
+                Lernplaylisten
+            </div>
+            <div class="tagcloud">
+                {% for playlist in playlists %}
+                    <p class="promotion_p">
+                        <a href="{{ playlist.get_absolute_url }}" class="link_color light_bold">
+                            {{ playlist.name|capfirst }}
+                        </a>
+                        <br>
+                        <small class="font11">
+                            {{ playlist.views }} Aufruf{{ playlist.views|pluralize:",e" }}
+                        </small>
+                    </p>
+                {% endfor %}
+                <p class="promotion_p">
+                    <a href="{% url 'all_playlists' %}" class="light_bold link_color">
+                        → Alle Lernplaylisten ansehen
+                    </a>
+                </p>
+            </div>
+        </aside>
+        {% endif %}
+
+    </div>
+</div>

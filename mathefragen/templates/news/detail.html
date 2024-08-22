@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block og_data %}
+    <meta property="og:url" content="https://{{ site_domain }}{{ news.get_absolute_url }}"/>
+    <meta property="og:title" content="{{ site_domain }} - {{ news.title|capfirst }}"/>
+    <meta property="og:description" content="{{ news.text|striptags|truncatewords:100 }}"/>
+{% endblock %}
+
+{% block title %}
+    {{ site_domain }} - {{ news.title|capfirst }}
+{% endblock %}
+
+{% block description %}
+    {{ news.text|striptags|truncatewords:100 }}
+{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .news_content a {
+            color: #03689e!important;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+
+    <section class="">
+        <div class="container">
+
+            <div class="custom_row">
+                <div class="col-xl-9 feed_l_padding feed_r_padding news_content {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %}">
+                    <a href="{{ news.get_absolute_url }}" class="no_color_link">
+                        <h3 class="mb-0 font22 question_title">
+                            {{ news.title|capfirst }}
+                        </h3>
+                    </a>
+                    <article class="post mt-2 mb-5">
+                        <hr>
+                        <div class="blog-detail-description">
+
+                            <div class="custom_row">
+                                <div class="col-md-12 col-12">
+                                    <p class="font15">
+                                    {{ news.text|safe|linebreaksbr }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {% include 'includes/right_sidebar.html' %}
+            </div>
+
+        </div>
+        <!-- end container -->
+    </section>
+
+{% endblock %}
+
