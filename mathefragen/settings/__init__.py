@@ -136,16 +136,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mathefragen.wsgi.application'
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": env("DB_NAME", default="mathefragen"),
-        "USER": env("DB_USER", default="mathefragen"),
-        "PASSWORD": env("DB_PWD", default="mathefragen"),
-        "HOST": env("DB_HOST", default="localhost"),
-        "PORT": env("DB_PORT", default="5432")
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': f'${BASE_DIR}/db_test.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": env("DB_NAME", default="mathefragen"),
+            "USER": env("DB_USER", default="mathefragen"),
+            "PASSWORD": env("DB_PWD", default="mathefragen"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": env("DB_PORT", default="5432")
+        }
+    }
 
 INTERNAL_IPS = [
     # '127.0.0.1',
@@ -303,7 +311,7 @@ for portal in PORTALS_TO_SYNC:
     if DOMAIN not in portal:
         HOT_NETWORK_QUESTIONS_API.append('%s/v1/question/hot/' % portal)
 
-JWT_AUTH = {
+SIMPLE_JWT = {
     'JWT_ENCODE_HANDLER':
         'rest_framework_jwt.utils.jwt_encode_handler',
 
