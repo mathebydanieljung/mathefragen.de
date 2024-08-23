@@ -40,7 +40,7 @@ API_DOMAIN = env('API_DOMAIN', default='localhost:8000')
 
 SITE_NAME = DOMAIN
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=["http://localhost", "http://127.0.0.1"])
 SECURE_REFERRER_POLICY = "origin"
 
@@ -136,16 +136,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mathefragen.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PWD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT')
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': f'${BASE_DIR}/db_test.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": env("DB_NAME", default="mathefragen"),
+            "USER": env("DB_USER", default="mathefragen"),
+            "PASSWORD": env("DB_PWD", default="mathefragen"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": env("DB_PORT", default="5432")
+        }
+    }
 
 INTERNAL_IPS = [
     # '127.0.0.1',
@@ -225,7 +233,7 @@ USE_TZ = False
 
 # 10 years
 SESSION_COOKIE_AGE = 315569520
-SESSION_COOKIE_NAME = env('COOKIE_NAME')
+SESSION_COOKIE_NAME = env('COOKIE_NAME', default='session_dv')
 
 # push server
 ENABLE_WEBSOCKETS = env('ENABLE_WEBSOCKETS', default=False)
@@ -303,7 +311,7 @@ for portal in PORTALS_TO_SYNC:
     if DOMAIN not in portal:
         HOT_NETWORK_QUESTIONS_API.append('%s/v1/question/hot/' % portal)
 
-JWT_AUTH = {
+SIMPLE_JWT = {
     'JWT_ENCODE_HANDLER':
         'rest_framework_jwt.utils.jwt_encode_handler',
 
@@ -368,7 +376,7 @@ if not DEBUG:
         'host': None,
         'port': None,
         'db': 0,
-        'password': env('REDIS_PASSWORD'),
+        'password': env('REDIS_PASSWORD', default=''),
         'prefix': 'session',
         'socket_timeout': 1,
         'retry_on_timeout': True
@@ -376,12 +384,12 @@ if not DEBUG:
 
     SESSION_REDIS_SENTINEL_LIST = [
         (
-            env('REDIS_SENTINEL_1'),
-            env('REDIS_SENTINEL_1_PORT')
+            env('REDIS_SENTINEL_1', default=''),
+            env('REDIS_SENTINEL_1_PORT', default='')
         ),
         (
-            env('REDIS_SENTINEL_2'),
-            env('REDIS_SENTINEL_2_PORT')
+            env('REDIS_SENTINEL_2', default=''),
+            env('REDIS_SENTINEL_2_PORT', default='')
         )
     ]
 
