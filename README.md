@@ -8,7 +8,7 @@
 </p>
 
 <div style="display: flex; justify-content: space-between;" align="center">
-    <a href="https://www.paypal.com/donate?token=_RiBsYo3dohGLEDX0j4ReVH6PY3zoRbdWYOPYxfJYW_uVWeE8la7cmknoH4twTIJmp5jWSErURHZUYxi">
+    <a href="https://www.paypal.com/donate/?hosted_button_id=5H4ZXE6GFWDC6">
       <picture>
         <img src="https://github.com/user-attachments/assets/d0372ef1-cbec-4404-a7f6-4e3b8d074e1f" height="40" alt="PayPal Donate Button">
       </picture>
