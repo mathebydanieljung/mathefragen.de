@@ -521,13 +521,13 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-admin-sortable2"
-version = "2.2.1"
+version = "2.2.2"
 description = "Generic drag-and-drop sorting for the List, the Stacked- and the Tabular-Inlines Views in the Django Admin"
 optional = false
 python-versions = "*"
 files = [
-    {file = "django_admin_sortable2-2.2.1-py3-none-any.whl", hash = "sha256:ae7ec1f0974202e27748fb618b13f23d1b1d44764374b09ad0a9a763f30b054f"},
-    {file = "django_admin_sortable2-2.2.1.tar.gz", hash = "sha256:30a9527f93fc61b7a2c5954db57d8428931e37f462c3b46cb101053dc5f51751"},
+    {file = "django_admin_sortable2-2.2.2-py3-none-any.whl", hash = "sha256:efb28eed633e3a008c6938a887096a9887a213628a39458dc748d654f8f12d5c"},
+    {file = "django_admin_sortable2-2.2.2.tar.gz", hash = "sha256:fc6b62ac1e5f4c95001742d568a2c1ce371bafe9d79d809fc55779fba955e498"},
 ]
 
 [package.dependencies]
@@ -2287,4 +2287,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "491a091f161322cc196f98e86acdcf742ecf9096f743257bbeb963ef0d000840"
+content-hash = "168a067b9aa87eebfbf87e7ba432e640d38078f7c91c49a99e540a5cd87c0fb7"
