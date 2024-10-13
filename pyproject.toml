@@ -44,7 +44,7 @@ rcssmin = "^1.1.2"
 requests = "^2.32.3"
 uwsgi = "^2.0.27"
 websocket-client = "^1.8.0"
-zipp = "^3.20.1"
+zipp = "^3.20.2"
 gunicorn = "^23.0.0"
 
 
