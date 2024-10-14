@@ -1,4 +1,4 @@
-FROM python:3.12-slim as builder
+FROM python:3.13-slim as builder
 
 RUN pip install -U poetry==1.8.3
 
@@ -19,7 +19,7 @@ RUN poetry config virtualenvs.create false \
 COPY . /code
 
 # Stage 2: Runtime
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
