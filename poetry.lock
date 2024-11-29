@@ -2131,12 +2131,12 @@ ua-parser = ">=0.10.0"
 
 [[package]]
 name = "uwsgi"
-version = "2.0.27"
+version = "2.0.28"
 description = "The uWSGI server"
 optional = false
 python-versions = "*"
 files = [
-    {file = "uwsgi-2.0.27.tar.gz", hash = "sha256:3ee5bfb7e6e9c93478c22aa8183eef35b95a2d5b14cca16172e67f135565c458"},
+    {file = "uwsgi-2.0.28.tar.gz", hash = "sha256:79ca1891ef2df14508ab0471ee8c0eb94bd2d51d03f32f90c4bbe557ab1e99d0"},
 ]
 
 [[package]]
@@ -2291,4 +2291,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "685047f46c430d3cb19d6ab949de421ea2b96a86f86b8ebda272c3fc8695a5ea"
+content-hash = "36039179e8a4e00c66e37597291cb3fac511913d0ba627295fe50fd2d1185b4f"
