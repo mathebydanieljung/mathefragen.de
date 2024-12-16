@@ -12,7 +12,7 @@ packages = [{ include = "mathefragen" }]
 [tool.poetry.dependencies]
 python = "^3.12"
 Markdown = "^2.6.11"
-boto3 = "^1.35.57"
+boto3 = "^1.35.81"
 cloudinary = "^1.41.0"
 cryptography = "^44.0.0"
 django-admin-sortable2 = "^2.2.4"
