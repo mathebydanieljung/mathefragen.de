@@ -29,7 +29,7 @@ class AnswerInline(admin.StackedInline):
         'accepted_at'
     )
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
@@ -43,7 +43,7 @@ class QuestionCommentInline(admin.StackedInline):
         # 'user',
     )
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
