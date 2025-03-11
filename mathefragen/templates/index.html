@@ -1,408 +1,490 @@
-{% extends 'base.html' %}
-{% load custom_tags static %}
+{% extends 'base.html' %} {% load custom_tags static %} {% block extra_head %}
+<link
+  href="{% static 'css/stats_tabs.css' %}?v=22we3dw"
+  rel="stylesheet"
+  type="text/css"
+/>
+{% if settings.question_editor == 'tiny' %}
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"
+  async
+></script>
+{% else %}
+<link
+  href="{% static 'css/markdown.css' %}?v=1212"
+  rel="stylesheet"
+  type="text/css"
+/>
+<link
+  href="{% static 'css/jquery-ui-12.min.css' %}?v=1212"
+  rel="stylesheet"
+  type="text/css"
+/>
+<link
+  href="{% static 'css/ajaximageupload.css' %}?v=1212"
+  rel="stylesheet"
+  type="text/css"
+/>
 
-{% block extra_head %}
-    <link href="{% static 'css/stats_tabs.css' %}?v=22we3dw" rel="stylesheet" type="text/css"/>
-    {% if settings.question_editor == 'tiny' %}
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML'
-                async></script>
-    {% else %}
-        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css"/>
-        <link href="{% static 'css/jquery-ui-12.min.css' %}?v=1212" rel="stylesheet" type="text/css"/>
-        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css"/>
+<script
+  type="text/javascript"
+  src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"
+></script>
+<script
+  type="text/javascript"
+  src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"
+></script>
+<script
+  type="text/javascript"
+  src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"
+></script>
+<script
+  type="text/javascript"
+  src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"
+></script>
+<script
+  type="text/javascript"
+  src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"
+></script>
+{% endif %} {% endblock %} {% block main %} {% include
+'modals/global_stats.html' %}
+<section>
+  <div class="container">
+    <div class="custom_row">
+      <div
+        class="col-xl-9 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} pl-0"
+        style="padding-bottom: 100px"
+      >
+        {% include 'search/search-form.html' %}
 
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/jquery-ui-12.min.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
-    {% endif %}
-{% endblock %}
+        <div class="main-content">
+          <div class="col-sm-12 col-md-10">
+            <div class="mb-3 px-3">
+              {% if tag %}
+              <h3 class="mb-0 font22 question_title mb-1">
+                Fragen zum Tag:
+                <span class="tag badge badge-secondary">{{ tag.name }}</span>
+              </h3>
+              <small class="font12 text-bold">
+                {{ tag.questions.count }} Fragen
+              </small>
+              <small class="font10 help-block ml-3">
+                {% already_follow_hashtag request.user tag.id as
+                already_following %} {% if already_following %}
+                <button
+                  class="btn btn-sm valign-inherit btn-outline-info active already_followed_tag"
+                >
+                  ich folge
+                </button>
+                {% else %}
+                <button
+                  class="btn btn-sm valign-inherit btn-outline-info tag_follow_btn"
+                >
+                  Folgen
+                </button>
+                {% endif %}
+              </small>
+              {% endif %}
+              <div class="valign-sub not_so_black">
+                {% if request.GET.filter == 'no_answer' %} {{
+                number_of_questions }} unbeantwortete Fragen {% elif
+                request.GET.filter == 'no_accept' and request.GET.user %} {{
+                number_of_questions }} offene Fragen von Nutzer: {{
+                request.GET.user }} {% elif request.GET.filter == 'interesting'
+                %} {{ number_of_questions }} interessante Fragen {% elif
+                request.GET.filter == 'hot' %} {{ number_of_questions }} heiße
+                Fragen {% elif request.GET.filter == 'article' %}
+                <a href="{% url 'create_question' %}?set_as=article" class="">
+                  <button class="btn lrm-button float-right mr-3">
+                    Jetzt Mathe Artikel schreiben
+                  </button>
+                </a>
+                <div class="clearfix"></div>
+                {% elif request.GET.q %} {{ number_of_questions }} Frage{{
+                number_of_questions|pluralize:',n' }} zu " {{ request.GET.q }}"
+                {% elif request.GET.answered_user %} {{ answered_user }} hat {{
+                number_of_questions }} Frage {{
+                number_of_questions|pluralize:',n' }} beantwortet {% elif not
+                tag %} {{ request.stats.total_questions }} Frage{{
+                request.stats.total_questions|pluralize:',n' }} {% if
+                request.stats.percent_answered %} -
+                <span id="stats_clk"
+                  >{{ request.stats.percent_answered }}%</span
+                >
+                davon beantwortet {% endif %}
+                <br />
+                <small class="font14">
+                  <a
+                    class="link_color light_bold"
+                    href="{% url 'index' %}?filter=no_answer"
+                  >
+                    Unbeantwortet
+                  </a>
+                </small>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-2"></div>
+        </div>
 
-{% block main %}
-    {% include 'modals/global_stats.html' %}
-    <section>
-        <div class="container">
+        {% if request.user_agent.is_mobile %}
+        <div class="custom_row mt-1 mb-3">
+          <div class="col-lg-12 pl-4 text-center">
+            <h5>
+              {{ request.stats.total_questions }} Frage{{
+              request.stats.total_questions|pluralize:',n' }}
+            </h5>
+            {% if request.stats.percent_answered %}
+            <h6>{{ request.stats.percent_answered }}% davon beantwortet</h6>
+            {% endif %}
+
+            <a
+              href="{% url 'create_question' %}"
+              class="main_question_button_clck mt-3 text-center font-weight-bold d-inline lrm-button ask_btn_mobile show_only_mobile font18"
+            >
+              Jetzt kostenlos Frage stellen
+            </a>
+          </div>
+        </div>
+        {% endif %} {% for question in questions %} {% if forloop.counter == 4
+        %}
+        <article
+          class="post px-3 px-2 border-top-line highlight_box d-xl-none"
+          style="margin-bottom: 0; padding-top: 0 !important"
+        >
+          <div class="post-header">
             <div class="custom_row">
-                <div class="col-xl-9 {% if show_confirm_alert %}pt-5{% else %}pt-4{% endif %} pl-0"
-                     style="padding-bottom: 100px">
+              <div
+                class="col-sm-9 col-md-9 col-lg-9 col-xl-9 post-meta font15 text-center mt-2"
+              >
+                {# Elemente hier werden zufällig angezeigt nach forloop.counter
+                Anzahl an Posts #} {# {% if 'mathefragen' not in site_domain
+                %}#} {#
+                <a
+                  href="https://mathefragen.de"
+                  class="d-none random_promote_site"
+                  target="_blank"
+                  >#} {#
+                  <p class="mb-0 light_bold">
+                    #} {# Es gibt auch
+                    <span class="link_color">mathefragen.de</span>. <br />
+                    Schau doch mal vorbei.#} {#
+                  </p>
+                  #} {# </a
+                >#} {# {% endif %}#}
+                <a
+                  href="https://amzn.to/3w0kVvH"
+                  class="d-none random_promote_site"
+                  target="_blank"
+                >
+                  <p class="mb-0 light_bold">
+                    Kennst du schon unsere
+                    <span class="link_color">Lernhefte</span>? <br />
+                    Schau sie dir doch mal an.
+                  </p>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endif %} {% if question.is_active %}
+        <article
+          class="post px-3 py-2 mb-0 {% if forloop.first %}border-top-line{% endif %} {% if forloop.counter|divisibleby:2 %}changing_background{% endif %}"
+        >
+          <div class="mobile_question_stats">
+            <b>{{ question.vote_points }}</b>
+            Vote{{ question.vote_points|pluralize:",s" }}
 
-                    {% include 'search/search-form.html' %}
-
-                    <div class="main-content">
-                            <div class="col-sm-12 col-md-10">
-                                <div class="mb-3 px-3">
-                                    {% if tag %}
-                                        <h3 class="mb-0 font22 question_title mb-1">
-                                            Fragen zum Tag: <span class="tag badge badge-secondary">{{ tag.name }}</span>
-                                        </h3>
-                                        <small class="font12 text-bold">
-                                            {{ tag.questions.count }} Fragen
-                                        </small>
-                                        <small class="font10 help-block ml-3">
-                                            {% already_follow_hashtag request.user tag.id as already_following %}
-                                            {% if already_following %}
-                                                <button class="btn btn-sm valign-inherit btn-outline-info active already_followed_tag">
-                                                    ich folge
-                                                </button>
-                                            {% else %}
-                                                <button class="btn btn-sm valign-inherit btn-outline-info tag_follow_btn">
-                                                    Folgen
-                                                </button>
-                                            {% endif %}
-                                        </small>
-                                    {% endif %}
-                                    <div class="valign-sub not_so_black">
-                                        {% if request.GET.filter == 'no_answer' %}
-                                            {{ number_of_questions }} unbeantwortete Fragen
-                                        {% elif request.GET.filter == 'no_accept' and request.GET.user %}
-                                            {{ number_of_questions }} offene Fragen von Nutzer: {{ request.GET.user }}
-                                        {% elif request.GET.filter == 'interesting' %}
-                                            {{ number_of_questions }} interessante Fragen
-                                        {% elif request.GET.filter == 'hot' %}
-                                            {{ number_of_questions }} heiße Fragen
-                                        {% elif request.GET.filter == 'article' %}
-                                            <a href="{% url 'create_question' %}?set_as=article" class="">
-                                                <button class="btn lrm-button float-right mr-3">
-                                                    Jetzt Mathe Artikel schreiben
-                                                </button>
-                                            </a>
-                                            <div class="clearfix"></div>
-                                        {% elif request.GET.q %}
-                                            {{ number_of_questions }} Frage{{ number_of_questions|pluralize:',n' }} zu "
-                                            {{ request.GET.q }}"
-                                        {% elif request.GET.answered_user %}
-                                            {{ answered_user }} hat {{ number_of_questions }} Frage
-                                            {{ number_of_questions|pluralize:',n' }} beantwortet
-                                        {% elif not tag %}
-                                            {{ request.stats.total_questions }} Frage{{ request.stats.total_questions|pluralize:',n' }}
-                                            {% if request.stats.percent_answered %}
-                                                - <span id="stats_clk">{{ request.stats.percent_answered }}%</span>
-                                                davon
-                                                beantwortet
-                                            {% endif %}
-                                            <br>
-                                            <small class="font14">
-                                                <a class="link_color light_bold"
-                                                   href="{% url 'index' %}?filter=no_answer">
-                                                    Unbeantwortet
-                                                </a>
-                                            </small>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="col-sm-12 col-md-2"></div>
-                        {% endif %}
-                    </div>
-
-                    {% if request.user_agent.is_mobile %}
-                        <div class="custom_row mt-1 mb-3">
-                            <div class="col-lg-12 pl-4 text-center">
-                                <h5>
-                                    {{ request.stats.total_questions }}
-                                    Frage{{ request.stats.total_questions|pluralize:',n' }}
-                                </h5>
-                                {% if request.stats.percent_answered %}
-                                    <h6>{{ request.stats.percent_answered }}% davon beantwortet</h6>
-                                {% endif %}
-
-                                <a href="{% url 'create_question' %}"
-                                   class="main_question_button_clck mt-3 text-center font-weight-bold d-inline lrm-button ask_btn_mobile show_only_mobile font18">
-                                    Jetzt kostenlos Frage stellen
-                                </a>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    {% for question in questions %}
-                        {% if forloop.counter == 4 %}
-                            <article class="post px-3 px-2 border-top-line highlight_box d-xl-none"
-                                     style="margin-bottom: 0; padding-top: 0!important;">
-                                <div class="post-header">
-                                    <div class="custom_row">
-                                        <div class="col-sm-9 col-md-9 col-lg-9 col-xl-9 post-meta font15 text-center mt-2">
-                                            {# Elemente hier werden zufällig angezeigt nach forloop.counter Anzahl an Posts #}
-
-                                            {#                                            {% if 'mathefragen' not in site_domain %}#}
-                                            {#                                                <a href="https://mathefragen.de" class="d-none random_promote_site" target="_blank">#}
-                                            {#                                                    <p class="mb-0 light_bold">#}
-                                            {#                                                        Es gibt auch <span class="link_color">mathefragen.de</span>. <br> Schau doch mal vorbei.#}
-                                            {#                                                    </p>#}
-                                            {#                                                </a>#}
-                                            {#                                            {% endif %}#}
-                                            <a href="https://amzn.to/3w0kVvH" class="d-none random_promote_site"
-                                               target="_blank">
-                                                <p class="mb-0 light_bold">
-                                                    Kennst du schon unsere <span class="link_color">Lernhefte</span>?
-                                                    <br> Schau sie dir doch mal an.
-                                                </p>
-                                            </a>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </article>
-                        {% endif %}
-                        {% if question.is_active %}
-                            <article
-                                    class="post px-3 py-2 mb-0 {% if forloop.first %}border-top-line{% endif %} {% if forloop.counter|divisibleby:2 %}changing_background{% endif %}">
-                                <div class="mobile_question_stats">
-                                    <b>{{ question.vote_points }}</b>
-                                    Vote{{ question.vote_points|pluralize:",s" }}
-
-                                    <div class="{% if question.answered %}answered_line{% endif %} d-inline answer_line_mobile">
-                                        <b>{{ question.number_answers }}</b>
-                                        Antwort{{ question.number_answers|pluralize:",en" }}
-
-                                        {% if question.answered %}
-                                            <svg style="fill: #48a868;vertical-align: middle;" aria-hidden="true"
-                                                 class="accepted" width="15" height="15"
-                                                 viewBox="0 0 36 36">
-                                                <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
-                                            </svg>
-                                        {% endif %}
-                                    </div>
-
-                                    <b>{{ question.views }}</b>
-                                    Aufruf{{ question.views|pluralize:",e" }}
-                                </div>
-                                <div class="post-header px-3">
-                                    <div class="custom_row">
-                                        <div style="min-width: 81px;"
-                                             class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center">
-                                            <span class="font18 light_bold text-center d-block index_stats_number">
-                                                {{ question.vote_points }}
-                                            </span>
-                                            <span class="small font10 text-center d-block index_stats_name">
-                                                Vote{{ question.vote_points|pluralize:",s" }}
-                                            </span>
-                                        </div>
-                                        <div style="min-width: 81px;"
-                                             class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center {% if question.answered %}answered_box{% endif %}">
-                                            <span class="font18 light_bold d-block index_stats_number">
-                                                {{ question.number_answers }}
-                                            </span>
-                                            <span class="small font10 text-center d-block index_stats_name">
-                                                Antwort{{ question.number_answers|pluralize:",en" }}
-                                            </span>
-                                        </div>
-                                        <div style="min-width: 81px;"
-                                             class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center">
-                                            <span class="font18 light_bold d-block index_stats_number">{{ question.views }}</span>
-                                            <span class="small font10 text-center d-block index_stats_name">
-                                                Aufruf{{ question.views|pluralize:",e" }}
-                                            </span>
-                                        </div>
-                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-9 post-meta {% if question.is_first_question or question.answered %}top_3_if_mobile{% endif %}">
-                                            <h2 class="post-title w-100">
-                                                {% if question.is_first_question %}
-                                                    <span class="badge badge-pill badge-warning valign-top"
-                                                          data-toggle="tooltip" data-placement="bottom"
-                                                          title="Das ist die erste Frage von {{ question.user.profile.username }}. Sei nett, respektvoll und geduldig.">Erste Frage</span>
-                                                {% endif %}
-                                                <a href="{{ question.get_absolute_url }}" class="link_color">
-                                                    {{ question.title|capfirst }}
-                                                </a>
-                                            </h2>
-                                            <div class="tagcloud float-left">
-                                                {% if question.is_article %}
-                                                    <i class="fal fa-clipboard-check community_paper_icon mr-1"
-                                                       data-toggle="tooltip"
-                                                       data-placement="bottom"
-                                                       title="<small>Community Artikel</small>"></i>
-                                                {% endif %}
-                                                {% for tag in question.tag_names|listify %}
-                                                    <a class="tag"
-                                                        href="{% url 'questions_with_tag' %}?tag={{ tag|remove_hash }}">{{ tag|capfirst }}</a>
-                                                {% endfor %}
-                                            </div>
-                                            <div class="small float-right user_line_index">
-                                                {% if question.last_acted_user_username %}
-                                                    <a href="{{ question.last_acted_user_url }}"
-                                                       class="text-bold link_color">
-                                                        {{ question.last_acted_user_username }}
-                                                        {% if question.last_acted_user_verified %}
-                                                            <i class="fa fa-badge-check"></i>
-                                                        {% endif %}
-                                                    </a>
-                                                {% else %}
-                                                    inaktiver Nutzer,
-                                                {% endif %}
-                                                {{ question.rank_reason }} {{ question.rank_date|naturaltime_v2 }}
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </article>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if not questions %}
-                        <div class="custom_row mt-3 mb-3">
-                            <div class="col-lg-9 pl-5">
-                                <small>
-                                    Aktuell keine Fragen
-                                </small>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    {% if questions %}
-                        <div class="custom_row mt-5">
-                            <div class="col-lg-12 text-center">
-                                <ul class="pagination">
-                                    {% if prev_page %}
-                                        <li class="prev font12">
-                                            {% if tag %}
-                                                <a href="{% url 'questions_with_tag' %}?tag={{ tag }}&page=
-                                                        {{ page|add:'-1' }}">
-                                                    Zurück
-                                                </a>
-                                            {% elif request.GET.q %}
-                                                <a href="{% url 'search' %}?q={{ request.GET.q }}&page=
-                                                        {{ page|add:'-1' }}">
-                                                    Zurück
-                                                </a>
-                                            {% elif request.GET.src %}
-                                                <a href="?src={{ request.GET.src }}&page={{ page|add:'-1' }}">
-                                                    Zurück
-                                                </a>
-                                            {% elif request.GET.answered_user %}
-                                                <a href="?answered_user={{ request.GET.answered_user }}&page=
-                                                        {{ page|add:'-1' }}">
-                                                    Zurück
-                                                </a>
-                                            {% elif request.GET.user %}
-                                                <a href="?user={{ request.GET.answered_user }}&page=
-                                                        {{ page|add:'-1' }}">
-                                                    Zurück
-                                                </a>
-                                            {% else %}
-                                                <a href="?page=
-
-
-
-
-                                                        {{ page|add:'-1' }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
-                                                    Zurück
-                                                </a>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-
-                                    <small class="ml-2 mr-2">{{ page }} von {{ number_of_pages }}</small>
-
-                                    {% if next_page %}
-                                        <li class="next font12">
-                                            {% if tag %}
-                                                <a href="{% url 'questions_with_tag' %}?tag={{ tag }}&page=
-                                                        {{ page|add:'1' }}">
-                                                    Weiter
-                                                </a>
-                                            {% elif request.GET.q %}
-                                                <a href="{% url 'search' %}?q={{ request.GET.q }}&page=
-                                                        {{ page|add:'1' }}">
-                                                    Weiter
-                                                </a>
-                                            {% elif request.GET.src %}
-                                                <a href="?src={{ request.GET.src }}&page={{ page|add:'1' }}">
-                                                    Weiter
-                                                </a>
-                                            {% elif request.GET.answered_user %}
-                                                <a href="?answered_user={{ request.GET.answered_user }}&page=
-                                                        {{ page|add:'1' }}">
-                                                    Weiter
-                                                </a>
-                                            {% elif request.GET.user %}
-                                                <a href="?user={{ request.GET.answered_user }}&page={{ page|add:'1' }}">
-                                                    Weiter
-                                                </a>
-                                            {% else %}
-                                                <a href="?page=
-
-
-
-
-                                                        {{ page|add:'1' }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
-                                                    Weiter
-                                                </a>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                </ul>
-
-                                {% if performance.feed_3_days %}
-                                    <p>
-                                        <small>
-                                            Du siehst jetzt die aktiven Fragen der letzten 3 Tage. <br>
-                                            Suchst du mehr? <a href="?filter=show_all" class="link_color">Jetzt alle
-                                            Fragen anzeigen</a>
-                                        </small>
-                                    </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                </div>
-
-                {% include 'includes/right_sidebar.html' %}
-
+            <div
+              class="{% if question.answered %}answered_line{% endif %} d-inline answer_line_mobile"
+            >
+              <b>{{ question.number_answers }}</b>
+              Antwort{{ question.number_answers|pluralize:",en" }} {% if
+              question.answered %}
+              <svg
+                style="fill: #48a868; vertical-align: middle"
+                aria-hidden="true"
+                class="accepted"
+                width="15"
+                height="15"
+                viewBox="0 0 36 36"
+              >
+                <path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path>
+              </svg>
+              {% endif %}
             </div>
 
+            <b>{{ question.views }}</b>
+            Aufruf{{ question.views|pluralize:",e" }}
+          </div>
+          <div class="post-header px-3">
+            <div class="custom_row">
+              <div
+                style="min-width: 81px"
+                class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center"
+              >
+                <span
+                  class="font18 light_bold text-center d-block index_stats_number"
+                >
+                  {{ question.vote_points }}
+                </span>
+                <span class="small font10 text-center d-block index_stats_name">
+                  Vote{{ question.vote_points|pluralize:",s" }}
+                </span>
+              </div>
+              <div
+                style="min-width: 81px"
+                class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center {% if question.answered %}answered_box{% endif %}"
+              >
+                <span class="font18 light_bold d-block index_stats_number">
+                  {{ question.number_answers }}
+                </span>
+                <span class="small font10 text-center d-block index_stats_name">
+                  Antwort{{ question.number_answers|pluralize:",en" }}
+                </span>
+              </div>
+              <div
+                style="min-width: 81px"
+                class="d_sm_none_custom col-sm-1 col-md-1 col-lg-1 col-xl-1 text-center"
+              >
+                <span class="font18 light_bold d-block index_stats_number"
+                  >{{ question.views }}</span
+                >
+                <span class="small font10 text-center d-block index_stats_name">
+                  Aufruf{{ question.views|pluralize:",e" }}
+                </span>
+              </div>
+              <div
+                class="col-sm-12 col-md-12 col-lg-12 col-xl-9 post-meta {% if question.is_first_question or question.answered %}top_3_if_mobile{% endif %}"
+              >
+                <h2 class="post-title w-100">
+                  {% if question.is_first_question %}
+                  <span
+                    class="badge badge-pill badge-warning valign-top"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Das ist die erste Frage von {{ question.user.profile.username }}. Sei nett, respektvoll und geduldig."
+                    >Erste Frage</span
+                  >
+                  {% endif %}
+                  <a href="{{ question.get_absolute_url }}" class="link_color">
+                    {{ question.title|capfirst }}
+                  </a>
+                </h2>
+                <div class="tagcloud float-left">
+                  {% if question.is_article %}
+                  <i
+                    class="fal fa-clipboard-check community_paper_icon mr-1"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="<small>Community Artikel</small>"
+                  ></i>
+                  {% endif %} {% for tag in question.tag_names|listify %}
+                  <a
+                    class="tag"
+                    href="{% url 'questions_with_tag' %}?tag={{ tag|remove_hash }}"
+                    >{{ tag|capfirst }}</a
+                  >
+                  {% endfor %}
+                </div>
+                <div class="small float-right user_line_index">
+                  {% if question.last_acted_user_username %}
+                  <a
+                    href="{{ question.last_acted_user_url }}"
+                    class="text-bold link_color"
+                  >
+                    {{ question.last_acted_user_username }} {% if
+                    question.last_acted_user_verified %}
+                    <i class="fa fa-badge-check"></i>
+                    {% endif %}
+                  </a>
+                  {% else %} inaktiver Nutzer, {% endif %} {{
+                  question.rank_reason }} {{ question.rank_date|naturaltime_v2
+                  }}
+                </div>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endif %} {% endfor %} {% if not questions %}
+        <div class="custom_row mt-3 mb-3">
+          <div class="col-lg-9 pl-5">
+            <small> Aktuell keine Fragen </small>
+          </div>
         </div>
-        <!-- end container -->
-    </section>
-{% endblock %}
+        {% endif %} {% if questions %}
+        <div class="custom_row mt-5">
+          <div class="col-lg-12 text-center">
+            <ul class="pagination">
+              {% if prev_page %}
+              <li class="prev font12">
+                {% if tag %}
+                <a
+                  href="{% url 'questions_with_tag' %}?tag={{ tag }}&page=
+                                                        {{ page|add:'-1' }}"
+                >
+                  Zurück
+                </a>
+                {% elif request.GET.q %}
+                <a
+                  href="{% url 'search' %}?q={{ request.GET.q }}&page=
+                                                        {{ page|add:'-1' }}"
+                >
+                  Zurück
+                </a>
+                {% elif request.GET.src %}
+                <a href="?src={{ request.GET.src }}&page={{ page|add:'-1' }}">
+                  Zurück
+                </a>
+                {% elif request.GET.answered_user %}
+                <a
+                  href="?answered_user={{ request.GET.answered_user }}&page=
+                                                        {{ page|add:'-1' }}"
+                >
+                  Zurück
+                </a>
+                {% elif request.GET.user %}
+                <a
+                  href="?user={{ request.GET.answered_user }}&page=
+                                                        {{ page|add:'-1' }}"
+                >
+                  Zurück
+                </a>
+                {% else %}
+                <a
+                  href="?page=
 
-{% block extra_js_bottom %}
-    <script type="text/javascript">
-        $(function () {
 
-            $('#stats_clk').on('click', function () {
-                $('#id_global_stats').modal('show');
-            });
 
-            $('.main_question_button_clck').on('click', function (e) {
-                // prevent default
-                e.preventDefault();
-                var href = $(this).attr('href');
-                if (typeof mixpanel != "undefined") {
-                    mixpanel.track(
-                        'main_question_button_clck',
-                        {'location': 'index_page'}
-                    );
-                }
-                location.href = href;
-            });
 
-            var random = Math.floor(Math.random() * $(".random_promote_site").length);
-            $(".random_promote_site").eq(random).removeClass('d-none');
+                                                        {{ page|add:'-1' }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                >
+                  Zurück
+                </a>
+                {% endif %}
+              </li>
+              {% endif %}
 
-            {% if tag %}
-                $(document).on('click', '.tag_follow_btn', function () {
-                    var clicked_btn = $(this);
-                    $.get("{% url 'follow_hashtag' %}?hashtag_to_follow=" + {{ tag.id }}, function (data, status) {
-                        clicked_btn.text('Ich folge');
-                        clicked_btn.addClass('active');
-                        clicked_btn.addClass('already_followed_tag');
-                        clicked_btn.removeClass('tag_follow_btn');
-                    });
-                });
-                $(document).on('click', '.already_followed_tag', function () {
-                    var clicked_btn = $(this);
-                    $.get("{% url 'unfollow_hashtag' %}?hashtag_to_unfollow=" + {{ tag.id }}, function (data, status) {
-                        clicked_btn.text('Folgen');
-                        clicked_btn.removeClass('active');
-                        clicked_btn.removeClass('already_followed_tag');
-                        clicked_btn.addClass('tag_follow_btn');
-                    });
-                });
+              <small class="ml-2 mr-2"
+                >{{ page }} von {{ number_of_pages }}</small
+              >
+
+              {% if next_page %}
+              <li class="next font12">
+                {% if tag %}
+                <a
+                  href="{% url 'questions_with_tag' %}?tag={{ tag }}&page=
+                                                        {{ page|add:'1' }}"
+                >
+                  Weiter
+                </a>
+                {% elif request.GET.q %}
+                <a
+                  href="{% url 'search' %}?q={{ request.GET.q }}&page=
+                                                        {{ page|add:'1' }}"
+                >
+                  Weiter
+                </a>
+                {% elif request.GET.src %}
+                <a href="?src={{ request.GET.src }}&page={{ page|add:'1' }}">
+                  Weiter
+                </a>
+                {% elif request.GET.answered_user %}
+                <a
+                  href="?answered_user={{ request.GET.answered_user }}&page=
+                                                        {{ page|add:'1' }}"
+                >
+                  Weiter
+                </a>
+                {% elif request.GET.user %}
+                <a
+                  href="?user={{ request.GET.answered_user }}&page={{ page|add:'1' }}"
+                >
+                  Weiter
+                </a>
+                {% else %}
+                <a
+                  href="?page=
+
+
+
+
+                                                        {{ page|add:'1' }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}"
+                >
+                  Weiter
+                </a>
+                {% endif %}
+              </li>
+              {% endif %}
+            </ul>
+
+            {% if performance.feed_3_days %}
+            <p>
+              <small>
+                Du siehst jetzt die aktiven Fragen der letzten 3 Tage. <br />
+                Suchst du mehr?
+                <a href="?filter=show_all" class="link_color"
+                  >Jetzt alle Fragen anzeigen</a
+                >
+              </small>
+            </p>
             {% endif %}
-        });
-    </script>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% include 'includes/right_sidebar.html' %}
+    </div>
+  </div>
+  <!-- end container -->
+</section>
+{% endblock %} {% block extra_js_bottom %}
+<script type="text/javascript">
+  $(function () {
+
+      $('#stats_clk').on('click', function () {
+          $('#id_global_stats').modal('show');
+      });
+
+      $('.main_question_button_clck').on('click', function (e) {
+          // prevent default
+          e.preventDefault();
+          var href = $(this).attr('href');
+          if (typeof mixpanel != "undefined") {
+              mixpanel.track(
+                  'main_question_button_clck',
+                  {'location': 'index_page'}
+              );
+          }
+          location.href = href;
+      });
+
+      var random = Math.floor(Math.random() * $(".random_promote_site").length);
+      $(".random_promote_site").eq(random).removeClass('d-none');
+
+      {% if tag %}
+          $(document).on('click', '.tag_follow_btn', function () {
+              var clicked_btn = $(this);
+              $.get("{% url 'follow_hashtag' %}?hashtag_to_follow=" + {{ tag.id }}, function (data, status) {
+                  clicked_btn.text('Ich folge');
+                  clicked_btn.addClass('active');
+                  clicked_btn.addClass('already_followed_tag');
+                  clicked_btn.removeClass('tag_follow_btn');
+              });
+          });
+          $(document).on('click', '.already_followed_tag', function () {
+              var clicked_btn = $(this);
+              $.get("{% url 'unfollow_hashtag' %}?hashtag_to_unfollow=" + {{ tag.id }}, function (data, status) {
+                  clicked_btn.text('Folgen');
+                  clicked_btn.removeClass('active');
+                  clicked_btn.removeClass('already_followed_tag');
+                  clicked_btn.addClass('tag_follow_btn');
+              });
+          });
+      {% endif %}
+  });
+</script>
 {% endblock %}
