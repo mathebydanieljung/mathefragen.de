@@ -73,6 +73,11 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="next" value="{{ request.GET.next|default:'/' }}">
                                     <input type="hidden" name="nqh" value="{{ new_question_hash|default:'' }}">
+                                    <div class="mb-3" style="display:none;">
+                                        {# Honeypot field to catch bots #}
+                                        <label for="website">Website</label>
+                                        <input type="text" name="website" id="website" class="form-control" autocomplete="off">
+                                    </div>
 
                                         <div class="mb-3">
                                             {{ register_form.username }}
@@ -163,6 +168,11 @@
     {% compress js file register %}
     <script type="text/javascript">
         function submit_register_form(){
+            // check honepot
+            if ($('#website').val() != '') {
+                return false;
+            }
+
             // track mixpanel event
             if (typeof mixpanel != "undefined") {
                 mixpanel.track('registrieren', {'register_type': 'email'});
