@@ -2,7 +2,7 @@
     <div class="col-sm mb-4 px-md-4">
         <form class="form-inline search-form row" action="{% url 'search' %}">
             <div class="form-group mt-1 mb-2 col-md-6">
-                <input type="search" id="q" name="q" class="form-control search-input w-100" required value="{{ request.GET.q|default_if_none:'' }}" placeholder="{% if is_debug_mode or is_on_mathefragen %}Suche z.B. Wie funktioniert die Kettenregel?{% else %}Suche nach Stichwörtern{% endif %}" >
+                <input type="search" id="q" name="q" class="form-control search-input w-100" required value="{{ request.GET.q|default_if_none:'' }}" placeholder="Suche nach Stichwörtern" >
             </div>
             <div class="form-group mt-1 mb-2 search-actions col-md-6">
                 <button type="submit" class="btn btn-success">Suchen</button>
