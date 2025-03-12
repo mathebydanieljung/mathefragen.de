@@ -1,7 +1,7 @@
 import json
 import logging
-
 import math
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -29,6 +29,7 @@ from mathefragen.apps.question.models import (
 from mathefragen.apps.question.utils import filter_questions, ImageSafety
 from mathefragen.apps.tutoring.models import HelpRequest
 from mathefragen.apps.vote.models import Vote
+from mathefragen.lib import validate_with_turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,13 @@ class CreateQuestion(FormView):
             question_id = question_form_data.get('question_id')
 
             being_edited = being_edited == 'yes'
+
+            turnstile_validation = validate_with_turnstile(request.POST.get('cf-turnstile-response'))
+            if not turnstile_validation.get('success'):
+                return render(request, 'user/register.html', {
+                    'question_form': question_form,
+                    'error': 'Bitte bestätige, dass du kein Roboter bist.',
+                })
 
             if len(title) < 10 and not question_id:
                 context = {
