@@ -46,4 +46,5 @@ def project_settings(request):
         'show_confirm_alert': request.user.is_authenticated and not request.user.is_active,
         'is_debug_mode': is_debug_mode,
         'is_on_mathefragen': is_on_mathefragen,
+        'turnstile_site_key': django_settings.TURNSTILE_SITE_KEY,
     }

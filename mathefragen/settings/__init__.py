@@ -450,3 +450,6 @@ LOGGING = {
         },
     }
 }
+
+TURNSTILE_SITE_KEY = env('TURNSTILE_SITE_KEY', default='xxx')
+TURNSTILE_SECRET_KEY = env('TURNSTILE_SECRET_KEY', default='xxx')
