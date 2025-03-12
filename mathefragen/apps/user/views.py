@@ -48,6 +48,7 @@ from mathefragen.apps.user.models import (
     Institution,
     PostalCode
 )
+from mathefragen.lib import validate_with_turnstile
 
 
 class Login(FormView):
@@ -294,7 +295,6 @@ class Register(FormView):
         new_question_hash = request.POST.get('nqh')
 
         if register_form.is_valid():
-
             username = register_form.cleaned_data.get('username').lower()
             email = register_form.cleaned_data.get('email').lower()
             password = register_form.cleaned_data.get('password')
@@ -338,6 +338,15 @@ class Register(FormView):
                 return render(request, 'user/register.html', {
                     'register_form': register_form,
                     'error': 'Benutzername ist zu lang',
+                    'no_left_sidebar': True,
+                    'new_question_hash': new_question_hash
+                })
+
+            turnstile_validation = validate_with_turnstile(request.POST.get('cf-turnstile-response'))
+            if not turnstile_validation.get('success'):
+                return render(request, 'user/register.html', {
+                    'register_form': register_form,
+                    'error': 'Bitte bestätige, dass du kein Roboter bist.',
                     'no_left_sidebar': True,
                     'new_question_hash': new_question_hash
                 })
