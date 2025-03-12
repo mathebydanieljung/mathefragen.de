@@ -46,6 +46,12 @@ var klaroConfig = {
             description: "TinyMCE wird benötigt, um Texte zu formatieren.",
         },
         {
+            name: 'cloudflare-turnstile',
+            required: true,
+            purposes: ['essential'],
+            description: "Cloudflare schützt die Seite vor Angriffen.",
+        },
+        {
             // In GTM, you should define a custom event trigger named `klaro-google-analytics-accepted` which should trigger the Google Analytics integration.
             name: 'google-analytics',
             cookies: [
