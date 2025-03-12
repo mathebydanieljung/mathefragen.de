@@ -72,11 +72,18 @@ class Login(FormView):
         login_form = LoginForm(request.POST or None)
 
         if login_form.is_valid():
-
             login_id = login_form.cleaned_data.get('login_id').lower()
             password = login_form.cleaned_data.get('password')
             next_page = request.POST.get('next_page')
             new_question_hash = request.POST.get('nqh')
+
+            turnstile_validation = validate_with_turnstile(request.POST.get('cf-turnstile-response'))
+            if not turnstile_validation.get('success'):
+                return render(request, 'user/login.html', {
+                    'login_form': login_form,
+                    'error': 'Bitte bestätige, dass du kein Roboter bist.',
+                    'no_left_sidebar': True,
+                })
 
             try:
                 validate_email(login_id)

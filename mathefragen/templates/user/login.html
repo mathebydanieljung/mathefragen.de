@@ -81,6 +81,7 @@
                                         </div>
                                         <input name="next_page" value="{{ request.GET.next|default:'/' }}" type="hidden">
                                         <div class="mb-3">
+                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
                                             <button name="submit"
                                                     type="submit"
                                                     id="submit"
