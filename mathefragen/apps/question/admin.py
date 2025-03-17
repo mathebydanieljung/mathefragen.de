@@ -101,8 +101,8 @@ class QuestionAdmin(admin.ModelAdmin):
         'source_ip'
     )
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return True
 
     def save_model(self, request, obj, form, change):
         if 'soft_deleted' in form.changed_data and obj.soft_deleted:
@@ -123,7 +123,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    search_fields = ('question_id', 'id', 'text')
+    search_fields = ('id', 'text')
     list_filter = ('accepted', 'grasp_level')
     readonly_fields = (
         'question',
