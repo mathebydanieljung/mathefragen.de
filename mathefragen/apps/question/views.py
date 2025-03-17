@@ -16,6 +16,7 @@ from mathefragen.apps.core.utils import (
     create_default_hash,
     RepairImages
 )
+from mathefragen.apps.guardian.models import BlockedIP
 from mathefragen.apps.guardian.tools import ip
 from mathefragen.apps.hashtag.models import HashTag
 from mathefragen.apps.question.forms import CreateQuestionForm
@@ -136,9 +137,16 @@ class CreateQuestion(FormView):
 
             turnstile_validation = validate_with_turnstile(request.POST.get('cf-turnstile-response'))
             if not turnstile_validation.get('success'):
-                return render(request, 'user/register.html', {
+                return render(request, 'question/create.html', {
                     'question_form': question_form,
                     'error': 'Bitte bestätige, dass du kein Roboter bist.',
+                })
+
+            found_ip = ip.IP(request=request).user_ip()
+            if found_ip and BlockedIP.objects.filter(ip=found_ip).count() > 0:
+                return render(request, 'question/create.html', {
+                    'question_form': question_form,
+                    'error': 'Sorry, die Registrierung ist temporär nicht möglich.',
                 })
 
             if len(title) < 10 and not question_id:
