@@ -56,6 +56,8 @@ class QuestionAdmin(admin.ModelAdmin):
     def view_on_site(self, obj):
         return 'https://%s%s' % (settings.DOMAIN, obj.get_absolute_url())
 
+    actions = ['delete_selected']
+    sortable_by = ['title', 'idate']
     inlines = [AnswerInline, QuestionCommentInline]
     search_fields = ('title', 'text', 'hash_id', 'last_acted_user_username')
     list_filter = ('type', 'is_active')
