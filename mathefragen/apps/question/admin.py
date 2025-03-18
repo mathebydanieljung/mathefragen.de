@@ -123,8 +123,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
+    actions = ['delete_selected']
     search_fields = ('id', 'text')
-    list_filter = ('accepted', 'grasp_level')
+    list_filter = ('accepted', 'grasp_level', 'idate')
     readonly_fields = (
         'question',
         # 'user',
@@ -142,8 +143,8 @@ class AnswerAdmin(admin.ModelAdmin):
         'is_active'
     )
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
 
     def text_start(self, obj):
         return '%s ...' % obj.text[:50]
