@@ -98,3 +98,214 @@ on the directory:
 
 To update the NGINX configs you need make your changes on the https://gitlab.com/new-learning/aiedn-group/configs/nginx
 and then pull the changes on the server from the directory `/var/www/aiedn/setup`.
+
+## Troubleshooting
+
+### Remove a user
+
+The previous developers have diverged the names of the tables from the Django default. This makes it difficult to delete spamming users. Here's a script to delete a user from the python shell:
+
+```py
+from django.db import connection
+
+try:
+    with connection.cursor() as cursor:
+        # Begin transaction
+        cursor.execute("BEGIN")
+
+        # Define problematic question IDs - add the new one we found
+        problem_questions = [56, 157]
+        user_id = 1030  # The user we want to delete
+
+        print(f"Handling specific problematic questions: {problem_questions}")
+
+        # Step 1: Handle known problematic questions first
+        for q_id in problem_questions:
+            # First clear hashtag connections - this was explicitly mentioned in error
+            cursor.execute(
+                "DELETE FROM hashtag_hashtag_questions WHERE question_id = %s", [q_id])
+            print(
+                f"Removed {cursor.rowcount} hashtag connections from question {q_id}")
+
+            # Handle stats views
+            cursor.execute(
+                "DELETE FROM stats_questionview WHERE question_id = %s", [q_id])
+            print(
+                f"Removed {cursor.rowcount} rows from stats_questionview for question {q_id}")
+
+            # Handle other known potential references
+            reference_tables = [
+                'question_questionvote',
+                'question_answer',
+                'question_question_hashtags',
+                'review_userreview',
+                'user_review',
+                'question_accepted_answer'  # Additional possible relation
+            ]
+
+            for table in reference_tables:
+                try:
+                    # Check if table exists
+                    cursor.execute(f"SELECT to_regclass('{table}')")
+                    table_exists = cursor.fetchone()[0] is not None
+
+                    if table_exists:
+                        # Check if column exists
+                        cursor.execute(f"""
+                        SELECT column_name 
+                        FROM information_schema.columns 
+                        WHERE table_name = '{table}' AND column_name LIKE '%question%'
+                        """)
+                        columns = cursor.fetchall()
+
+                        for column in columns:
+                            column_name = column[0]
+                            cursor.execute(
+                                f"DELETE FROM {table} WHERE {column_name} = %s", [q_id])
+                            print(
+                                f"Removed {cursor.rowcount} rows from {table}.{column_name} for question {q_id}")
+                except Exception as e:
+                    print(
+                        f"Error handling {table} for question {q_id}: {str(e)}")
+
+            # Try to delete the question now that references are cleared
+            try:
+                cursor.execute(
+                    "DELETE FROM question_question WHERE id = %s", [q_id])
+                print(
+                    f"Deleted question {q_id}: {cursor.rowcount} rows affected")
+            except Exception as e:
+                print(f"Failed to delete question {q_id}: {str(e)}")
+                # Get more details about remaining references
+                cursor.execute("""
+                SELECT tc.table_name, kcu.column_name
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                JOIN information_schema.constraint_column_usage ccu
+                    ON ccu.constraint_name = tc.constraint_name
+                WHERE tc.constraint_type = 'FOREIGN KEY'
+                AND ccu.table_name = 'question_question'
+                AND ccu.column_name = 'id'
+                """)
+
+                possible_references = cursor.fetchall()
+                print(
+                    f"Possible remaining references to questions: {possible_references}")
+
+                # Try to clear these references too
+                for ref_table, ref_col in possible_references:
+                    try:
+                        cursor.execute(
+                            f"DELETE FROM {ref_table} WHERE {ref_col} = %s", [q_id])
+                        print(
+                            f"Cleared {cursor.rowcount} rows from {ref_table}.{ref_col}")
+                    except Exception as e2:
+                        print(
+                            f"Could not clear {ref_table}.{ref_col}: {str(e2)}")
+
+                # Try one more time to delete the question
+                try:
+                    cursor.execute(
+                        "DELETE FROM question_question WHERE id = %s", [q_id])
+                    print(
+                        f"Second attempt to delete question {q_id}: {cursor.rowcount} rows affected")
+                except Exception as e3:
+                    print(f"Still failed to delete question {q_id}: {str(e3)}")
+
+        # Step 2: Handle remaining questions by this user
+        cursor.execute(
+            "SELECT id FROM question_question WHERE user_id = %s", [user_id])
+        user_questions = [row[0] for row in cursor.fetchall()]
+        print(
+            f"Found {len(user_questions)} remaining questions by user {user_id}")
+
+        if user_questions:
+            for q_id in user_questions:
+                # Same thorough process for each of user's questions
+                # First clear hashtag connections
+                cursor.execute(
+                    "DELETE FROM hashtag_hashtag_questions WHERE question_id = %s", [q_id])
+                print(
+                    f"Removed {cursor.rowcount} hashtag connections from question {q_id}")
+
+                # Handle stats views
+                cursor.execute(
+                    "DELETE FROM stats_questionview WHERE question_id = %s", [q_id])
+                print(
+                    f"Removed {cursor.rowcount} rows from stats_questionview for question {q_id}")
+
+                # Handle other potential references one by one (safer than using IN clauses)
+                for table in reference_tables:
+                    try:
+                        if cursor.execute(f"SELECT to_regclass('{table}')").fetchone()[0] is not None:
+                            cursor.execute(f"""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = '{table}' AND column_name LIKE '%question%'
+                            """)
+
+                            for column in cursor.fetchall():
+                                column_name = column[0]
+                                cursor.execute(
+                                    f"DELETE FROM {table} WHERE {column_name} = %s", [q_id])
+                                print(
+                                    f"Removed {cursor.rowcount} rows from {table}.{column_name} for question {q_id}")
+                    except Exception as e:
+                        print(
+                            f"Error handling {table} for question {q_id}: {str(e)}")
+
+                # Delete the question
+                try:
+                    cursor.execute(
+                        "DELETE FROM question_question WHERE id = %s", [q_id])
+                    print(
+                        f"Deleted question {q_id}: {cursor.rowcount} rows affected")
+                except Exception as e:
+                    print(f"Failed to delete question {q_id}: {str(e)}")
+
+        # Step 3: Delete all user references
+        cursor.execute("""
+        SELECT DISTINCT tc.table_name, kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name
+        JOIN information_schema.constraint_column_usage ccu
+            ON ccu.constraint_name = tc.constraint_name
+        WHERE tc.constraint_type = 'FOREIGN KEY'
+        AND ccu.table_name = 'auth_user'
+        AND ccu.column_name = 'id'
+        """)
+
+        user_references = cursor.fetchall()
+        print(f"Found {len(user_references)} tables referencing the user")
+
+        # Process user references
+        for table, column in user_references:
+            try:
+                cursor.execute(
+                    f"DELETE FROM {table} WHERE {column} = %s", [user_id])
+                print(f"Deleted {cursor.rowcount} rows from {table}.{column}")
+            except Exception as e:
+                print(f"Error with {table}.{column}: {str(e)}")
+
+        # Step 4: Final attempt to delete the user
+        cursor.execute("DELETE FROM auth_user WHERE id = %s", [user_id])
+
+        if cursor.rowcount > 0:
+            print(f"Successfully deleted user {user_id}")
+            cursor.execute("COMMIT")
+            print("Transaction committed successfully")
+        else:
+            print(f"Failed to delete user {user_id}")
+            cursor.execute("ROLLBACK")
+            print("Transaction rolled back")
+
+except Exception as e:
+    print(f"Fatal error: {str(e)}")
+    try:
+        cursor.execute("ROLLBACK")
+        print("Transaction rolled back")
+    except:
+        pass
+```
