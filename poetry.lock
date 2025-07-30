@@ -1556,13 +1556,13 @@ files = [
 
 [[package]]
 name = "pyfcm"
-version = "2.0.7"
+version = "2.0.8"
 description = "Python client for FCM - Firebase Cloud Messaging (Android, iOS and Web)"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyfcm-2.0.7-py3-none-any.whl", hash = "sha256:2d79f26f028fa0c3eff82d962532df6825eeafac621c2fbffbb771f39d3cf6e8"},
-    {file = "pyfcm-2.0.7.tar.gz", hash = "sha256:6b9382d28e88150f3a265cef79975108b2bf644063c1e8b2b90ded25b0757369"},
+    {file = "pyfcm-2.0.8-py3-none-any.whl", hash = "sha256:13a958fe719e2cce1245e8fe3cbe2a2e2d473683a9d6ce6684e184b93d0bbbc6"},
+    {file = "pyfcm-2.0.8.tar.gz", hash = "sha256:509d80822a0853fdf55d62122f50605ff226799be1ab889b13bae77098cd0594"},
 ]
 
 [package.dependencies]
@@ -2291,4 +2291,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a38c5cde2713dada2039bf545bf2b7545762ea343664778b38b9b7a4967dedbf"
+content-hash = "6b0bf6400dcf0cd7bc819a15b93f94d17ba1eee6ed1fcecff7f6ee215af8a1e3"
