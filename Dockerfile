@@ -37,9 +37,11 @@ WORKDIR /code
 COPY --from=builder /code /code
 
 # Set environment variables
+ARG GIT_TAG=dev
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_VERSION=1.8.3
+    POETRY_VERSION=1.8.3 \
+    APP_VERSION=$GIT_TAG
 
 # Expose port (if necessary, e.g., for a web app)
 EXPOSE 8000

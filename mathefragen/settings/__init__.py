@@ -37,6 +37,7 @@ EMAIL_HOST_PASSWORD = env('SENDGRID_KEY', default='xxx')
 
 DOMAIN = env('DOMAIN', default='localhost:8000')
 API_DOMAIN = env('API_DOMAIN', default='localhost:8000')
+APP_VERSION = env('APP_VERSION', default='dev')
 
 SITE_NAME = DOMAIN
 

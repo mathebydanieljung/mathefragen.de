@@ -33,39 +33,25 @@
             </div>
         </aside>
 
-        <!-- Tags widget-->
+        <!-- GitHub -->
         <aside class="widget widget_tag_cloud">
-{# Section currently broken, see GitLab Issue #51 #}
-{#            <div class="widget-title">Top Helfer der Woche</div>#}
-{#            <div class="tab-content" id="nav-tabContent">#}
-{#                <div class="tab-pane fade mt-3 show active" id="helper-week" role="tabpanel" aria-labelledby="helper-week-tab">#}
-{#                    {% top_week_helpers as top_week_helpers %}#}
-{#                    {% for helper in top_week_helpers %}#}
-{#                        <p class="promotion_p">#}
-{#                            <a href="{{ helper.get_absolute_url }}" class="link_color light_bold">#}
-{#                                {{ helper.username }}#}
-{#                                {% if helper.verified %}#}
-{#                                    <i class="fa font11 fa-badge-check"></i>#}
-{#                                {% endif %}#}
-{#                            </a>#}
-{#                            <br>#}
-{#                            <small class="font11">#}
-{#                                {{ helper.answers_this_week|cool_number }} mal geholfen#}
-{#                            </small>#}
-{#                        </p>#}
-{#                    {% endfor %}#}
-{#                    {% if not top_week_helpers %}#}
-{#                        <p class="promotion_p">#}
-{#                            <i class="fa fa-mug-hot"></i> - <a href="?filter=no_answer" class="link_color">Jetzt helfen.</a>#}
-{#                        </p>#}
-{#                    {% endif %}#}
-{#                    <p class="promotion_p">#}
-{#                        <a href="{% url 'all_users' %}?sort=week_helper" class="light_bold link_color">→ Alle Helfer ansehen</a>#}
-{#                    </p>#}
-{#                </div>#}
-{#            </div>#}
+            <div class="widget-title">
+                Unterstütze diese Plattform
+            </div>
+            <div class="tagcloud">
+                <p class="promotion_p">
+                    <a href="https://github.com/mathebydanieljung/mathefragen.de" target="_blank" class="link_color light_bold">
+                        <i class="fab fa-github"></i> mathefragen.de auf GitHub
+                    </a>
+                    <br>
+                    <small class="font11">
+                        Open Source — Mitmachen erwünscht!
+                    </small>
+                    <br>
+                    <small class="font11 text-muted">Version {{ app_version }}</small>
+                </p>
+            </div>
         </aside>
-
 
         <!-- Tags widget-->
         {% top_playlists as playlists %}
