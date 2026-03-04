@@ -19,7 +19,7 @@
 
 # mathefragen.de
 
-This is the official repository of the mathefragen.de and affiliated projects. We are constantly working on improving the platform and adding
+This is the official repository of mathefragen.de. We are constantly working on improving the platform and adding
 new features. Please feel free to contribute to the project by opening issues or pull requests.
 
 Find the project at https://mathefragen.de
@@ -83,10 +83,11 @@ docker compose exec django python manage.py compress
 
 ## Deployment
 
-Deployment process is done via gitlab CI/CD. All you need to do is pushing your changes and then create a git tag of the
-commit you want to deploy containing a semantic versioning scheme:
+Deployment is done via GitLab CI/CD. Push your changes and create a git tag with a semantic versioning scheme:
 
-MajorRelease.MinorRelease.HotFixes (e.g. 1.2.25)
+`MajorRelease.MinorRelease.HotFixes` (e.g. `1.2.25`)
+
+This builds a Docker image and deploys it to the `math_mathefragen-server` Docker Swarm service.
 
 ### Updating .env files
 
