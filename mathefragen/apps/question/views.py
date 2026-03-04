@@ -27,7 +27,7 @@ from mathefragen.apps.question.models import (
     AnswerComment,
     QuestionInvolvedUsers
 )
-from mathefragen.apps.question.utils import filter_questions, ImageSafety
+from mathefragen.apps.question.utils import filter_questions
 from mathefragen.apps.tutoring.models import HelpRequest
 from mathefragen.apps.vote.models import Vote
 from mathefragen.lib import validate_with_turnstile
@@ -768,12 +768,6 @@ def upload_image(request):
 
     if not uploaded_file:
         return HttpResponse(json.dumps({'location': ''}))
-
-    # check for safety
-    image_check = ImageSafety(image_content=uploaded_file.read())
-    is_safe = image_check.check_for_safety()
-    if not is_safe:
-        return HttpResponse("not_safe_for_work", status=403)
 
     date_folder = '%s/%s/%s/' % (
         timezone.now().year, timezone.now().month, timezone.now().day

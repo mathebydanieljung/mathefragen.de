@@ -1,9 +1,7 @@
-import re
-
 import math
+
 from django.db.models import Count
 from django.utils import timezone
-from google.cloud import vision
 
 from mathefragen.apps.question.models import Answer, Question
 from mathefragen.apps.settings.models import Performance
@@ -61,66 +59,3 @@ def filter_questions(question_filter, user_id, answered_user_id, page):
         ).order_by('-rank_date')
 
     return paginated_questions(questions, page)
-
-
-class ImageSafety:
-
-    def __init__(self, text='', image_content=''):
-        self.text = text
-        self.image_content = image_content
-        self.image_uris = list()
-        if self.text:
-            pattern = r'src="(.*?)"'
-            image_urls = re.findall(pattern, self.text)
-            for image_uri in image_urls:
-                if 'http' in image_uri:
-                    self.image_uris.append(image_uri)
-
-    def check_for_safety(self):
-        # if no image found, text should be safe. for now. Later we analyze text also.
-        if not self.image_uris and not self.image_content:
-            return True
-
-        checklist = list()
-        if self.image_uris:
-            for uri in self.image_uris:
-                is_safe = self._google_detect_safe_search(image_uri=uri)
-                checklist.append(is_safe)
-
-        if self.image_content:
-            is_safe = self._google_detect_safe_search(image_content=self.image_content)
-            checklist.append(is_safe)
-
-        return all(checklist)
-
-    @staticmethod
-    def _google_detect_safe_search(image_uri='', image_content=''):
-        """Google. Detects unsafe features in the file."""
-
-        client = vision.ImageAnnotatorClient()
-        if image_content:
-            image = vision.Image(content=image_content)
-        else:
-            image = vision.Image()
-            image.source.image_uri = image_uri
-
-        response = client.safe_search_detection(image=image)
-        if response.error.message:
-            return False
-
-        safe = response.safe_search_annotation
-
-        adult = safe.adult.value
-        medical = safe.medical.value
-        spoof = safe.spoof.value
-        violence = safe.violence.value
-        racy = safe.racy.value
-
-        # UNKNOWN = 0, VERY_UNLIKELY = 1, UNLIKELY = 2, POSSIBLE = 3, LIKELY = 4, VERY_LIKELY = 5
-        image_is_fine = all([adult < 3, medical < 3, spoof < 3, violence < 3, racy < 3])
-
-        if not image_is_fine:
-            # capture_event('nsfw image detected')
-            pass
-
-        return image_is_fine

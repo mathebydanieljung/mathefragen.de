@@ -14,7 +14,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from pytz import timezone as pytz_timezone
+from zoneinfo import ZoneInfo
 from requests.exceptions import MissingSchema
 
 from mathefragen.apps.core.models import create_default_hash
@@ -163,17 +163,17 @@ class RepairImages(threading.Thread):
                 exif_bytes = piexif.dump(exif_dict)
 
                 if orientation == 2:
-                    img = img.transpose(Image.FLIP_LEFT_RIGHT)
+                    img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
                 elif orientation == 3:
                     img = img.rotate(180)
                 elif orientation == 4:
-                    img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+                    img = img.rotate(180).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
                 elif orientation == 5:
-                    img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+                    img = img.rotate(-90, expand=True).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
                 elif orientation == 6:
                     img = img.rotate(-90, expand=True)
                 elif orientation == 7:
-                    img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+                    img = img.rotate(90, expand=True).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
                 elif orientation == 8:
                     img = img.rotate(90, expand=True)
 
@@ -199,14 +199,14 @@ class RepairImages(threading.Thread):
                 if ExifTags.TAGS[orientation] == 'Orientation':
                     break
 
-            exif = dict(image._getexif().items())
+            exif = dict(image.getexif().items())
 
             if exif[orientation] == 3:
-                image = image.transpose(Image.ROTATE_180)
+                image = image.transpose(Image.Transpose.ROTATE_180)
             elif exif[orientation] == 6:
-                image = image.transpose(Image.ROTATE_270)
+                image = image.transpose(Image.Transpose.ROTATE_270)
             elif exif[orientation] == 8:
-                image = image.transpose(Image.ROTATE_90)
+                image = image.transpose(Image.Transpose.ROTATE_90)
 
             in_mem_file = BytesIO()
             image.save(in_mem_file, format=image.format)
@@ -231,10 +231,7 @@ def utcisoformat(dt):
     for making Django DateTimeField values compatible with the
     jquery.localtime plugin.
     """
-    # A pytz.timezone object representing the Django project time zone
-    # Use TZ.localize(mydate) instead of tzinfo=TZ to ensure that DST rules
-    # are respected
-    tz = pytz_timezone(settings.TIME_ZONE)
+    tz = ZoneInfo(settings.TIME_ZONE)
 
     # Convert datetime to UTC, remove microseconds, remove timezone, convert to string
-    return tz.localize(dt.replace(microsecond=0)).replace(tzinfo=None).isoformat() + 'Z'
+    return dt.replace(microsecond=0, tzinfo=tz).replace(tzinfo=None).isoformat() + 'Z'
