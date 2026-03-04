@@ -103,7 +103,7 @@
         </script>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         <script>
-            const hot_question_apis = {{ hot_question_apis|safe }};
+
             const csrf_token = '{{ csrf_token }}';
             const siteDomain = '{{ site_domain }}';
             const http_referer = '{{ request.META.HTTP_REFERER }}';
@@ -521,23 +521,6 @@
 
                             <div class="dropdown-divider"></div>
 
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cloud mf_color mr-1"></i> Andere Portale</a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="https://www.mathefragen.de" target="_blank">mathefragen.de</a>
-                                    <a class="dropdown-item" href="https://www.informatikfragen.de" target="_blank">informatikfragen.de</a>
-                                    <a class="dropdown-item" href="https://www.physik-fragen.de" target="_blank">physik-fragen.de</a>
-                                    <a class="dropdown-item" href="https://www.chemie-fragen.de" target="_blank">chemie-fragen.de</a>
-                                    <a class="dropdown-item" href="https://www.bio-fragen.de" target="_blank">bio-fragen.de</a>
-                                </div>
-                            </li>
-
-                            <li>
-                                <a class="nav-link" href="https://www.meta-fragen.de"><i class="fas fa-info-circle mf_color mr-1"></i> Community Corner</a>
-                            </li>
-
-                            <div class="dropdown-divider"></div>
-
                             <li class="text-center">
                                 <div id="donate-button-container" class="nav-link">
                                     <div class="pb-2">Unterstütze diese Plattform</div>
@@ -574,7 +557,7 @@
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
         <script src="{% static 'js/jquery.easing.min.js' %}"></script>
         <script src="{% static 'js/cookie.js' %}?v=1212"></script>
-        <script src="{% static 'js/hot_questions.js' %}?v=2w3dwe" rel="preload" as="script"></script>
+
 
         {% compress js file bottom_base_js %}
         <script type="text/javascript" rel="preload" as="script">

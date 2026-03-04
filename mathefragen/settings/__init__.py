@@ -228,7 +228,6 @@ LANGUAGE_CODE = 'de'
 
 TIME_ZONE = 'Europe/Berlin'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = False
 
 # 10 years
@@ -263,7 +262,6 @@ if DEBUG:
     STATIC_URL = '/site-static/'
 else:
     # Production Setting. If set, css will be loaded from external CDN Storage
-    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
     STATIC_URL = "https://%s/%s/" % (AWS_STORAGE_BUCKET_NAME, STATICFILES_LOCATION)
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -292,63 +290,27 @@ AWS_QUERYSTRING_AUTH = False
 
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "https://%s/%s/" % (AWS_STORAGE_BUCKET_NAME, MEDIAFILES_LOCATION)
-DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "custom_storages.MediaStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "custom_storages.StaticStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 # youtube search API
 YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
 YOUTUBE_API_KEY = env('YOUTUBE_API_KEY', default='')
 
-PORTALS_TO_SYNC = [
-    'https://www.mathefragen.de',
-    'https://www.bio-fragen.de',
-    'https://www.informatikfragen.de',
-    'https://www.chemie-fragen.de',
-    'https://www.physik-fragen.de'
-]
-
-HOT_NETWORK_QUESTIONS_API = []
-
-for portal in PORTALS_TO_SYNC:
-    if DOMAIN not in portal:
-        HOT_NETWORK_QUESTIONS_API.append('%s/v1/question/hot/' % portal)
 
 SIMPLE_JWT = {
-    'JWT_ENCODE_HANDLER':
-        'rest_framework_jwt.utils.jwt_encode_handler',
-
-    'JWT_DECODE_HANDLER':
-        'rest_framework_jwt.utils.jwt_decode_handler',
-
-    'JWT_PAYLOAD_HANDLER':
-        'rest_framework_jwt.utils.jwt_payload_handler',
-
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-        'mathefragen.apps.core.authentication.custom_jwt_payload_get_user_id_handler',
-
-    'JWT_PAYLOAD_GET_USERNAME_HANDLER':
-        'mathefragen.apps.core.authentication.custom_jwt_payload_get_username_handler',
-
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-        'mathefragen.apps.core.authentication.custom_jwt_response_payload_handler',
-
-    'JWT_SECRET_KEY': SECRET_KEY,
-    'JWT_GET_USER_SECRET_KEY': None,
-    'JWT_PUBLIC_KEY': None,
-    'JWT_PRIVATE_KEY': None,
-    'JWT_ALGORITHM': 'HS256',
-    'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
-    'JWT_AUDIENCE': None,
-    'JWT_ISSUER': None,
-
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    'JWT_AUTH_COOKIE': None,
-
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),
+    'SIGNING_KEY': SECRET_KEY,
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 ADMINS_TO_REPORT = [

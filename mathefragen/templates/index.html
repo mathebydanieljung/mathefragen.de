@@ -32,9 +32,7 @@
                     <div class="main-content">
 {#                        <img src="{% static 'images/ask_illustration_v2.svg' %}" alt="Dekorative Umrandung des Buttons" class="ask_illustration">#}
                         {% if request.GET.q %}
-                            {% if is_debug_mode or is_on_mathefragen %}
                                 <!-- {% include 'search/aiedn.html' %} -->
-                            {% endif %}
                         {% else %}
 
                             <div class="col-sm-12 col-md-10">

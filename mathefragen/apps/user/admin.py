@@ -21,7 +21,7 @@ class ProfileAdmin(admin.ModelAdmin):
     def view_on_site(self, obj):
         return 'https://%s%s' % (settings.DOMAIN, obj.get_absolute_url())
 
-    list_filter = ('found_us_in', 'synced', 'verified')
+    list_filter = ('found_us_in', 'verified')
     filter_horizontal = (
         'badges',
     )

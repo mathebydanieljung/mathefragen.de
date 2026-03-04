@@ -20,9 +20,7 @@ def project_settings(request):
     mobile_apps = AppPromotion.objects.last()
     stats = GlobalStats.objects.last()
     site_domain = django_settings.DOMAIN
-    hot_question_apis = django_settings.HOT_NETWORK_QUESTIONS_API
     is_debug_mode = django_settings.DEBUG
-    is_on_mathefragen = 'mathefragen' in request.get_host()
     websockets_enabled = django_settings.ENABLE_WEBSOCKETS
 
     if not stats:
@@ -30,7 +28,6 @@ def project_settings(request):
 
     return {
         'settings': settings,
-        'hot_question_apis': hot_question_apis,
         'site_domain': site_domain,
         'header_menu': header_menu,
         'recommended_by': recommended_by,
@@ -45,6 +42,5 @@ def project_settings(request):
         'scheme': 'https' if not django_settings.DEBUG else 'http',
         'show_confirm_alert': request.user.is_authenticated and not request.user.is_active,
         'is_debug_mode': is_debug_mode,
-        'is_on_mathefragen': is_on_mathefragen,
         'turnstile_site_key': django_settings.TURNSTILE_SITE_KEY,
     }

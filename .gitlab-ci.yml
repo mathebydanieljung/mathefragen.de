@@ -46,12 +46,7 @@ deploy-prod:
   tags:
     - prod
   script:
-    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force bio_biofragen-server
-    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force chemi_chemiefragen-server
-    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force informatic_informatikfragen-server
     - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force math_mathefragen-server
-    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force meta_metafragen-server
-    - docker service update --with-registry-auth --image registry.gitlab.com/new-learning/mathefragen.de/app:$CI_COMMIT_TAG --force physik_physikfragen-server
   only:
     - /^[0-9]+(?:.[0-9]+)+$/
   except:

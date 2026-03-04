@@ -6,7 +6,7 @@ from .views import (
     ConfirmMissingView,
     Register,
     JoinWithQuestion,
-    sync_new_user,
+
     PasswordForgotView,
     SetPasswordView,
     all_users,
@@ -82,7 +82,7 @@ urlpatterns = [
     path('set_password/<str:pw_onetime_hash>/', SetPasswordView.as_view(), name='set_password'),
     path('join-with-question/', JoinWithQuestion.as_view(), name='join_with_question'),
     path('register/', Register.as_view(), name='register'),
-    path('sync/', sync_new_user, name='sync_new_user'),
+
 
     path('register/confirm/<str:confirm_hash>/', register_confirm, name='register_confirm'),
     path('logout/', LogoutView.as_view(), name='logout'),

@@ -15,8 +15,6 @@ from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.shortcuts import reverse
 from django.utils import timezone
-from rest_framework_simplejwt.settings import api_settings
-
 from mathefragen.apps.core.models import Base, BaseAddress
 from mathefragen.apps.core.utils import (
     send_email_in_template,
@@ -224,9 +222,6 @@ class Profile(Base):
     reported = models.IntegerField(default=0)
     last_active = models.DateTimeField(null=True)
     soft_deleted = models.BooleanField(default=False)
-    # sync between other portals
-    synced = models.BooleanField(default=False)
-
     def remove_ip_trace(self):
         """
         it just resets to default router gateway
@@ -494,39 +489,6 @@ class Profile(Base):
                             )
                 }
             )
-
-    def sync_into_other_portals(self, origin=''):
-        sync_payload = {
-            'username': self.user.username,
-            'password': self.user.password,
-            'email': self.user.email,
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'status': self.status,
-            'other_status': self.other_status,
-            'bio_text': self.bio_text,
-            'origin': origin,
-            'source_s3_bucket': settings.AWS_STORAGE_BUCKET_NAME
-        }
-        if self.profile_image:
-            try:
-                sync_payload.update({
-                    'profile_image_url': self.profile_image.url
-                })
-            except SuspiciousOperation:
-                pass
-
-        # remove current portal from the list, so that it does not sync in itself
-        portals_to_sync = [p for p in settings.PORTALS_TO_SYNC if settings.DOMAIN not in p]
-        for portal in portals_to_sync:
-            requests.post(
-                '%s/user/sync/' % portal,
-                data=json.dumps(sync_payload),
-                headers={'content-type': 'application/json'}
-            )
-
-        self.synced = True
-        self.save(update_fields=['synced'])
 
     @property
     def is_active(self):
@@ -969,13 +931,10 @@ class Profile(Base):
         return final_cert_path
 
     def generate_jwt_token(self):
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        from rest_framework_simplejwt.tokens import RefreshToken
 
-        payload = jwt_payload_handler(self.user)
-        token = jwt_encode_handler(payload)
-
-        return token
+        refresh = RefreshToken.for_user(self.user)
+        return str(refresh.access_token)
 
 
 class Address(Base, BaseAddress):

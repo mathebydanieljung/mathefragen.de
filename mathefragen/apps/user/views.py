@@ -517,69 +517,6 @@ class JoinWithQuestion(FormView):
         })
 
 
-@csrf_exempt
-def sync_new_user(request):
-    # todo: move to DRF
-    try:
-        json_data = json.loads(request.body.decode('utf-8'))
-    except json.decoder.JSONDecodeError:
-        return HttpResponse('no payload, my friend')
-
-    username = json_data.get('username')
-    first_name = json_data.get('first_name')
-    last_name = json_data.get('last_name')
-    email = json_data.get('email')
-    profile_image_url = json_data.get('profile_image_url')
-    status = json_data.get('status')
-    other_status = json_data.get('other_status')
-    # already hashed password
-    password = json_data.get('password')
-    bio_text = json_data.get('bio_text')
-    origin = json_data.get('origin')
-    source_s3_bucket = json_data.get('source_s3_bucket')
-
-    if not User.objects.filter(username__iexact=username).count():
-        new_synced_user = User.objects.create(
-            username=username,
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-            password=password,
-            is_active=True
-        )
-
-        stats = request.stats
-        stats.update_total_users()
-
-        profile = new_synced_user.profile
-        profile.status = status
-        profile.other_status = other_status
-        profile.bio_text = bio_text
-        profile.origin = origin
-
-        if profile_image_url:
-            # copy s3 file from source bucket in this bucket
-            s3 = boto3.resource('s3')
-            profile_image_url = 'media/%s' % profile_image_url.split('media/')[1]
-            source_to_copy = {'Bucket': source_s3_bucket, 'Key': profile_image_url}
-            s3.meta.client.copy(
-                source_to_copy,
-                settings.AWS_STORAGE_BUCKET_NAME,
-                profile_image_url
-            )
-            profile.profile_image = profile_image_url.replace('media/', '')
-
-        profile.synced = True
-        profile.save()
-
-        return HttpResponse(json.dumps({'status': 'sync ok'}), content_type='application/json')
-
-    user = User.objects.filter(username__iexact=username).last()
-    user.profile.synced = True
-    user.profile.save()
-
-    return HttpResponse(json.dumps({'status': 'username exists already'}), content_type='application/json')
-
 
 def register_confirm(request, confirm_hash):
     if not Profile.objects.filter(confirm_hash=confirm_hash).count():
