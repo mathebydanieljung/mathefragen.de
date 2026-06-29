@@ -222,7 +222,7 @@
     </div>
 </div>
 
-<div class="card mt-4 mb-5 ml-4 mr-4">
+<div class="card mt-4 mb-5 ml-4 mr-4 border-danger">
     <div class="card-header text-danger text-bold">
         Gefahrenzone
     </div>
@@ -231,10 +231,63 @@
             Hier kannst du dein Benutzerkonto vollständig löschen.
             <b>Das Löschen eines Benutzerkontos kann nicht rückgängig gemacht werden.</b>
         </p>
+        <p class="card-text text-muted font14">
+            <i class="fas fa-ghost"></i>
+            Deine Fragen, Antworten und Kommentare bleiben erhalten und werden
+            künftig dem Nutzer <b>mathghost</b> zugeordnet.
+        </p>
 
-        <button type="button" class="btn btn-danger delete-account-completely">
-            Jetzt mein Benutzerkonto vollständig löschen!
+        <button type="button" class="btn btn-danger"
+                data-toggle="modal" data-target="#delete_account_modal">
+            Mein Benutzerkonto löschen …
         </button>
 
+    </div>
+</div>
+
+<div class="modal fade" id="delete_account_modal" tabindex="-1" role="dialog"
+     aria-labelledby="delete_account_modal_label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="delete_account_modal_label">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Benutzerkonto wirklich löschen?
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Schließen">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body font14">
+                <p>
+                    Dein Konto und deine persönlichen Daten werden
+                    <b>unwiderruflich</b> gelöscht. Dies kann nicht rückgängig
+                    gemacht werden.
+                </p>
+                <p class="text-muted">
+                    <i class="fas fa-ghost"></i>
+                    Deine Fragen, Antworten und Kommentare bleiben erhalten und
+                    werden dem Nutzer <b>mathghost</b> zugeordnet.
+                </p>
+                <label for="delete_account_username" class="text-bold mb-1">
+                    Tippe zur Bestätigung deinen Benutzernamen
+                    <code>{{ request.user.username }}</code> ein:
+                </label>
+                <input type="text" class="form-control" id="delete_account_username"
+                       data-username="{{ request.user.username }}" autocomplete="off"
+                       placeholder="{{ request.user.username }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Abbrechen
+                </button>
+                <form method="post" action="{% url 'delete_my_account' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" id="confirm_delete_account" class="btn btn-danger" disabled>
+                        Konto endgültig löschen
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

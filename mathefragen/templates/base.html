@@ -129,7 +129,6 @@
             }
             const saveChannelSuggestionUrl = '{% url "save_channel_suggestion" %}';
             const sendFeedbackUrl = '{% url "send_feedback" %}';
-            const deleteAccountUrl = "{% url 'delete_my_account' %}";
             const loading_img_src = '{% static "images/loading.gif" %}';
             const isMobile = {% if request.user_agent.is_mobile %}true{% else %}false{% endif %};
             const askToCompleteProfile = {% if request.user.is_authenticated and request.user.profile.should_complete_profile %}true{% else %}false{% endif %};
@@ -714,11 +713,10 @@
                     $('#feedback_modal').modal('show');
                 });
 
-                $('.delete-account-completely').on('click', function(){
-                    var delete_confirmed = window.confirm('Möchtest du wirklich dein Benutzerkonto vollständig löschen?');
-                    if (delete_confirmed) {
-                        window.location.href = deleteAccountUrl;
-                    }
+                // Lösch-Button erst aktivieren, wenn der eigene Benutzername eingetippt wurde.
+                $('#delete_account_username').on('input', function(){
+                    var expected = String($(this).data('username'));
+                    $('#confirm_delete_account').prop('disabled', $(this).val() !== expected);
                 });
 
                 $('.fa-search').on('click', function(){

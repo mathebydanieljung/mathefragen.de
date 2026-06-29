@@ -17,29 +17,32 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Review',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('hash_id', models.CharField(db_index=True, default=mathefragen.apps.core.models.create_default_hash, editable=False, max_length=30)),
-                ('idate', models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='created at')),
-                ('udate', models.DateTimeField(auto_now=True, verbose_name='changed at')),
-                ('text', models.TextField()),
-                ('relation_source', models.CharField(blank=True, choices=[('helper', 'Hat mir geholfen'), ('worked_together', 'Zusammen gearbeitet'), ('studied_together', 'Zusammen studiert')], default='', max_length=50)),
-                ('soft_deleted', models.BooleanField(default=False)),
-                ('given_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='given_reviews', to=settings.AUTH_USER_MODEL)),
-                ('given_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_reviews', to=settings.AUTH_USER_MODEL)),
-                ('hashtags', models.ManyToManyField(db_table='user_review_hashtags', related_name='confirmed_hashtags', to='hashtag.HashTag')),
-                ('source_question', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviews_from_question', to='question.Question')),
+        # Die `user_review`-Tabelle wird physisch von der user-App angelegt
+        # (user.0001_squashed) — das Review-Modell ist nur aus der user-App in
+        # die review-App umgezogen. Daher hier nur Modell-State registrieren,
+        # ohne die Tabelle erneut zu erstellen (sonst "table already exists").
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name='Review',
+                    fields=[
+                        ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('hash_id', models.CharField(db_index=True, default=mathefragen.apps.core.models.create_default_hash, editable=False, max_length=30)),
+                        ('idate', models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='created at')),
+                        ('udate', models.DateTimeField(auto_now=True, verbose_name='changed at')),
+                        ('text', models.TextField()),
+                        ('relation_source', models.CharField(blank=True, choices=[('helper', 'Hat mir geholfen'), ('worked_together', 'Zusammen gearbeitet'), ('studied_together', 'Zusammen studiert')], default='', max_length=50)),
+                        ('soft_deleted', models.BooleanField(default=False)),
+                        ('given_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='given_reviews', to=settings.AUTH_USER_MODEL)),
+                        ('given_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_reviews', to=settings.AUTH_USER_MODEL)),
+                        ('hashtags', models.ManyToManyField(db_table='user_review_hashtags', related_name='confirmed_hashtags', to='hashtag.HashTag')),
+                        ('source_question', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviews_from_question', to='question.Question')),
+                    ],
+                    options={
+                        'db_table': 'user_review',
+                    },
+                ),
             ],
-            options={
-                'db_table': 'user_review',
-            },
+            database_operations=[],
         ),
     ]
-
-    def apply(self, project_state, schema_editor, collect_sql=False):
-        return project_state
-
-    def unapply(self, project_state, schema_editor, collect_sql=False):
-        return project_state
