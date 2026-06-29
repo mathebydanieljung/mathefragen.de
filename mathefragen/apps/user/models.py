@@ -26,6 +26,10 @@ from mathefragen.apps.news.models import ReleaseNote
 from mathefragen.apps.playlist.models import Playlist
 from mathefragen.apps.question.models import Question, Answer
 
+# Geteilter Sammel-User, der Fragen/Antworten/Kommentare gelöschter Konten
+# übernimmt, damit Inhalte erhalten bleiben (Username wird durch ihn ersetzt).
+GHOST_USERNAME = 'mathghost'
+
 
 class PostalCode(models.Model):
     code = models.IntegerField(db_index=True)
@@ -294,6 +298,24 @@ class Profile(Base):
 
     def close_user_questions(self):
         self.user.user_questions.update(soft_deleted=True)
+
+    def transfer_content_to_ghost(self):
+        """Hängt Fragen, Antworten und Kommentare auf den geteilten
+        ``mathghost``-User um, damit die Inhalte beim Löschen des Kontos
+        erhalten bleiben. Entfernt dabei zugleich die IP-Spur."""
+        ghost, _ = User.objects.get_or_create(
+            username=GHOST_USERNAME,
+            defaults={'is_active': False},
+        )
+        user = self.user
+        for queryset in (
+            user.user_questions,
+            user.user_answers,
+            user.user_answer_comments,
+            user.user_question_comments,
+        ):
+            queryset.update(user=ghost, source_ip='192.168.0.1')
+        return ghost
 
     def has_confirmed_email(self):
         return 'confirmed' in self.confirm_hash

@@ -212,12 +212,15 @@ def user_detail_get(request, pk):
 @permission_classes((IsAuthenticated,))
 @authentication_classes((JWTAuthentication,))
 def user_detail_delete(request, pk):
-    try:
-        user = User.objects.get(pk=pk)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    # Nur das eigene Konto darf gelöscht werden.
+    if request.user.pk != pk:
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
-    user.delete()
+    profile = request.user.profile
+
+    # Inhalte erhalten: auf mathghost umhängen, dann Konto löschen.
+    profile.transfer_content_to_ghost()
+    profile.delete()  # post_delete-Signal löscht den zugehörigen User
 
     stats = request.stats
     if stats:

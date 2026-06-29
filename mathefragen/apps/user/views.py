@@ -18,6 +18,7 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import render, reverse, redirect, HttpResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import FormView, CreateView
 
 from mathefragen.apps.core.utils import (
@@ -1227,14 +1228,16 @@ def inbox(request, pk):
 
 
 @login_required
+@require_POST
 def delete_account(request):
-    user = request.user
+    profile = request.user.profile
 
-    # later do some other cleanups
-    user.delete()
+    # Inhalte erhalten: auf mathghost umhängen, dann Konto löschen.
+    profile.transfer_content_to_ghost()
+    profile.delete()  # post_delete-Signal löscht den zugehörigen User
 
-    stats = request.stats
-    stats.update_total_users()
+    if request.stats:
+        request.stats.update_total_users()
 
     return redirect('%s?account_deleted=1' % reverse('index'))
 

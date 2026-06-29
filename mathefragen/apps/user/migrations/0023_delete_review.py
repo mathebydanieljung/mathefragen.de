@@ -10,7 +10,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='Review',
+        # Das Review-Modell ist in die review-App umgezogen. Nur aus dem State
+        # der user-App entfernen — die physische `user_review`-Tabelle bleibt
+        # erhalten (sie wird jetzt vom Review-Modell der review-App genutzt).
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.DeleteModel(
+                    name='Review',
+                ),
+            ],
+            database_operations=[],
         ),
     ]
