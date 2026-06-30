@@ -100,8 +100,14 @@ def deeper_stats(request):
     top_3_helper_ids = Profile.get_helper_ids(
         from_date=since_date, to_date=timezone.now(), slice_number=3
     )
-    top_3_helpers = User.objects.filter(id__in=top_3_helper_ids)
-    for u in top_3_helpers:
+    helpers_by_id = User.objects.in_bulk(top_3_helper_ids)
+    # get_helper_ids returns the ids already ranked by answer count, so we
+    # iterate over that list to preserve the ranking (a plain filter(id__in=)
+    # would return them in arbitrary db order).
+    for helper_id in top_3_helper_ids:
+        u = helpers_by_id.get(helper_id)
+        if u is None:
+            continue
         helper_dict = {
             "username": u.username,
             "url": u.profile.get_absolute_url(),

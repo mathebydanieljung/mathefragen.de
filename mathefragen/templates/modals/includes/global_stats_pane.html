@@ -1,0 +1,36 @@
+{% comment %}
+Single stats pane body. Reused for the 30-day, week and total tabs.
+All dynamic values carry a js-* class and start empty / as a spinner; the
+JS in index.html fills them from the deeper_stats endpoint.
+{% endcomment %}
+<div style="padding-top: 30px;">
+    <h6>
+        <span class="js-stats-percentage">…</span>% der Fragen sind beantwortet
+    </h6>
+    <div class="row" style="padding-top: 5px">
+        <div class="col">
+            <span class="font13 grey_text">Fragen</span>
+            <h5 class="js-stats-questions">…</h5>
+        </div>
+        <div class="col">
+            <span class="font13 grey_text">Antworten</span>
+            <h5 class="js-stats-answers">…</h5>
+        </div>
+        <div class="col">
+            <span class="font13 grey_text">Kommentare</span>
+            <h5 class="js-stats-comments">…</h5>
+        </div>
+    </div>
+</div>
+<div style="margin-top: 30px">
+    <h6>Top 3 Helfer</h6>
+    <div class="js-stats-helpers" style="padding-top: 5px">
+        <p class="promotion_p font11 grey_text js-stats-helpers-empty">Noch keine Daten.</p>
+    </div>
+</div>
+<div style="margin-top: 30px">
+    <h6>Top 3 Fragen</h6>
+    <div class="js-stats-questions-list" style="padding-top: 10px">
+        <p class="promotion_p font11 grey_text js-stats-questions-empty">Noch keine Daten.</p>
+    </div>
+</div>

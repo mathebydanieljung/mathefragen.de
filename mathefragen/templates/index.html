@@ -372,6 +372,85 @@
                 $('#id_global_stats').modal('show');
             });
 
+            (function () {
+                var statsUrl = "{% url 'deeper_stats' %}";
+
+                function renderHelpers($container, helpers) {
+                    $container.empty();
+                    if (!helpers || !helpers.length) {
+                        $container.append(
+                            $('<p>').addClass('promotion_p font11 grey_text').text('Noch keine Daten.')
+                        );
+                        return;
+                    }
+                    helpers.forEach(function (h) {
+                        var $link = $('<a>')
+                            .addClass('link_color light_bold')
+                            .attr('href', h.url || '#')
+                            .text(h.username || '');
+                        if (h.verified) {
+                            $link.append(' ').append($('<i>').addClass('fa font11 fa-badge-check'));
+                        }
+                        var $info = $('<small>').addClass('font11').text((h.answers || 0) + ' mal geholfen');
+                        $container.append(
+                            $('<p>').addClass('promotion_p').append($link).append('<br>').append($info)
+                        );
+                    });
+                }
+
+                function renderQuestions($container, questions) {
+                    $container.empty();
+                    if (!questions || !questions.length) {
+                        $container.append(
+                            $('<p>').addClass('promotion_p font11 grey_text').text('Noch keine Daten.')
+                        );
+                        return;
+                    }
+                    questions.forEach(function (q) {
+                        var $link = $('<a>')
+                            .addClass('link_color light_bold')
+                            .attr('href', q.url || '#')
+                            .text(q.title || '');
+                        var $info = $('<small>').addClass('font11')
+                            .text((q.answers || 0) + ' Antworten, ' + (q.views || 0) + ' Views');
+                        $container.append(
+                            $('<p>').addClass('promotion_p').append($link).append('<br>').append($info)
+                        );
+                    });
+                }
+
+                function loadPane($pane) {
+                    if (!$pane.length || $pane.data('loaded') || $pane.data('loading')) {
+                        return;
+                    }
+                    $pane.data('loading', true);
+                    $.getJSON(statsUrl, {range: $pane.data('range')})
+                        .done(function (data) {
+                            $pane.find('.js-stats-percentage').text(Math.round(data.percentage_answers || 0));
+                            $pane.find('.js-stats-questions').text(data.questions_num || 0);
+                            $pane.find('.js-stats-answers').text(data.answers_num || 0);
+                            $pane.find('.js-stats-comments').text(data.comments_num || 0);
+                            renderHelpers($pane.find('.js-stats-helpers'), data.top_3_helpers);
+                            renderQuestions($pane.find('.js-stats-questions-list'), data.top_3_questions);
+                            $pane.data('loaded', true);
+                        })
+                        .fail(function () {
+                            $pane.find('.js-stats-percentage, .js-stats-questions, .js-stats-answers, .js-stats-comments').text('–');
+                        })
+                        .always(function () {
+                            $pane.data('loading', false);
+                        });
+                }
+
+                $('#id_global_stats').on('shown.bs.modal', function () {
+                    loadPane($(this).find('.js-stats-pane.active'));
+                });
+
+                $('#id_global_stats').on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+                    loadPane($($(e.target).attr('href')));
+                });
+            })();
+
             $('.main_question_button_clck').on('click', function (e) {
                 // prevent default
                 e.preventDefault();
