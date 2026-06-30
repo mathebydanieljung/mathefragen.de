@@ -63,7 +63,13 @@ def deeper_stats(request):
     elif time_range.lower() == 'total':
         since_date = datetime.datetime(1970, 1, 1, 0, 0)
 
-    questions_num = Question.objects.filter(idate__gte=since_date).count()
+    # Mirror GlobalStats (apps/stats/models.py) so the "Insgesamt" tab lines
+    # up with the answered-percentage shown on the index page: the question
+    # total counts only is_active rows, while "answered" deliberately does not
+    # filter is_active (same asymmetry as GlobalStats.update_*).
+    questions_num = Question.objects.filter(
+        is_active=True, idate__gte=since_date
+    ).count()
     answers_num = Answer.objects.filter(idate__gte=since_date).count()
 
     response_payload['questions_num'] = questions_num

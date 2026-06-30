@@ -11,6 +11,7 @@ from mathefragen.apps.question.models import (
     QuestionComment,
     AnswerComment,
 )
+from mathefragen.apps.stats.models import GlobalStats
 
 
 class DeeperStatsTestCase(TestCase):
@@ -107,6 +108,37 @@ class DeeperStatsTestCase(TestCase):
         total = self._get('total')
         self.assertEqual(total['questions_num'], 3)
         self.assertEqual(total['answers_num'], 3)
+
+    def test_inactive_questions_excluded_from_total(self):
+        # An inactive question must not inflate the question count, just like
+        # GlobalStats.total_questions (filter(is_active=True)).
+        Question.objects.create(
+            user=self.asker, title='inactive', text='x',
+            number_answers=0, vote_points=0, is_active=False,
+        )
+        payload = self._get('total')
+        self.assertEqual(payload['questions_num'], 3)
+
+    def test_percentage_matches_index_page_globalstats(self):
+        # The "Insgesamt" tab must agree with the answered-percentage shown on
+        # the index page, which comes from GlobalStats. The mismatch report was
+        # caused by an inactive-but-answered question: it is excluded from the
+        # total yet still counts as answered (GlobalStats does the same).
+        Question.objects.create(
+            user=self.asker, title='inactive answered', text='x',
+            number_answers=1, vote_points=0, is_active=False,
+        )
+
+        gs = GlobalStats.objects.create()
+        gs.update_total_questions()
+        gs.update_total_answers()
+        gs.refresh_from_db()
+
+        payload = self._get('total')
+        self.assertEqual(payload['questions_num'], gs.total_questions)
+        self.assertEqual(
+            round(payload['percentage_answers'], 1), float(gs.percent_answered)
+        )
 
     def test_empty_database_returns_zeroes(self):
         Question.objects.all().delete()
