@@ -426,7 +426,8 @@
                     $pane.data('loading', true);
                     $.getJSON(statsUrl, {range: $pane.data('range')})
                         .done(function (data) {
-                            $pane.find('.js-stats-percentage').text(Math.round(data.percentage_answers || 0));
+                            $pane.find('.js-stats-percentage')
+                                .text((data.percentage_answers || 0).toFixed(1).replace('.', ','));
                             $pane.find('.js-stats-questions').text(data.questions_num || 0);
                             $pane.find('.js-stats-answers').text(data.answers_num || 0);
                             $pane.find('.js-stats-comments').text(data.comments_num || 0);
