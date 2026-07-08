@@ -491,14 +491,14 @@ files = [
 
 [[package]]
 name = "cloudinary"
-version = "1.44.1"
+version = "1.45.0"
 description = "Python and Django SDK for Cloudinary"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "cloudinary-1.44.1-py3-none-any.whl", hash = "sha256:b4785031179a5ec7010f46665e5c8fad2cae022c18405546f01d257e02f78b1c"},
-    {file = "cloudinary-1.44.1.tar.gz", hash = "sha256:62d4374b79d5476de2a86cb6a1da709a5429e02aef474bfc5d99f3e38a1a62ff"},
+    {file = "cloudinary-1.45.0-py3-none-any.whl", hash = "sha256:46c333101811841cf446c46054f4d9b507c2fa34c25152d1e922586c3b746196"},
+    {file = "cloudinary-1.45.0.tar.gz", hash = "sha256:711404bfbdf87965afbefdb747ae78a03188b513846cccb0c1f8a8c612e375ba"},
 ]
 
 [package.dependencies]
