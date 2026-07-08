@@ -39,7 +39,7 @@ pyfcm = "^2.0.8"
 rcssmin = "^1.1.2"
 requests = "^2.32.3"
 websocket-client = "^1.8.0"
-gunicorn = "^23.0.0"
+gunicorn = ">=23,<27"
 
 
 [build-system]
