@@ -370,13 +370,13 @@ def question_detail_hashed(request, hash_id, slug):
 def delete_question(request, question_id):
     question = Question.objects.get(id=question_id)
 
-    is_moderator = request.user.profile.is_moderator()
+    can_moderate = request.user.profile.can_moderate()
     can_be_deleted = question.can_be_deleted()
 
     delete_allowed = False
     if request.user.id == question.user_id and can_be_deleted:
         delete_allowed = True
-    elif is_moderator:
+    elif can_moderate:
         delete_allowed = True
 
     if delete_allowed:
@@ -388,6 +388,17 @@ def delete_question(request, question_id):
         return redirect('%s?deleted=1' % reverse('index'))
 
     return redirect('%s?question_cant_be_deleted=1' % question.get_absolute_url())
+
+
+@login_required
+def toggle_question_visibility(request, question_id):
+    question = Question.objects.get(id=question_id)
+
+    if request.user.profile.can_moderate():
+        question.is_active = not question.is_active
+        question.save()
+
+    return redirect(question.get_absolute_url())
 
 
 @login_required(login_url='/user/register/')
