@@ -93,6 +93,20 @@
                             </div>
                         {% endif %}
                     {% endif %}
+                    {% if request.user.is_authenticated and request.user.profile.can_moderate %}
+                        <div class="mod-control-panel mt-1 mb-3">
+                            <small class="text-muted mr-2">Moderation</small>
+                            <a href="{% url 'toggle_question_visibility' question.id %}"
+                               class="btn btn-sm btn-outline-secondary mr-1">
+                                {% if question.is_active %}Verstecken{% else %}Einblenden{% endif %}
+                            </a>
+                            <a href="{% url 'delete_question' question.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Diese Frage wirklich löschen?');">
+                                Löschen
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 {% include 'question/includes/question_user_box.html' %}
                 <div class="clearfix"></div>

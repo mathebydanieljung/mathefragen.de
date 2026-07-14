@@ -77,3 +77,36 @@ class DeleteQuestionAuthTestCase(TestCase):
         self.client.get(self._url())
         self.question.refresh_from_db()
         self.assertFalse(self.question.soft_deleted)
+
+
+class ModerationPanelRenderTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = User.objects.create(username='p_owner', email='p_owner@mail.com')
+        cls.normal = User.objects.create(username='p_normal', email='p_normal@mail.com')
+        cls.staff = User.objects.create(username='p_staff', email='p_staff@mail.com')
+        cls.staff.is_staff = True
+        cls.staff.save()
+
+    def setUp(self):
+        self.client = Client()
+        # question_detail_hashed ruft request.stats.update_total_questions();
+        # daher GlobalStats-Row noetig (siehe DeleteQuestionAuthTestCase).
+        GlobalStats.objects.create()
+        self.question = Question.objects.create(
+            title='PanelTest', text='PanelTest', user_id=self.owner.id
+        )
+
+    def _visibility_url(self):
+        return reverse('toggle_question_visibility', kwargs={'question_id': self.question.id})
+
+    def test_panel_visible_for_staff(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(self.question.get_absolute_url())
+        self.assertContains(response, self._visibility_url())
+
+    def test_panel_hidden_for_normal_user(self):
+        self.client.force_login(self.normal)
+        response = self.client.get(self.question.get_absolute_url())
+        self.assertNotContains(response, self._visibility_url())
