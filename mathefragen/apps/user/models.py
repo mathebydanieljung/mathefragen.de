@@ -411,6 +411,9 @@ class Profile(Base):
         # todo: adjust once badge is refactored
         return self.can_edit_questions()
 
+    def can_moderate(self):
+        return self.user.is_staff or self.is_moderator()
+
     def can_edit_questions(self):
         return bool(self.badges.filter(can_edit_questions=True).count())
 
