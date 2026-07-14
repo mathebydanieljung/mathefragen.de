@@ -7,6 +7,7 @@ from .views import (
     question_detail_hashed,
     CreateQuestion,
     delete_question,
+    toggle_question_visibility,
     answer_question,
     accept_answer,
     mark_as_solved_with_tutor,
@@ -31,6 +32,7 @@ urlpatterns = [
 
     path('edit/<int:question_id>/q/', CreateQuestion.as_view(), name='edit_question'),
     path('delete/<int:question_id>/d/', delete_question, name='delete_question'),
+    path('moderate/<int:question_id>/visibility/', toggle_question_visibility, name='toggle_question_visibility'),
     path('answer/<int:question_id>/s/', answer_question, name='answer_question'),
     path('answer/accept/a/', accept_answer, name='accept_answer'),
     path('mark/accept/solved_with_tutor/', mark_as_solved_with_tutor, name='mark_as_solved_with_tutor'),

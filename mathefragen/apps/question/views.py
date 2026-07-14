@@ -390,6 +390,17 @@ def delete_question(request, question_id):
     return redirect('%s?question_cant_be_deleted=1' % question.get_absolute_url())
 
 
+@login_required
+def toggle_question_visibility(request, question_id):
+    question = Question.objects.get(id=question_id)
+
+    if request.user.profile.can_moderate():
+        question.is_active = not question.is_active
+        question.save()
+
+    return redirect(question.get_absolute_url())
+
+
 @login_required(login_url='/user/register/')
 def answer_question(request, question_id):
     answer_text = request.POST.get('answer_text')
