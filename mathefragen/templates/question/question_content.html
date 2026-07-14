@@ -94,7 +94,7 @@
                         {% endif %}
                     {% endif %}
                     {% if request.user.is_authenticated and request.user.profile.can_moderate %}
-                        <div class="mod-control-panel mt-1 mb-3">
+                        <div class="mod-control-panel mt-1 mb-3" style="border: 1px solid #e0e0e0; border-left: 3px solid #dc3545; border-radius: 4px; background-color: #f8f9fa; padding: 8px 12px; display: inline-block;">
                             <small class="text-muted mr-2">Moderation</small>
                             <a href="{% url 'toggle_question_visibility' question.id %}"
                                class="btn btn-sm btn-outline-secondary mr-1">

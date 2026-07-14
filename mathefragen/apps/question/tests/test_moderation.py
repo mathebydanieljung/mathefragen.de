@@ -110,3 +110,13 @@ class ModerationPanelRenderTestCase(TestCase):
         self.client.force_login(self.normal)
         response = self.client.get(self.question.get_absolute_url())
         self.assertNotContains(response, self._visibility_url())
+
+    def test_hidden_question_shows_einblenden_for_staff(self):
+        hidden = Question.objects.create(
+            title='HiddenPanelTest', text='HiddenPanelTest',
+            user_id=self.owner.id, is_active=False
+        )
+        self.client.force_login(self.staff)
+        response = self.client.get(hidden.get_absolute_url())
+        self.assertContains(response, reverse('toggle_question_visibility', kwargs={'question_id': hidden.id}))
+        self.assertContains(response, 'Einblenden')
