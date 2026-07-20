@@ -18,7 +18,7 @@ cryptography = ">=44,<50"
 django-admin-sortable2 = "^2.2.4"
 django-appconf = "^1.0.6"
 django-compressor = "^4.5.1"
-django-environ = "^0.11.2"
+django-environ = ">=0.11.2,<0.15.0"
 django-extensions = ">=3.2.3,<5.0.0"
 django-hashers-passlib = { git = "https://github.com/mathiasertl/django-hashers-passlib.git" }
 django-ipware = "^7.0.1"
