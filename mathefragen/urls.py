@@ -13,7 +13,8 @@ from mathefragen.apps.question.views import index, CreateQuestion, mathefragen_l
 from mathefragen.apps.tips.api.views import promotion
 
 questions_sitemaps_dict = {
-    'queryset': Question.objects.order_by('-id'),
+    # only() keeps the huge `text` column out of memory (~800 MB for all questions)
+    'queryset': Question.objects.only('id', 'hash_id', 'title', 'idate').order_by('-id'),
     'date_field': 'idate'
 }
 
