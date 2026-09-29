@@ -47,9 +47,6 @@ class PlaylistCategory(models.Model):
     def slug(self):
         return slugify(self.name)
 
-    def get_absolute_url(self):
-        return reverse('category_detail', args=(self.slug, self.hash_id))
-
     def __str__(self):
         return self.name
 
@@ -92,9 +89,6 @@ class Playlist(models.Model):
 
     def get_absolute_url(self):
         return reverse('playlist_detail', args=(self.slug, self.hash_id))
-
-    def get_absolute_url_iframe(self):
-        return reverse('playlist_detail_iframe', args=(self.slug, self.hash_id))
 
     def ordered_videos(self):
         return self.videos.order_by('order')
@@ -164,11 +158,6 @@ class Video(models.Model):
     )
     order = models.IntegerField(default=0)
 
-    def get_absolute_url_iframe(self):
-        return reverse('video_detail_iframe', kwargs={
-            'slug': self.slug,
-            'video_hash': self.hash_id
-        })
 
     @property
     def slug(self):
