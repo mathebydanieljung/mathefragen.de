@@ -5,6 +5,7 @@ from .models import Vote, CommentVote
 
 @admin.register(CommentVote)
 class CommentVoteAdmin(admin.ModelAdmin):
+    raw_id_fields = ('answer_comment', 'question_comment', 'user')
     list_display = (
         'id',
         'answer_comment_id',
@@ -16,6 +17,7 @@ class CommentVoteAdmin(admin.ModelAdmin):
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
     readonly_fields = (
         'question',
         'answer',

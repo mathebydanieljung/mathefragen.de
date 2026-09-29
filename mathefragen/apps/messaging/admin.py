@@ -7,7 +7,7 @@ from mathefragen.apps.messaging.models import Message
 class MessageAdmin(admin.ModelAdmin):
     exclude = ('link', 'from_user', 'to_all')
     list_display = ('title', 'message', 'type', 'idate')
-    filter_horizontal = ('to_users',)
+    raw_id_fields = ('to_users',)
 
     def save_related(self, request, form, formsets, change):
         super(MessageAdmin, self).save_related(request, form, formsets, change)

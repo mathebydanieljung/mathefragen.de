@@ -12,6 +12,7 @@ from .models import (
 
 
 class AnswerInline(admin.StackedInline):
+    raw_id_fields = ('user',)
     model = Answer
     extra = 0
     exclude = (
@@ -37,6 +38,7 @@ class AnswerInline(admin.StackedInline):
 
 
 class QuestionCommentInline(admin.StackedInline):
+    raw_id_fields = ('user',)
     model = QuestionComment
     extra = 0
     readonly_fields = (
@@ -52,6 +54,7 @@ class QuestionCommentInline(admin.StackedInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
 
     def view_on_site(self, obj):
         return 'https://%s%s' % (settings.DOMAIN, obj.get_absolute_url())
@@ -121,6 +124,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user', 'edited_by')
     actions = ['delete_selected']
     search_fields = ('id', 'text')
     list_filter = ('accepted', 'grasp_level', 'idate')
@@ -150,6 +154,7 @@ class AnswerAdmin(admin.ModelAdmin):
 
 @admin.register(QuestionComment)
 class QuestionCommentAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
     search_fields = ('text',)
     readonly_fields = (
         'question',
@@ -164,6 +169,7 @@ class QuestionCommentAdmin(admin.ModelAdmin):
 
 @admin.register(AnswerComment)
 class AnswerCommentAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
     search_fields = ('text',)
     readonly_fields = (
         'answer',
