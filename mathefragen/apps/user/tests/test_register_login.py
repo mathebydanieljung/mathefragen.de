@@ -64,11 +64,19 @@ class RegisterLoginTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.json().keys())
 
+        # doppelter Benutzername -> 400 statt IntegrityError (500)
         response = self.client.post(
             reverse('api_register'), social_register_payload
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('token', response.json().keys())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.json().keys())
+
+        # gleicher Benutzername in anderer Schreibweise
+        social_register_payload['username'] = social_register_payload['username'].upper()
+        response = self.client.post(
+            reverse('api_register'), social_register_payload
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_a_register_with_invalid_email(self):
         copy_register_payload = self.register_payload.copy()

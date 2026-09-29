@@ -131,7 +131,8 @@ def questions_list(request):
 @authentication_classes((JWTAuthentication,))
 def question_detail(request, question_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        # delete() is a soft delete, so hide soft-deleted questions like the list views do
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -145,7 +146,7 @@ def question_detail(request, question_id):
 @authentication_classes((JWTAuthentication,))
 def question_put(request, question_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -163,7 +164,7 @@ def question_put(request, question_id):
 @authentication_classes((JWTAuthentication,))
 def question_delete(request, question_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -320,7 +321,7 @@ def all_answers_list(request):
 @authentication_classes((JWTAuthentication,))
 def create_answer(request, question_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -356,12 +357,9 @@ def create_answer(request, question_id):
 @permission_classes((AllowAny, ))
 def answer_detail(request, question_id, answer_id):
     try:
-        _ = Question.objects.get(pk=question_id)
-    except Question.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    try:
-        answer = Answer.objects.get(pk=answer_id)
+        answer = Answer.objects.get(
+            pk=answer_id, question_id=question_id, soft_deleted=False, question__soft_deleted=False
+        )
     except Answer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -373,12 +371,12 @@ def answer_detail(request, question_id, answer_id):
 @authentication_classes((JWTAuthentication,))
 def answer_put(request, question_id, answer_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     try:
-        answer = Answer.objects.get(pk=answer_id)
+        answer = Answer.objects.get(pk=answer_id, question=question, soft_deleted=False)
     except Answer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -396,14 +394,14 @@ def answer_put(request, question_id, answer_id):
 @authentication_classes((JWTAuthentication,))
 def accept_answer(request, question_id, answer_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.get(pk=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response({
             'msg': 'question not found'
         }, status=status.HTTP_404_NOT_FOUND)
 
     try:
-        answer = Answer.objects.get(pk=answer_id)
+        answer = Answer.objects.get(pk=answer_id, question=question, soft_deleted=False)
     except Answer.DoesNotExist:
         return Response({
             'msg': 'answer not found'
@@ -433,12 +431,12 @@ def accept_answer(request, question_id, answer_id):
 @authentication_classes((JWTAuthentication,))
 def answer_delete(request, question_id, answer_id):
     try:
-        question = Question.objects.get(id=question_id)
+        question = Question.objects.get(id=question_id, soft_deleted=False)
     except Question.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     try:
-        answer = Answer.objects.get(id=answer_id)
+        answer = Answer.objects.get(id=answer_id, question=question, soft_deleted=False)
     except Answer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 

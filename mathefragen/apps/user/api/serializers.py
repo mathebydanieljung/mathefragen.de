@@ -54,8 +54,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'username', 'email', 'password'
         )
 
+    def validate_username(self, value):
+        # usernames are stored lowercased, so the default UniqueValidator misses case variants
+        value = value.lower()
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError('Dieser Benutzername existiert bereits')
+        return value
+
     def save(self, **kwargs):
-        username = self.validated_data.get('username').lower()
+        username = self.validated_data.get('username')
         email = self.validated_data.get('email').lower()
 
         new_user = User.objects.create(

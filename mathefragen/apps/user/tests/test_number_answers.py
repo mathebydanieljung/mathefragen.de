@@ -33,44 +33,23 @@ class UserNumberAnswersTestCase(TestCase):
             is_active=True
         )
 
-    def test_work_if_user_gives_answers(self):
-        self.another_user_x.profile.update_number_answers(counter=1)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 1)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 1)
-        self.assertEqual(self.another_user_x.profile.total_answers, 1)
+    def _assert_counts(self, counter, expected):
+        profile = self.another_user_x.profile
+        profile.update_number_answers(counter=counter)
+        profile.refresh_from_db()
+        self.assertEqual(profile.answers_this_week, expected)
+        self.assertEqual(profile.answers_this_month, expected)
+        self.assertEqual(profile.total_answers, expected)
 
-    def test_work_if_user_gives_answers_again(self):
-        self.another_user_x.profile.update_number_answers(counter=1)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 2)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 2)
-        self.assertEqual(self.another_user_x.profile.total_answers, 2)
-
-    def test_works_if_user_removes_answer(self):
-        self.another_user_x.profile.update_number_answers(counter=-1)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 1)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 1)
-        self.assertEqual(self.another_user_x.profile.total_answers, 1)
-
-    def test_works_if_user_removes_answer_again(self):
-        self.another_user_x.profile.update_number_answers(counter=-1)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 0)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 0)
-        self.assertEqual(self.another_user_x.profile.total_answers, 0)
-
-    def test_works_if_user_removes_answer_again_again(self):
-        self.another_user_x.profile.update_number_answers(counter=-1)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 0)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 0)
-        self.assertEqual(self.another_user_x.profile.total_answers, 0)
-
-    def test_works_if_update_weekly_stats(self):
-        self.another_user_x.profile.update_number_answers(counter=0)
-        self.another_user_x.profile.refresh_from_db()
-        self.assertEqual(self.another_user_x.profile.answers_this_week, 2)
-        self.assertEqual(self.another_user_x.profile.answers_this_month, 2)
-        self.assertEqual(self.another_user_x.profile.total_answers, 2)
+    def test_number_answers_sequence(self):
+        """
+        Zähler hoch und runter in einem Test: TestCase setzt die DB nach jedem
+        Test zurück, getrennte Test-Methoden können nicht aufeinander aufbauen.
+        """
+        self._assert_counts(1, 1)
+        self._assert_counts(1, 2)
+        self._assert_counts(0, 2)
+        self._assert_counts(-1, 1)
+        self._assert_counts(-1, 0)
+        # darf nicht unter 0 fallen
+        self._assert_counts(-1, 0)
