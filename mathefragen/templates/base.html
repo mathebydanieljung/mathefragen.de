@@ -101,6 +101,19 @@
               showProcessingMessages: false,
             });
         </script>
+        <script>
+            // Turnstile callbacks: keep submit buttons disabled until a valid token exists.
+            function toggleTurnstileSubmit(enabled) {
+                document.querySelectorAll('.cf-turnstile').forEach(function (widget) {
+                    var form = widget.closest('form');
+                    if (form) form.querySelectorAll('[type=submit]').forEach(function (btn) {
+                        btn.disabled = !enabled || !!form.querySelector('.error_field');
+                    });
+                });
+            }
+            function turnstileEnableSubmit() { toggleTurnstileSubmit(true); }
+            function turnstileDisableSubmit() { toggleTurnstileSubmit(false); }
+        </script>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         <script>
 
@@ -261,7 +274,7 @@
     </head>
 
     <body {% block body_extra_attr %}{% endblock %}>
-        {% include 'modals/login.html' %}
+        {% if not request.user.is_authenticated %}{% include 'modals/login.html' %}{% endif %}
         {% include 'modals/feedback.html' %}
         {% include 'modals/report.html' %}
         {% include 'modals/points_explain.html' %}

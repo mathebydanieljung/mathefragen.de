@@ -94,10 +94,14 @@
                                             {{ register_form.password }}
                                         </div>
                                         <div class="mb-3">
-                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"
+                                                 data-callback="turnstileEnableSubmit"
+                                                 data-expired-callback="turnstileDisableSubmit"
+                                                 data-error-callback="turnstileDisableSubmit"></div>
                                             <button name="submit"
                                                     type="submit"
                                                     id="submit"
+                                                    disabled
                                                     class="btn lrm-button w-100 font22 h-100 cursor_pointer">
                                                 Jetzt kostenlos registrieren
                                             </button>
@@ -190,7 +194,10 @@
                     $('#submit').attr('disabled', 'disabled');
                 } else {
                     $(this).removeClass('error_field');
-                    $('#submit').removeAttr('disabled');
+                    // stay disabled until Turnstile has issued a token
+                    if ($(this).closest('form').find('[name="cf-turnstile-response"]').val()) {
+                        $('#submit').removeAttr('disabled');
+                    }
                 }
             });
         });

@@ -81,10 +81,14 @@
                                         </div>
                                         <input name="next_page" value="{{ request.GET.next|default:'/' }}" type="hidden">
                                         <div class="mb-3">
-                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"
+                                                 data-callback="turnstileEnableSubmit"
+                                                 data-expired-callback="turnstileDisableSubmit"
+                                                 data-error-callback="turnstileDisableSubmit"></div>
                                             <button name="submit"
                                                     type="submit"
                                                     id="submit"
+                                                    disabled
                                                     class="btn lrm-button w-100 font18 h-100 cursor_pointer">
                                                 Jetzt einloggen
                                             </button>

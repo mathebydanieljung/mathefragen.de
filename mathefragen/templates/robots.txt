@@ -1,4 +1,9 @@
 User-agent: *
-Disallow:
+Disallow: /user/login
+Disallow: /user/register
+Disallow: /user/logout
+Disallow: /user/forgot_password
+Disallow: /user/set_password/
+Disallow: /review/profile/*/reviews/add/
 
 Sitemap: https://www.mathefragen.de/sitemap.xml
