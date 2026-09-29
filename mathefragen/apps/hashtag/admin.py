@@ -9,13 +9,12 @@ from .models import HashTag
 @admin.register(HashTag)
 class HashTagAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'number_of_usages', 'question_ids', 'playlist_ids', 'review_ids', 'is_main_tag', 'show_subtags'
+        'name', 'number_of_usages', 'playlist_ids', 'review_ids', 'is_main_tag', 'show_subtags'
     )
     ordering = ('-idate',)
-    filter_horizontal = (
-        'subtags',
-        'questions'
-    )
+    filter_horizontal = ('subtags',)
+    # a select widget would render every question (with full text) as an option
+    raw_id_fields = ('questions',)
     search_fields = (
         'name',
     )
@@ -28,10 +27,6 @@ class HashTagAdmin(admin.ModelAdmin):
                 settings.ADMIN_URL, h.id, h.name
             )
         return mark_safe(links)
-
-    @staticmethod
-    def question_ids(obj):
-        return list(obj.questions.values_list('id', flat=True))
 
     @staticmethod
     def playlist_ids(obj):
