@@ -21,7 +21,6 @@ def project_settings(request):
     stats = GlobalStats.objects.last()
     site_domain = django_settings.DOMAIN
     is_debug_mode = django_settings.DEBUG
-    websockets_enabled = django_settings.ENABLE_WEBSOCKETS
 
     if not stats:
         stats = GlobalStats.objects.create()
@@ -32,10 +31,6 @@ def project_settings(request):
         'header_menu': header_menu,
         'recommended_by': recommended_by,
         'footer_columns': footer_columns,
-        'websockets_enabled': websockets_enabled,
-        'global_wss_url': django_settings.WEBSOCKET_GLOBAL_PUSH_DOMAIN,
-        'user_wss_url': django_settings.WEBSOCKET_USER_PUSH_DOMAIN_BASE,
-        'question_wss_url': django_settings.WEBSOCKET_QUESTION_PUSH_DOMAIN_BASE,
         'mobile_apps': mobile_apps,
         'stats': stats,
         'performance': performance,

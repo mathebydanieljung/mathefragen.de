@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.utils import timezone
-from django.utils.html import strip_tags
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView
 
@@ -475,14 +474,6 @@ def answer_question(request, question_id):
         # inform the questioner about new answer
         if not existing_answer:
             question.inform_questioner(answer=answer)
-            # inform involved users
-            question.inform_involved_users(
-                message=strip_tags(answer)[:45],
-                notification_type='Antwort',
-                exclude_users=[answer.user_id]
-            )
-            # push notification
-            question.inform_browser_about_new_answer(user_id=question.user_id)
 
     new_question_url = '%s%s' % (question.get_absolute_url(), get_param_for_ga)
     return redirect(new_question_url)
@@ -536,9 +527,6 @@ def accept_answer(request):
     user_profile.increase_knowledge(more_knowledge=15)
     # give 2 credits because he accepted
     user_profile.increase_points(points=2, reason='accepted')
-
-    # inform answerer about this great news!
-    answer.inform_answerer()
 
     return HttpResponse('ok')
 
@@ -613,20 +601,6 @@ def save_question_comment(request):
 
             involved_peeps.users.add(request.user)
 
-            question.inform_browser_about_new_comment(
-                comment_type='question_comment',
-                belongs_to=question.id,
-                comment_text=comment_text,
-                username=user.profile.username,
-                user_id=user.id
-            )
-
-            question.inform_involved_users(
-                message=strip_tags(comment_text)[:45],
-                notification_type='Kommentar',
-                exclude_users=[user.id]
-            )
-
         # re-rank in index page
         question.re_rank(reason='kommentiert', last_acted_user=request.user)
 
@@ -670,20 +644,6 @@ def save_answer_comment(request):
                 involved_peeps = answer.question.involved_peeps
 
             involved_peeps.users.add(request.user)
-
-            answer.question.inform_browser_about_new_comment(
-                comment_type='answer_comment',
-                belongs_to=answer.id,
-                comment_text=comment_text,
-                username=user.profile.username,
-                user_id=user.id
-            )
-
-            answer.question.inform_involved_users(
-                message=strip_tags(comment_text)[:45],
-                notification_type='Kommentar',
-                exclude_users=[user.id]
-            )
 
         # re-rank in index page
         question.re_rank(reason='Antwort kommentiert', last_acted_user=request.user)
@@ -756,16 +716,6 @@ def convert(request):
 
         # inform the questioner about new answer
         question.inform_questioner(answer=new_answer)
-
-        # inform involved users
-        question.inform_involved_users(
-            message=strip_tags(new_answer)[:45],
-            notification_type='Antwort',
-            exclude_users=[new_answer.user_id]
-        )
-
-        # push notification
-        question.inform_browser_about_new_answer(user_id=question.user_id)
 
         # delete comment
         comment.delete()

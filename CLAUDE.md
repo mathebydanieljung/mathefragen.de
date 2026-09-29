@@ -17,7 +17,6 @@ Live: https://mathefragen.de
 - **Sessions:** Redis Sentinel (production), default (development)
 - **Email:** SendGrid SMTP
 - **Bot Protection:** Cloudflare Turnstile
-- **Notifications:** Firebase Cloud Messaging (pyfcm)
 - **Dependency Management:** Poetry
 
 ## Development Setup
@@ -79,7 +78,6 @@ gunicorn.conf.py         # Production server config
 | `playlist` | Learning playlists |
 | `news` | Articles and release notes |
 | `settings` | Admin-configurable site settings (Global, HeaderMenu, Footer, SEO, etc.) |
-| `notifier` | Firebase push notifications |
 | `review` | User skill verification reviews |
 | `stats` | Global statistics |
 | `aiedn` | AI integration endpoint |
@@ -122,4 +120,3 @@ See `.env.example` for all required variables. Key ones:
 - `DB_NAME`, `DB_USER`, `DB_PWD`, `DB_HOST`, `DB_PORT`
 - `AWS_STORAGE_BUCKET_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
 - `SENDGRID_KEY`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
-- `FIREBASE_SERVER_KEY`

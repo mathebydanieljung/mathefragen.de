@@ -345,12 +345,6 @@
                 $('.answer_text_div a').attr('target', '_blank');
                 $('.comment_text_div a').attr('target', '_blank');
 
-                if (!isMobile) {
-                    // websocket connections
-                    var url = question_wss_url + questionId;
-                    QuestionWSConnection(url);
-                }
-
                 $('.suggest_videos_input').on('keydown', function (e) {
                     if (e.which === 13) {
                         var search_term = $.trim($('.suggest_videos_input').val());

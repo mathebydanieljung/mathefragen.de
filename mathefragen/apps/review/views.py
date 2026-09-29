@@ -63,8 +63,6 @@ class CreateReview(LoginRequiredMixin, FormView):
                     relation_source=relation_source
                 )
 
-                review.inform_about_review()
-
             if source_question_id:
                 review.source_question_id = source_question_id
                 review.save()

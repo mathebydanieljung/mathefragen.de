@@ -121,10 +121,6 @@
             const siteDomain = '{{ site_domain }}';
             const http_referer = '{{ request.META.HTTP_REFERER }}';
             const fb_app_id = '{{ seo.fb_app_id }}';
-            const global_wss_url = '{{ global_wss_url }}';
-            const user_wss_url = '{{ user_wss_url }}';
-            const websockets_enabled = {% if websockets_enabled %}true{% else %}false{% endif %};
-            const question_wss_url = '{{ question_wss_url }}';
             const youtubeSearchUrl = "{% url 'youtube_search' %}";
             const searchForTag = "{% url 'search_for_hashtag' %}";
             const questionId = {{ question.id|default:0 }};
@@ -147,129 +143,6 @@
             const askToCompleteProfile = {% if request.user.is_authenticated and request.user.profile.should_complete_profile %}true{% else %}false{% endif %};
             const tinymce_custom_css_path = '{% static "css/tinymce_custom.css" %}';
         </script>
-        {% compress js file wss %}
-        <script type="text/javascript">
-            function GlobalWSConnection(){
-                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
-                    return;
-                }
-                var global_ws = new WebSocket(global_wss_url);
-                global_ws.onmessage = function (event) {
-                    var notification_number = $('#notification_number');
-                    // play sound
-                    new Audio('{% static 'files/push.mp3' %}').play();
-                    var old_number = $.trim(notification_number.text());
-                    if (!old_number) {
-                        old_number = '0';
-                    }
-                    notification_number.text(parseInt(old_number) + 1);
-                    if (notification_number.hasClass('hidden')){
-                        notification_number.removeClass('hidden');
-                    }
-                };
-                global_ws.onclose = function () {
-                    setTimeout(GlobalWSConnection, 1000);
-                }
-            }
-
-            function UserWSConnection(ws_url){
-                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
-                    return;
-                }
-                var user_ws = new WebSocket(ws_url);
-                user_ws.onmessage = function (event) {
-                    var notification_number = $('#notification_number');
-                    // play sound
-                    new Audio('{% static 'files/push.mp3' %}').play();
-                    var old_number = $.trim(notification_number.text());
-                    if (!old_number) {
-                        old_number = '0';
-                    }
-                    notification_number.text(parseInt(old_number) + 1);
-
-                    if (notification_number.hasClass('hidden')){
-                        notification_number.removeClass('hidden');
-                    }
-                };
-                user_ws.onclose = function() {
-                    setTimeout(function(){
-                        UserWSConnection(ws_url);
-                    }, 1000);
-                };
-            }
-
-            function QuestionWSConnection(ws_url){
-                if (!websockets_enabled || location.href.indexOf('localhost') > -1){
-                    return;
-                }
-                var question_ws = new WebSocket(ws_url);
-                question_ws.onmessage = function (event) {
-                    var payload = JSON.parse(event.data);
-                    var acted_user_id = payload['user_id'];
-
-                    // dont notify the user who acted first
-                    if (user_id !== acted_user_id) {
-                        new Audio('{% static 'files/question_push.mp3' %}').play();
-                        if (payload['type'] === 'new_answer') {
-                            $('#no_answers_yet').html('Es gibt eine neue Antwort <i class="fal fa-long-arrow-right"></i>');
-                            $('#no_answers_yet').addClass('shake');
-                            $('#reload_page_btn').removeClass('d-none');
-                        }
-                    }
-
-                    if (payload['type'] === 'question_comment') {
-                        // question comments update
-                        update_comments(payload, '#question_comment_append_place');
-
-                    } else if (payload['type'] === 'answer_comment') {
-                        // answer comments update
-                        update_comments(payload, '#answer_comment_append_place_' + payload['belongs_to']);
-                    }
-                };
-                question_ws.onclose = function() {
-                    setTimeout(function(){
-                        QuestionWSConnection(ws_url);
-                    }, 1000);
-                };
-            }
-
-            function update_comments(payload, comment_append_place_id){
-                var comment_text = payload['comment_text'];
-                var username = payload['username'];
-                var user_id = payload['user_id'];
-
-                // question comment
-                var comment_span = document.createElement('span');
-                comment_span.classList.add('font13');
-                comment_span.innerText = comment_text;
-
-                var small = document.createElement('small');
-                var username_anchor = document.createElement('a');
-                username_anchor.href = '/user/profile/' + user_id + '/';
-                username_anchor.classList.add('text-bold');
-                username_anchor.classList.add('mf_color');
-                username_anchor.classList.add('font12');
-                username_anchor.innerHTML = '&nbsp; - &nbsp;' + username;
-
-                small.appendChild(username_anchor);
-                comment_span.appendChild(small);
-
-                var comment_div = document.createElement('div');
-                comment_div.classList.add('pl-2');
-                comment_div.classList.add('comment_box');
-
-                var hr_ = document.createElement('hr');
-                hr_.classList.add('mt-3');
-                hr_.classList.add('mb-3');
-
-                comment_div.appendChild(comment_span);
-
-                $(comment_append_place_id).append(hr_);
-                $(comment_append_place_id).append(comment_div);
-                $(comment_append_place_id).addClass('pb-3');
-            }
-        </script>
-        {% endcompress %}
         {% block extra_head %}{% endblock %}
     </head>
 
@@ -704,19 +577,6 @@
                 });
 
                 $('.community_paper_icon').tooltip({'html': true});
-
-                $('#reload_page_btn').on('click', function(){
-                    window.location.reload();
-                });
-
-                if (!isMobile) {
-                    // websocket connections
-                    GlobalWSConnection();
-                    if (user_logged_in) {
-                        var url = user_wss_url + user_id;
-                        UserWSConnection(url);
-                    }
-                }
 
                 if (register_confirmed) {
                     $('#confirmed_modal').modal('show');

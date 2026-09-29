@@ -1,5 +1,4 @@
 import hashlib
-import json
 import logging
 import re
 import statistics
@@ -10,13 +9,10 @@ from django.db import models
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from pyfcm import FCMNotification
-from websocket import create_connection
 
 from mathefragen.apps.core.models import Base
 from mathefragen.apps.core.utils import send_email_in_template, RepairImages
 from mathefragen.apps.guardian.tools.ip import IP
-from mathefragen.apps.messaging.models import Message
 
 logger = logging.getLogger(__name__)
 
@@ -320,36 +316,6 @@ class Question(Base):
                 }
             )
 
-    def inform_browser_about_new_answer(self, user_id=None):
-        if not settings.DEBUG and settings.ENABLE_WEBSOCKETS:
-            new_answer_payload = {
-                'type': 'new_answer',
-                'user_id': user_id
-            }
-            try:
-                ws = create_connection(settings.WEBSOCKET_QUESTION_PUSH_DOMAIN % self.id)
-                ws.send(json.dumps(new_answer_payload))
-                ws.close()
-            except Exception:
-                pass
-
-    def inform_browser_about_new_comment(self, comment_type, belongs_to, comment_text, username, user_id):
-        if not settings.DEBUG and settings.ENABLE_WEBSOCKETS:
-            new_comment_payload = {
-                'type': comment_type,
-                'belongs_to': belongs_to,
-                'comment_text': comment_text,
-                'username': username,
-                'user_id': user_id
-            }
-
-            try:
-                ws = create_connection(settings.WEBSOCKET_QUESTION_PUSH_DOMAIN % self.id)
-                ws.send(json.dumps(new_comment_payload))
-                ws.close()
-            except Exception:
-                pass
-
     def latest_question_answers(self):
         return self.question_answers.filter(soft_deleted=False).order_by(
             '-accepted', '-vote_points', 'idate'
@@ -417,37 +383,9 @@ class Question(Base):
     def answered(self):
         return self.number_answers > 0 and self.closed
 
-    def inform_involved_users(self, message='', notification_type='', exclude_users=None):
-
-        msg = Message.objects.create(
-            title=self.title,
-            message=message,
-            link=self.get_absolute_url(),
-            type=notification_type
-        )
-        self.refresh_from_db()
-
-        if not hasattr(self, 'involved_peeps'):
-            return
-
-        users_to_inform = self.involved_peeps.users.all()
-
-        if exclude_users:
-            users_to_inform = users_to_inform.exclude(id__in=exclude_users)
-
-        if settings.ENABLE_WEBSOCKETS:
-            for user in users_to_inform:
-                msg.to_users.add(user)
-                try:
-                    ws = create_connection(settings.WEBSOCKET_USER_PUSH_DOMAIN % user.id)
-                    ws.send(notification_type)
-                    ws.close()
-                except Exception:
-                    continue
-
     def inform_questioner(self, answer):
         """
-        notify question owner via email and app push
+        notify question owner via email
         """
 
         if not self.user_id:
@@ -472,20 +410,6 @@ class Question(Base):
                         settings.DOMAIN, self.get_absolute_url(), answer.id
                     ),
                     'link_name': 'Jetzt Antwort sehen'
-                }
-            )
-
-        fcm_token = self.user.profile.fcm_token
-
-        if fcm_token:
-            push_service = FCMNotification(api_key=settings.FIREBASE_SERVER_KEY)
-            push_service.notify_single_device(
-                registration_id=fcm_token,
-                message_title='Du hast eine Antwort auf deine Frage erhalten!',
-                message_body='Klick hier, um die Antwort zu sehen',
-                data_message={
-                    'to_user_id': self.user_id,
-                    'question_id': self.id,
                 }
             )
 
@@ -635,22 +559,6 @@ class Answer(Base):
                         )
             }
         )
-
-    def inform_answerer(self):
-        if settings.ENABLE_WEBSOCKETS:
-            msg = Message.objects.create(
-                title='Antwort akzeptiert',
-                message='Deine Antwort wurde von %s akzeptiert.' % self.question.user.profile.username,
-                link=self.question.get_absolute_url(),
-                type='Akzeptiert'
-            )
-            msg.to_users.add(self.user)
-            try:
-                ws = create_connection(settings.WEBSOCKET_USER_PUSH_DOMAIN % self.user_id)
-                ws.send('Akzeptiert')
-                ws.close()
-            except Exception:
-                pass
 
     def all_answer_comments(self):
         return self.answer_comments.order_by('id')

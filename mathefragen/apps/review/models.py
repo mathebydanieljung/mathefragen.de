@@ -1,11 +1,8 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from websocket import create_connection
 
 from mathefragen.apps.core.models import Base
 from mathefragen.apps.hashtag.models import HashTag
-from mathefragen.apps.messaging.models import Message
 from mathefragen.apps.question.models import Question
 
 
@@ -47,23 +44,6 @@ class Review(Base):
         db_table='user_review_hashtags'
     )
     soft_deleted = models.BooleanField(default=False)
-
-    def inform_about_review(self):
-        if settings.ENABLE_WEBSOCKETS:
-            msg = Message.objects.create(
-                title='Neue Bewertung für dich',
-                message='%s hat für dich eine Bewertung geschrieben.' % self.given_by.profile.username,
-                link=self.given_to.profile.get_absolute_url(),
-                type='Bewertung'
-            )
-
-            msg.to_users.add(self.given_to)
-            try:
-                ws = create_connection(settings.WEBSOCKET_USER_PUSH_DOMAIN % self.given_to_id)
-                ws.send('Bewertung')
-                ws.close()
-            except Exception:
-                pass
 
     @classmethod
     def copy(cls):
@@ -118,23 +98,6 @@ class UserReview(Base):
     )
     soft_deleted = models.BooleanField(default=False)
     is_happy = models.BooleanField(default=False)
-
-    def inform_about_review(self):
-        if settings.ENABLE_WEBSOCKETS:
-            msg = Message.objects.create(
-                title='Neue Bewertung für dich',
-                message='%s hat für dich eine Bewertung geschrieben.' % self.given_by.profile.username,
-                link=self.given_to.profile.get_absolute_url(),
-                type='Bewertung'
-            )
-
-            msg.to_users.add(self.given_to)
-            try:
-                ws = create_connection(settings.WEBSOCKET_USER_PUSH_DOMAIN % self.given_to_id)
-                ws.send('Bewertung')
-                ws.close()
-            except Exception:
-                pass
 
     def __str__(self):
         return self.text

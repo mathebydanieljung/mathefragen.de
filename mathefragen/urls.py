@@ -33,7 +33,6 @@ urlpatterns = [
     path('v1/stats/', include('mathefragen.apps.stats.urls')),
     path('v1/banner-promotion/', promotion),
 
-    path('v1/fcm/', include('mathefragen.apps.notifier.urls')),
     path('v1/api-token-refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/api-token-verify/', TokenVerifyView.as_view(), name='token_verify'),
 

@@ -63,7 +63,6 @@ LOCAL_APPS = [
     'mathefragen.apps.user',
     'mathefragen.apps.question',
     'mathefragen.apps.search',
-    'mathefragen.apps.notifier',
     'mathefragen.apps.hashtag',
     'mathefragen.apps.vote',
     'mathefragen.apps.news',
@@ -95,8 +94,6 @@ THIRD_PARTY_APPS = [
 ]
 
 MARKDOWNIFY_BLEACH = False
-
-FIREBASE_SERVER_KEY = env('FIREBASE_SERVER_KEY', default='xxx')
 
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -235,15 +232,6 @@ USE_TZ = False
 # 10 years
 SESSION_COOKIE_AGE = 315569520
 SESSION_COOKIE_NAME = env('COOKIE_NAME', default='session_dv')
-
-# push server
-ENABLE_WEBSOCKETS = env('ENABLE_WEBSOCKETS', default=False)
-WEBSOCKET_GLOBAL_PUSH_DOMAIN = env('GLOBAL_WSS_URL', default='')
-WEBSOCKET_USER_PUSH_DOMAIN_BASE = env('WEBSOCKET_USER_PUSH_DOMAIN_BASE', default='')
-WEBSOCKET_USER_PUSH_DOMAIN = WEBSOCKET_USER_PUSH_DOMAIN_BASE + '%s'
-
-WEBSOCKET_QUESTION_PUSH_DOMAIN_BASE = env('WEBSOCKET_QUESTION_PUSH_DOMAIN_BASE', default='')
-WEBSOCKET_QUESTION_PUSH_DOMAIN = WEBSOCKET_QUESTION_PUSH_DOMAIN_BASE + '%s'
 
 # AWS S3 Settings
 AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires

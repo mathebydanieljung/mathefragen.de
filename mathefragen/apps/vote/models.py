@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from websocket import create_connection
 
 from mathefragen.apps.core.models import Base
 from mathefragen.apps.messaging.models import Message
@@ -106,14 +105,6 @@ class Vote(Base):
             if given_to:
                 # todo: sometimes there is no user. to be checked why.
                 msg.to_users.add(given_to)
-
-                if settings.ENABLE_WEBSOCKETS:
-                    try:
-                        ws = create_connection(settings.WEBSOCKET_USER_PUSH_DOMAIN % given_to.id)
-                        ws.send(vote_type)
-                        ws.close()
-                    except Exception:
-                        pass
 
     @classmethod
     def create_vote(cls, **kwargs):
