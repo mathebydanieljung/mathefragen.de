@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from mathefragen.apps.core.utils import API_MAX_ITEMS
 from mathefragen.apps.question.models import Question, Answer
 from mathefragen.apps.vote.api.serializers import VoteSerializer
 from mathefragen.apps.vote.models import Vote
@@ -79,7 +80,7 @@ def votes(request):
     :return: votes, filtered by filters
     """
 
-    all_votes = Vote.objects.all()
+    all_votes = Vote.objects.order_by('-id')
 
     user = request.GET.get('user', 'no_user_id')
     answer = request.GET.get('answer', 'no_answer_id')
@@ -93,7 +94,7 @@ def votes(request):
     elif question.isdigit():
         all_votes = all_votes.filter(question_id=int(question))
 
-    data = VoteSerializer(all_votes, many=True, context={'request': request}).data
+    data = VoteSerializer(all_votes[:API_MAX_ITEMS], many=True, context={'request': request}).data
 
     return Response(data, status=status.HTTP_200_OK)
 

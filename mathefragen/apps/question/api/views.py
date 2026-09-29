@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from mathefragen.apps.core.utils import create_default_hash
+from mathefragen.apps.core.utils import API_MAX_ITEMS, create_default_hash
 from mathefragen.apps.hashtag.models import HashTag
 from mathefragen.apps.question.api.serializers import (
     QuestionSerializer,
@@ -51,7 +51,7 @@ def hottest_questions(request):
 @api_view(['GET'])
 @permission_classes((AllowAny, ))
 def questions_list(request):
-    questions_ = Question.objects.order_by('-rank_date')
+    questions_ = Question.objects.filter(soft_deleted=False).order_by('-rank_date')
 
     user_id = request.GET.get('user', 'no_user_id')
     hashtag = request.GET.get('hashtag', '')
@@ -69,7 +69,7 @@ def questions_list(request):
         questions_ = questions_.order_by('-points')
 
     if sort_by == 'answers':
-        questions_ = questions_.annotate(answers=Count('question_answers')).order_by('-answers')
+        questions_ = questions_.annotate(answers_count=Count('question_answers')).order_by('-answers_count')
 
     if question_ids:
         splitted_question_ids = None
@@ -96,10 +96,6 @@ def questions_list(request):
         if hashtag_obj:
             questions_ = questions_.filter(id__in=list(hashtag_obj.questions.values_list('id', flat=True)))
 
-    if cut.isdigit():
-        cut = int(cut)
-        questions_ = questions_.order_by('-id')[:cut]
-
     if question_type == 'unanswered':
         questions_ = questions_.annotate(answers=Count('question_answers')).filter(answers__lt=1)
 
@@ -111,8 +107,12 @@ def questions_list(request):
             answers__lt=1, idate__gte=(timezone.now() - timezone.timedelta(hours=20))
         )
 
+    if cut.isdigit():
+        cut = min(int(cut), API_MAX_ITEMS)
+        questions_ = questions_.order_by('-id')[:cut]
+
     if paginated == 'yes':
-        serializer_data = QuestionSerializer(questions_, many=True, context={'request': request}).data
+        serializer_data = QuestionSerializer(questions_[:API_MAX_ITEMS], many=True, context={'request': request}).data
         response_data = Response(serializer_data, status=status.HTTP_200_OK)
 
     else:
@@ -288,7 +288,7 @@ def answers_list(request, question_id):
 @permission_classes((AllowAny, ))
 def all_answers_list(request):
 
-    all_answers_ = Answer.objects.all().order_by('id')
+    all_answers_ = Answer.objects.filter(soft_deleted=False).order_by('id')
 
     user_id = request.GET.get('user', 'no_user_id')
     answer_ids = request.GET.get('ids', '')
@@ -313,7 +313,7 @@ def all_answers_list(request):
 
         all_answers_ = all_answers_.filter(user_id=user_id)
 
-    return Response(AnswerSerializer(all_answers_, many=True, context={'request': request}).data, status=status.HTTP_200_OK)
+    return Response(AnswerSerializer(all_answers_[:API_MAX_ITEMS], many=True, context={'request': request}).data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

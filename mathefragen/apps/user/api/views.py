@@ -13,8 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from mathefragen.apps.core.utils import send_email_in_template, convert_base64_to_image, create_default_hash
-from mathefragen.apps.question.models import Answer
+from mathefragen.apps.core.utils import API_MAX_ITEMS, send_email_in_template, convert_base64_to_image, create_default_hash
 from mathefragen.apps.user.api.serializers import (
     LoginSerializer,
     UserRegisterSerializer,
@@ -137,13 +136,9 @@ def top_helper(request):
     begin = datetime.datetime.fromtimestamp(int(begin))
     end = datetime.datetime.fromtimestamp(int(end))
 
-    answers_ids_between_this_time = list(
-        Answer.objects.filter(idate__gte=begin, idate__lte=end).values_list('id', flat=True)
-    )
-
-    users = User.objects.filter(user_answers__id__in=answers_ids_between_this_time).annotate(
+    users = User.objects.filter(user_answers__idate__gte=begin, user_answers__idate__lte=end).annotate(
         number_answers=Count('user_answers')
-    ).order_by('-number_answers')
+    ).order_by('-number_answers').select_related('profile')[:API_MAX_ITEMS]
 
     profiles = []
     for user in users:

@@ -9,7 +9,6 @@ import piexif
 import requests
 from PIL import Image, ExifTags
 from django.conf import settings
-from django.contrib.auth.hashers import get_hasher
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -21,7 +20,8 @@ from mathefragen.apps.core.models import create_default_hash
 
 logger = logging.getLogger(__name__)
 
-hasher = get_hasher('phpass')
+# upper bound for API list endpoints that return all matches in one response
+API_MAX_ITEMS = 100
 
 
 class EmailThread(threading.Thread):
