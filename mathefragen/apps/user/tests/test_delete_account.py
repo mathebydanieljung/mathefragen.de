@@ -103,26 +103,3 @@ class ApiDeleteOwnershipTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(User.objects.filter(pk=self.other.pk).exists())
-
-
-class LegacySocialAuthDeleteTestCase(TestCase):
-    """Die Tabelle des entfernten ``social_django`` existiert in Produktion noch
-    mit FK auf ``auth_user`` und darf das Löschen nicht blockieren."""
-
-    def test_delete_user_with_legacy_social_auth_row(self):
-        from django.db import connection
-
-        user = User.objects.create(username='social_user', email='social@email.com')
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'CREATE TABLE social_auth_usersocialauth ('
-                'id integer PRIMARY KEY, user_id integer NOT NULL REFERENCES auth_user (id))'
-            )
-            cursor.execute('INSERT INTO social_auth_usersocialauth (id, user_id) VALUES (1, %s)', [user.pk])
-
-        user.profile.delete()
-
-        self.assertFalse(User.objects.filter(pk=user.pk).exists())
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT count(*) FROM social_auth_usersocialauth')
-            self.assertEqual(cursor.fetchone()[0], 0)

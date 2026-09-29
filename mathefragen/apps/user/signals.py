@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.db import connection
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
@@ -35,12 +34,3 @@ def delete_user_traces(sender, instance=None, **kwargs):
 
     # remove questions of this user from main feed, to make space for active questions
     instance.close_user_questions()
-
-
-@receiver(pre_delete, sender=User)
-def delete_user_socials(sender, instance=None, **kwargs):
-    # social_django is no longer installed, but its table (with FK to auth_user)
-    # still exists in production and would block the delete.
-    if 'social_auth_usersocialauth' in connection.introspection.table_names():
-        with connection.cursor() as cursor:
-            cursor.execute('DELETE FROM social_auth_usersocialauth WHERE user_id = %s', [instance.pk])
