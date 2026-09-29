@@ -93,8 +93,6 @@ THIRD_PARTY_APPS = [
     'drf_spectacular_sidecar'
 ]
 
-MARKDOWNIFY_BLEACH = False
-
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -350,7 +348,6 @@ if not DEBUG:
 
     SESSION_COOKIE_DOMAIN = '%s' % DOMAIN.replace('www', '')
     SESSION_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
     CSRF_COOKIE_SECURE = True
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -384,19 +381,17 @@ LOGGING = {
         'handlers': ['console'],
         'level': LOG_LEVEL,
     },
+    # child loggers only set levels; records propagate to root, which prints them once
     'loggers': {
         'django': {
-            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
         'mathefragen': {
-            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': True,
         },
