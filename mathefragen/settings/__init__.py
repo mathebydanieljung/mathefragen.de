@@ -85,7 +85,6 @@ LOCAL_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'django_user_agents',
-    'django_extensions',
     'storages',
     'compressor',
     'markdownify',
@@ -198,6 +197,8 @@ PASSWORD_HASHERS = [
 ]
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
+# DRF >= 3.17.2 applies this to JSON bodies too; the app uploads base64 images via JSON
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 LOGOUT_REDIRECT_URL = "/"
 
 REST_FRAMEWORK = {
