@@ -12,3 +12,5 @@ data/
 .tool-versions
 .venv/
 venv/
+# production env files with secrets
+docker/envs/

@@ -2,3 +2,9 @@
 .venv/
 .venv.bak/
 data/
+.git/
+.env
+.env.*
+!.env.example
+docker/envs/
+*.sqlite3
