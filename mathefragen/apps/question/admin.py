@@ -82,7 +82,6 @@ class QuestionAdmin(admin.ModelAdmin):
         'rank_reason',
         'edited_by',
         'last_acted_user',
-        'solved_with_tutor',
         'last_acted_user_url',
         'last_acted_user_verified',
         'tag_names'
@@ -93,7 +92,6 @@ class QuestionAdmin(admin.ModelAdmin):
         'answerer',
         'vote_points',
         'number_answers',
-        'number_tutor_pings',
         'confirmed',
         'soft_deleted_at',
         'is_first_question',

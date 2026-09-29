@@ -26,12 +26,4 @@
             </a>
         </li>
     {% endif %}
-
-    {% if request.user.id == profile.user_id and request.user.profile.can_tutor %}
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.view_name == 'tutor_settings' %}active{% endif %} no_color_link" href="{% url 'tutor_settings' profile.user_id %}">
-                Nachhilfe {% if request.user.tutor_setting.is_active %}(<span class="text-success">Aktiv</span>){% endif %}
-            </a>
-        </li>
-    {% endif %}
 </ul>

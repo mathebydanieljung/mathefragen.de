@@ -10,7 +10,6 @@ from .views import (
     toggle_question_visibility,
     answer_question,
     accept_answer,
-    mark_as_solved_with_tutor,
     delete_answer,
     save_question_comment,
     delete_question_comment,
@@ -35,7 +34,6 @@ urlpatterns = [
     path('moderate/<int:question_id>/visibility/', toggle_question_visibility, name='toggle_question_visibility'),
     path('answer/<int:question_id>/s/', answer_question, name='answer_question'),
     path('answer/accept/a/', accept_answer, name='accept_answer'),
-    path('mark/accept/solved_with_tutor/', mark_as_solved_with_tutor, name='mark_as_solved_with_tutor'),
     path('answer/delete/d/', delete_answer, name='delete_answer'),
 
     path('convert/', convert, name='convert'),

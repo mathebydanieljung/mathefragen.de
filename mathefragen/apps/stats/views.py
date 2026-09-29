@@ -15,7 +15,6 @@ from mathefragen.apps.question.models import (
     QuestionComment,
     AnswerComment
 )
-from mathefragen.apps.tutoring.models import HelpRequest
 from mathefragen.apps.video.models import Video
 from mathefragen.apps.review.models import UserReview
 from mathefragen.apps.user.models import Profile
@@ -141,8 +140,7 @@ def total_numbers(request):
             soft_deleted=False
         ).count(),
         'reviews': UserReview.objects.count(),
-        'videos': Video.objects.count(),
-        'tutoring_sessions': HelpRequest.objects.count()
+        'videos': Video.objects.count()
     }
 
     return HttpResponse(json.dumps(response_payload), content_type='application/json')

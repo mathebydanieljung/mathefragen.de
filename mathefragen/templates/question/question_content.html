@@ -110,19 +110,6 @@
                 </div>
                 {% include 'question/includes/question_user_box.html' %}
                 <div class="clearfix"></div>
-                <!-- this is tutor snippet -->
-
-                {% if show_tutor_button %}
-                    <div class="mt-2 mb-4 d-block">
-                        <h6>Du brauchst dringend Hilfe?</h6>
-                        <a
-                                href="{% url 'ask_tutors' %}?question={{ question.hash_id }}">
-                            <button class="btn valign-inherit btn-outline-info active font14">
-                                Jetzt Helfer anfragen
-                            </button>
-                        </a>
-                    </div>
-                {% endif %}
             </div>
         </div>
 
@@ -295,7 +282,7 @@
 
 {% if question.is_active %}
 
-    {% if request.user.is_authenticated and request.user.id != question.user_id and question.is_active and not question.solved_with_tutor_id %}
+    {% if request.user.is_authenticated and request.user.id != question.user_id and question.is_active %}
         {% include 'question/answer_form.html' %}
     {% endif %}
 

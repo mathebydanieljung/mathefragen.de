@@ -307,14 +307,7 @@ ADMINS_TO_REPORT = [
 
 ADMIN_URL = '/7uzeudwe8iewfij/'
 
-PAYPAL_CLIENT_ID = env('PAYPAL_CLIENT_ID', default='xxx')
-PAYPAL_SECRET_ID = env('PAYPAL_SECRET_ID', default='xxx')
-
 CLOUDINARY_URL = env('CLOUDINARY_URL', default='')
-
-# share % for company for each tutoring transaction
-TUTORING_COMPANY_SHARE = 10
-TUTORING_ENABLED = env('TUTORING_ENABLED', default=False)
 
 # Configure auto field (for Django 3.2)
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

@@ -219,8 +219,6 @@ class Profile(Base):
 
     filled_data_at = models.DateTimeField(null=True, blank=True)
     skipped_data_at = models.DateTimeField(null=True, blank=True)
-    can_tutor = models.BooleanField(default=False, verbose_name='Kann Nachhilfeunterricht geben')
-    total_tutored = models.IntegerField(default=0)
 
     # number of reports given to the contents of this user
     reported = models.IntegerField(default=0)
@@ -254,34 +252,6 @@ class Profile(Base):
             return False
 
         return timezone.now() < (self.last_active + timezone.timedelta(days=7))
-
-    def all_tutor_sessions(self):
-        return (self.user.received_help_requests.all() | self.user.sent_help_requests.all()).order_by('-idate')
-
-    def latest_tutoring_sessions(self):
-        if self.all_tutor_sessions().count():
-            return self.all_tutor_sessions()[:6]
-
-    def get_time_price(self, duration='30'):
-        if not hasattr(self.user, 'tutor_setting'):
-            return 0.0
-        tutoring_settings = self.user.tutor_setting
-        time_price = {
-            '30': tutoring_settings.half_hourly_rate,
-            '60': tutoring_settings.hourly_rate,
-            '90': tutoring_settings.ninety_min_rate
-        }
-        return time_price.get(duration)
-
-    def total_tutoring_sessions(self):
-        now = timezone.now()
-        completed_sessions = self.user.received_help_requests.filter(
-            paid_at__isnull=False,
-            tutor_completed_at__lt=(now - timezone.timedelta(minutes=10)),
-            student_completed_at__lt=(now - timezone.timedelta(minutes=10))
-        ).count()
-        # todo: set total_tutored and use it. less db query
-        return completed_sessions
 
     def can_see_deleted_content(self):
         if self.points > 5000:
@@ -319,31 +289,6 @@ class Profile(Base):
 
     def has_confirmed_email(self):
         return 'confirmed' in self.confirm_hash
-
-    def can_give_tutoring(self):
-        # email must be verified
-        if 'confirmed' not in self.confirm_hash:
-            return False
-
-        if not self.verified:
-            return False
-
-        # user has clicked on his tutor profile? if not, he/she is not a tutor.
-        if not hasattr(self.user, 'tutor_setting'):
-            return False
-
-        tutor_setting = self.user.tutor_setting
-        if not tutor_setting.is_active:
-            return False
-
-        if not tutor_setting.has_price():
-            return False
-
-        # user must be active in the last 4 days
-        if not self.is_energetic():
-            return False
-
-        return self.can_tutor
 
     def get_profile_image(self):
         if self.profile_image:
@@ -689,36 +634,6 @@ class Profile(Base):
 
     def written_articles(self):
         return self.user.user_questions.filter(type='article')
-
-    def total_earnings_as_tutor(self):
-        """
-        we show earnings once session is over and 10 minutes past.
-        This number shows the netto earnings, our commission already subtracted.
-        """
-        now = timezone.now()
-        total_earnings = self.user.received_help_requests.filter(
-            paid_at__isnull=False,
-            tutor_completed_at__lt=(now - timezone.timedelta(minutes=10)),
-            student_completed_at__lt=(now - timezone.timedelta(minutes=10))
-        ).aggregate(
-            total=models.Sum('users_share')
-        ).get('total', 0)
-        return total_earnings if total_earnings else 0
-
-    def payable_amount(self):
-        current_earnings = self.current_earnings_as_tutor()
-        pending_requests = self.user.tutor_payouts.filter(status='pending').aggregate(
-            total=models.Sum('amount')
-        ).get('total', 0)
-        pending_requests = pending_requests if pending_requests else 0
-        return current_earnings - pending_requests
-
-    def current_earnings_as_tutor(self):
-        total_payouts = self.user.tutor_payouts.filter(status='paid').aggregate(
-            total=models.Sum('amount')
-        ).get('total', 0)
-        total_payouts = total_payouts if total_payouts else 0
-        return self.total_earnings_as_tutor() - total_payouts
 
     @property
     def get_full_name(self):

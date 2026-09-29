@@ -50,14 +50,6 @@ class Question(Base):
     confirmed = models.BooleanField(default=True, db_index=True)
     vote_points = models.IntegerField(default=0, blank=True)
     number_answers = models.IntegerField(default=0, blank=True, db_index=True)
-    number_tutor_pings = models.IntegerField(default=0, blank=True)
-    solved_with_tutor = models.ForeignKey(
-        User,
-        related_name='helped_questions',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
     answerer = models.ForeignKey(
         User,
         related_name='answered_questions',

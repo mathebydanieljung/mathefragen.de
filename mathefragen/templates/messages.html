@@ -43,9 +43,6 @@
                         {% if accepted_answers %}
                             <a class="font12 link_color text-bold" href="?type=Akzeptiert">{{ accepted_answers }} Akzeptiert</a>&nbsp; &nbsp;
                         {% endif %}
-                        {% if help_requests %}
-                            <a class="font12 link_color text-bold" href="?type=Nachhilfe">{{ help_requests }} Nachhilfe Anfragen</a>&nbsp; &nbsp;
-                        {% endif %}
                         {% if upvote_types_count|add:downvote_types_count %}
                             <a class="font12 link_color text-bold" href="?type=vote">{{ upvote_types_count|add:downvote_types_count }} Vote{{ upvote_types_count|add:downvote_types_count|pluralize:',s' }}</a>
                         {% endif %}

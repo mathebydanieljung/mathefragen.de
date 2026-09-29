@@ -164,11 +164,6 @@ class Video(models.Model):
     )
     order = models.IntegerField(default=0)
 
-    def get_absolute_url(self):
-        return reverse('video_watch_view', kwargs={
-            'hash_id': self.hash_id
-        })
-
     def get_absolute_url_iframe(self):
         return reverse('video_detail_iframe', kwargs={
             'slug': self.slug,

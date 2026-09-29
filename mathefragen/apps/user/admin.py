@@ -68,9 +68,6 @@ class ProfileAdmin(admin.ModelAdmin):
         'idate',
         'user_questions',
         'user_answers',
-        'current_earnings_as_tutor',
-        'total_earnings_as_tutor',
-        'payable_amount',
     )
     search_fields = (
         'wp_id',
@@ -85,7 +82,6 @@ class ProfileAdmin(admin.ModelAdmin):
             'verified',
             'reported',
             'soft_deleted',
-            'can_tutor',
         )}),
         ('Stats', {'fields': (
             'answers_this_month',

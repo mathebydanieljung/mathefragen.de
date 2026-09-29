@@ -50,7 +50,6 @@ urlpatterns = [
     path('landing/', mathefragen_landing, name='mathefragen_landing'),
     path('question/', include('mathefragen.apps.question.urls')),
     path('frage/', include('mathefragen.apps.question.urls')),
-    path('nachhilfe/', include('mathefragen.apps.tutoring.urls')),
 
     # from online scripts
     path('frage-stellen/', CreateQuestion.as_view(), name="ask_question_from_outside"),

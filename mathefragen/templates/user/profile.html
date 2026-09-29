@@ -160,27 +160,6 @@
                 profileImageUploader.open();
             });
 
-            var tutor_should_be_reviewed = '{{ request.GET.finished_session }}';
-            if (tutor_should_be_reviewed){
-                $('#tutor_feedback_modal').modal('show');
-            }
-
-            $('.save_tutor_review').on('click', function (){
-                var tutor_feedback_text = $.trim($('#tutor_feedback_text').val());
-                if (tutor_feedback_text && tutor_should_be_reviewed){
-                    $.ajax({
-                        url: '{% url "save_tutor_review" request.GET.finished_session|default:"nohash" %}',
-                        type: 'post',
-                        data: {
-                            csrfmiddlewaretoken: csrf_token,
-                            tutor_feedback_text: tutor_feedback_text
-                        }
-                    }).done(function (){
-                        location.href = '{% url "request_detail" request.GET.finished_session|default:"nohash" %}?status=review_given';
-                    });
-                }
-            });
-
             $(document).on('click', '.user_follow_btn', function () {
                 var clicked_btn = $(this);
                 $.get("{% url 'follow_user' %}?user_to_follow=" + {{ profile.user_id }}, function (data, status) {

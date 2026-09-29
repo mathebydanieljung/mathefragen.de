@@ -378,15 +378,3 @@ def render_complete_profile_form(request):
             field.widget = field.hidden_widget()
 
     return form, ','.join(fields_to_save)
-
-
-@register.simple_tag
-def uni_module_selected(user, module_name):
-    if not user.is_authenticated:
-        return False
-
-    if not hasattr(user, 'tutor_setting'):
-        return False
-
-    university_modules = user.tutor_setting.university_modules.split(',')
-    return module_name in university_modules

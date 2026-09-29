@@ -13,7 +13,7 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.core.validators import validate_email, ValidationError
 from django.db import IntegrityError
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, reverse, redirect, HttpResponse, HttpResponseRedirect
 from django.utils import timezone
@@ -30,7 +30,6 @@ from mathefragen.apps.guardian.models import BlockedIP
 from mathefragen.apps.guardian.tools import ip
 from mathefragen.apps.messaging.models import Message
 from mathefragen.apps.question.models import Answer, Question
-from mathefragen.apps.tutoring.models import HelpRequest
 from mathefragen.apps.user.forms import (
     LoginForm,
     RegisterForm,
@@ -630,19 +629,9 @@ def public_profile_hashed(request, hash_id):
     if not profile.asked_questions().count():
         given_answers = Answer.objects.filter(user_id=profile.user_id).order_by('-idate')[:5]
 
-    given_sessions = HelpRequest.objects.filter(tutor_id=profile.user_id).order_by('-id')
-
-    number_mins_given_tutoring = given_sessions.aggregate(hours=Sum('duration')).get('hours', 0)
-    if number_mins_given_tutoring:
-        number_hours_given_tutoring = round(number_mins_given_tutoring / 60, 2)
-    else:
-        number_hours_given_tutoring = 0.0
-
     return render(request, 'user/profile.html', {
         'profile': profile,
-        'given_answers': given_answers,
-        'sessions': given_sessions,
-        'number_hours_given_tutoring': number_hours_given_tutoring
+        'given_answers': given_answers
     })
 
 
@@ -1202,7 +1191,6 @@ def inbox(request, pk):
     upvote_types_count = messages.filter(type='upvote').count()
     downvote_types_count = messages.filter(type='downvote').count()
     accepted_answers = messages.filter(type='Akzeptiert').count()
-    help_requests = messages.filter(type='Nachhilfe').count()
 
     if msg_type:
         if msg_type == 'vote':
@@ -1222,7 +1210,6 @@ def inbox(request, pk):
         'upvote_types_count': upvote_types_count,
         'downvote_types_count': downvote_types_count,
         'review_types_count': review_types_count,
-        'help_requests': help_requests,
         'accepted_answers': accepted_answers
     })
 

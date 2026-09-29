@@ -27,7 +27,6 @@ from mathefragen.apps.question.models import (
     QuestionInvolvedUsers
 )
 from mathefragen.apps.question.utils import filter_questions
-from mathefragen.apps.tutoring.models import HelpRequest
 from mathefragen.apps.vote.models import Vote
 from mathefragen.lib import validate_with_turnstile
 
@@ -314,13 +313,6 @@ def question_detail_hashed(request, hash_id, slug):
 
         return redirect('%s?newquestion=1' % question.get_absolute_url())
 
-    help_request = None
-    if 'ask_if_settled' in request.GET and not question.solved_with_tutor_id:
-        try:
-            help_request = HelpRequest.objects.get(hash_id=request.GET.get('ask_if_settled'))
-        except HelpRequest.DoesNotExist:
-            pass
-
     question.increase_views_counter(request=request)
 
     # increase reach, in question and in answers
@@ -336,11 +328,6 @@ def question_detail_hashed(request, hash_id, slug):
 
     show_ask_question_modal = False
     answered_by_this_user = False
-    show_tutor_button = False
-
-    if settings.TUTORING_ENABLED and request.user.is_authenticated:
-        if question.user_id == request.user.id and question.is_active:
-            show_tutor_button = True
 
     if not request.user.is_authenticated and settings.DOMAIN not in request.META.get('HTTP_REFERER', ''):
         show_ask_question_modal = True
@@ -358,9 +345,7 @@ def question_detail_hashed(request, hash_id, slug):
     return render(request, 'question/detail.html', {
         'question': question,
         'answer': answer,
-        'help_request': help_request,
         'show_ask_question_modal': show_ask_question_modal,
-        'show_tutor_button': show_tutor_button,
         'answered_by_this_user': answered_by_this_user
     })
 
@@ -477,27 +462,6 @@ def answer_question(request, question_id):
 
     new_question_url = '%s%s' % (question.get_absolute_url(), get_param_for_ga)
     return redirect(new_question_url)
-
-
-@login_required
-def mark_as_solved_with_tutor(request):
-    question_id = request.GET.get('question_id')
-    help_request_hash = request.GET.get('help_request_hash')
-    question = Question.objects.get(id=question_id)
-
-    if question.user_id != request.user.id:
-        return HttpResponse('you are not question owner')
-
-    help_request = HelpRequest.objects.get(hash_id=help_request_hash)
-
-    question.solved_with_tutor_id = help_request.tutor_id
-    question.save()
-
-    # give 15 points
-    help_request.tutor.profile.increase_points(points=15, reason='helped')
-
-    # todo: give some points?
-    return HttpResponse('ok')
 
 
 @login_required

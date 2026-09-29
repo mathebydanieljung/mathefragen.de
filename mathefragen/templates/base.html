@@ -160,11 +160,6 @@
         {% include 'modals/channel_suggestion.html' %}
         {% include 'modals/grasp_level.html' %}
         {% include 'modals/video_suggest.html' %}
-        {% include 'modals/helpes_to_book.html' %}
-
-        {% if request.user.is_authenticated and request.resolver_match.view_name == 'public_profile_hashed' %}
-        {% include 'modals/review_tutor.html' %}
-        {% endif %}
 
         {% if request.user.is_authenticated and request.resolver_match.view_name != 'profile_settings' %}
         {% include 'modals/fill_profile.html' %}

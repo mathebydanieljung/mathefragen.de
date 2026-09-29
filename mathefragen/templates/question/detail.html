@@ -50,8 +50,6 @@
         var answer_in_GET = '{{ request.GET.answer }}';
         var question_inactive = {% if not question.is_active and question.confirmed and request.user.id != question.user_id %}true{% else %}false{% endif %};
         var question_deleted = {% if question.soft_deleted and request.user.id != question.user_id %}true{% else %}false{% endif %};
-        var help_request = '{{ help_request.hash_id|default_if_none:"" }}';
-        var mark_as_solved_with_tutor_url = '{% url "mark_as_solved_with_tutor" %}?question_id={{ question.id }}&help_request_hash={{ help_request.hash_id|default_if_none:"nohash" }}';
         var show_ask_question_modal = {% if show_ask_question_modal %}true{% else %}false{% endif %};
     </script>
 {% endblock %}
@@ -59,9 +57,6 @@
 {% block body_extra_attr %}itemscope itemtype="https://schema.org/QAPage"{% endblock %}
 
 {% block main %}
-    {% if help_request %}
-    {% include 'modals/ask_if_question_settled.html' %}
-    {% endif %}
     {% include 'modals/ask_now_modal_v1.html' %}
     {% include 'modals/downvote.html' %}
 
@@ -249,35 +244,6 @@
                             csrfmiddlewaretoken: csrf_token
                         }
                     });
-                });
-
-                if (help_request && user_logged_in){
-                    $('#after_session_check_modal').modal('show');
-                }
-
-                $('.question_settled_clk').on('click', function (){
-                    $.ajax({
-                        url: mark_as_solved_with_tutor_url,
-                        type: 'get'
-                    }).done(function (response) {
-                        $('#after_session_check_modal').modal('hide');
-                    })
-                });
-
-                $(document).on('click', '.ping_helper', function () {
-                    var clicked_el = $(this);
-                    var needed_time = $('#needed_time').val();
-                    var hash_id = $(this).data('hash-id');
-                    $.ajax({
-                        url: ping_tutor + '?hash_id=' + hash_id + '&question_id=' + question_id + '&t=' + needed_time,
-                        type: 'get'
-                    }).done(function (response){
-                        clicked_el.html('<i class="fas fa-check"></i> &nbsp; benachrichtigt');
-                        clicked_el.addClass('active');
-                    }).fail(function (err){
-                        alert('Whoopsala, etwas ist schief gelaufen. Bitte kontaktiere uns über Feedback Funktion links unten.')
-                    });
-
                 });
 
                 // attach rotate button to image tags

@@ -73,7 +73,6 @@ gunicorn.conf.py         # Production server config
 | `hashtag` | Tag system for questions |
 | `vote` | Upvote/downvote on questions, answers, comments |
 | `search` | Search functionality |
-| `tutoring` | Paid tutoring sessions (PayPal integration) |
 | `guardian` | IP blocking, spam protection, content reporting |
 | `playlist` | Learning playlists |
 | `news` | Articles and release notes |
