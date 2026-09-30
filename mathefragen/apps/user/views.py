@@ -28,7 +28,7 @@ from mathefragen.apps.core.utils import (
 )
 from mathefragen.apps.guardian.models import BlockedIP
 from mathefragen.apps.guardian.tools import ip
-from mathefragen.apps.messaging.models import Message
+from mathefragen.apps.messaging.models import Message, ReadMessage
 from mathefragen.apps.question.models import Answer, Question
 from mathefragen.apps.user.forms import (
     LoginForm,
@@ -1247,30 +1247,28 @@ def fetch_messages(request, pk):
     ).order_by('-idate')
 
     messages = received_messages | global_messages
+    read_ids = set(request.user.user_read_messages.filter(
+        message__idate__gte=three_weeks_ago
+    ).values_list('message_id', flat=True))
 
     final_messages = []
+    shown_ids = set()
     for msg in messages.order_by('-id'):
+        shown_ids.add(msg.id)
         msg_dict = {
             'title': '%s...' % msg.title[:50],
             'link': msg.link,
             'message': '%s...' % msg.message.replace('\n', '').replace('\r', '')[:50],
-            'read': bool(request.user.user_read_messages.filter(message_id=msg.id).count()),
+            'read': msg.id in read_ids,
             'type': msg.type,
-            'date': naturaltime(msg.idate)
+            'date': str(naturaltime(msg.idate))
         }
         final_messages.append(msg_dict)
 
-    for msg in received_messages:
-        if not request.user.user_read_messages.filter(message_id=msg.id).count():
-            request.user.user_read_messages.create(
-                message_id=msg.id
-            )
-
-    for msg in global_messages:
-        if not request.user.user_read_messages.filter(message_id=msg.id).count():
-            request.user.user_read_messages.create(
-                message_id=msg.id
-            )
+    # the combined queryset may yield a message twice (to_users join), the set dedupes it
+    ReadMessage.objects.bulk_create(
+        ReadMessage(user_id=request.user.id, message_id=msg_id) for msg_id in shown_ids - read_ids
+    )
 
     return HttpResponse(
         json.dumps(final_messages),

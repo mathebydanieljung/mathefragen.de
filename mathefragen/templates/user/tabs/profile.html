@@ -276,14 +276,16 @@
                 </li>
             {% endif %}
 
-            {% if profile.written_articles.count %}
+            {% with number_articles=profile.written_articles.count %}
+            {% if number_articles %}
                 <li class="nav-item">
                     <a class="nav-link no_color_link {% if request.resolver_match.view_name == 'public_profile_articles' %}active{% endif %}"
                        href="{% url 'public_profile_articles' profile.user_id %}">
-                        {{ profile.written_articles.count|cool_number }} Mathe-Artikel
+                        {{ number_articles|cool_number }} Mathe-Artikel
                     </a>
                 </li>
             {% endif %}
+            {% endwith %}
 
             {% if profile.user_id == request.user.id %}
                 <li class="nav-item">
@@ -356,7 +358,7 @@
     {% if request.resolver_match.view_name == 'public_profile_articles' %}
         <div class="col-xl-12 mt-4 pl-5">
             <div>
-                {% for article in profile.written_articles.all %}
+                {% for article in profile.written_articles|slice:":20" %}
                     <p>
                         <a href="{{ article.get_absolute_url }}" class="link_color light_bold font15">
                             {{ article.title|capfirst }}
@@ -380,8 +382,9 @@
     {% if request.resolver_match.view_name == 'public_profile_following_content' %}
         <div class="col-xl-12 mt-4 pl-5">
             <div>
+                {% with following_content=profile.following_content %}
                 <small class="d-block mb-3">
-                    {% if profile.following_content.count %}
+                    {% if following_content %}
                         Du folgst {{ profile.user.following_hashtags.count }} Tag{{ profile.user.following_hashtags.count|pluralize:",s" }},
                         {{ profile.user.following_questions.count }} Frage{{ profile.user.following_questions.count|pluralize:",n" }} und
                         {{ profile.user.following_users.count }} Nutzern.
@@ -389,7 +392,7 @@
                         Folge jetzt Hashtags, Fragen oder Nutzer, um dich am laufenden zu halten.
                     {% endif %}
                 </small>
-                {% for question in profile.following_content %}
+                {% for question in following_content %}
                     <p>
                         <a href="{{ question.get_absolute_url }}" class="link_color light_bold font15">
                             {{ question.title|capfirst }}
@@ -406,6 +409,7 @@
                     </p>
                     <hr class="light_hr">
                 {% endfor %}
+                {% endwith %}
             </div>
         </div>
     {% endif %}

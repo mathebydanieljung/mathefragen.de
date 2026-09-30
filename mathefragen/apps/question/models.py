@@ -229,8 +229,9 @@ class Question(Base):
         self.save(update_fields=['number_answers'])
 
     def update_number_views(self):
-        self.views = self.question_views.count()
-        self.save(update_fields=['views'])
+        # called right after a QuestionView row is created
+        Question.objects.filter(pk=self.pk).update(views=models.F('views') + 1)
+        self.views += 1
 
     def increase_views_counter(self, request):
         source_ip = IP(request=request).user_ip()
@@ -309,12 +310,12 @@ class Question(Base):
             )
 
     def latest_question_answers(self):
-        return self.question_answers.filter(soft_deleted=False).order_by(
-            '-accepted', '-vote_points', 'idate'
-        )
+        return self.question_answers.filter(soft_deleted=False).select_related(
+            'user__profile', 'edited_by__profile'
+        ).order_by('-accepted', '-vote_points', 'idate')
 
     def all_question_comments(self):
-        return self.question_comments.order_by('id')
+        return self.question_comments.select_related('user__profile').order_by('id')
 
     def make_inactive(self):
         self.is_active = False
@@ -553,7 +554,7 @@ class Answer(Base):
         )
 
     def all_answer_comments(self):
-        return self.answer_comments.order_by('id')
+        return self.answer_comments.select_related('user__profile').order_by('id')
 
     @property
     def votes(self):

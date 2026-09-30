@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.files.storage import default_storage as storage
 from django.db import models
+from django.db.models.functions import Lower
 from django.shortcuts import reverse
 from django.utils import timezone
 from mathefragen.apps.core.models import Base, BaseAddress
@@ -261,10 +262,17 @@ class Profile(Base):
         return False
 
     def update_question_speed_fields(self, reset=False):
-        for q in self.user.user_questions.all():
-            q.populate_speed_fields(reset=reset)
-        for a in self.user.user_answers.all():
-            a.question.populate_speed_fields(reset=reset)
+        # Refresh the cached last_acted_user_* fields on every question this
+        # user acted on last. Values come from this (possibly unsaved) instance.
+        if reset:
+            values = {'last_acted_user_username': '', 'last_acted_user_url': '', 'last_acted_user_verified': False}
+        else:
+            values = {
+                'last_acted_user_username': self.username,
+                'last_acted_user_url': self.get_absolute_url(),
+                'last_acted_user_verified': self.verified,
+            }
+        Question.objects.filter(last_acted_user_id=self.user_id).update(**values)
 
     def close_user_questions(self):
         self.user.user_questions.update(soft_deleted=True)
@@ -384,23 +392,17 @@ class Profile(Base):
             units=models.Count('playlist_units')
         ).filter(units__gt=0, is_active=True).order_by('-vote_points')
 
-    def following_content(self):
-        question_ids = self.following_question_ids()
-        return Question.objects.filter(type='question', id__in=question_ids).order_by('-rank_date')
-
-    def following_question_ids(self):
-        following_user_ids = list(self.user.following_users.values_list('following_id', flat=True))
-        following_question_ids = list(self.user.following_questions.values_list('question_id', flat=True))
-        following_hashtag_ids = list(self.user.following_hashtags.values_list('hashtag_id', flat=True))
-
-        final_question_ids = list(Question.objects.filter(user_id__in=following_user_ids).values_list('id', flat=True))
-        final_question_ids += list(Question.objects.filter(id__in=following_question_ids).values_list('id', flat=True))
-        for tag_id in following_hashtag_ids:
-            tag = HashTag.objects.get(id=tag_id)
-            final_question_ids += list(tag.questions.values_list('id', flat=True))
-
-        # remove duplicates
-        return list(set(final_question_ids))
+    def following_content(self, limit=20):
+        user = self.user
+        tagged_question_ids = HashTag.questions.through.objects.filter(
+            hashtag_id__in=user.following_hashtags.values('hashtag_id')
+        ).values('question_id')
+        return Question.objects.filter(
+            models.Q(user_id__in=user.following_users.values('following_id'))
+            | models.Q(id__in=user.following_questions.values('question_id'))
+            | models.Q(id__in=tagged_question_ids),
+            type='question',
+        ).defer('text').order_by('-rank_date')[:limit]
 
     def send_verification_email(self):
         send_email_in_template(
@@ -539,14 +541,10 @@ class Profile(Base):
         if not to_date:
             to_date = timezone.now()
 
-        helpers = {}
-        for ans in Answer.objects.filter(idate__gte=from_date, idate__lt=to_date, user_id__isnull=False):
-            if ans.user_id not in helpers:
-                helpers[ans.user_id] = 1
-            else:
-                helpers[ans.user_id] += 1
-
-        return sorted(helpers, key=helpers.get, reverse=True)[:slice_number]
+        helpers = Answer.objects.filter(
+            idate__gte=from_date, idate__lt=to_date, user_id__isnull=False
+        ).values('user_id').annotate(n=models.Count('id')).order_by('-n', 'user_id')[:slice_number]
+        return [helper['user_id'] for helper in helpers]
 
     def number_helps_since(self, date=None):
         if not date:
@@ -633,7 +631,7 @@ class Profile(Base):
         return self.user.user_questions.filter(type='question')
 
     def written_articles(self):
-        return self.user.user_questions.filter(type='article')
+        return self.user.user_questions.filter(type='article').defer('text').order_by('-id')
 
     @property
     def get_full_name(self):
@@ -683,19 +681,11 @@ class Profile(Base):
         return final_tags
 
     def retrieve_most_helped_tags(self, number=6):
-        question_ids = list(self.user.user_answers.values_list('question_id', flat=True))
-        used_hashtags_in_questions = HashTag.objects.filter(questions__in=Question.objects.filter(id__in=question_ids))
-        aggregated_tags = dict()
-        for htag in used_hashtags_in_questions.all():
-            hashtag = htag.name.lower()
-            if hashtag in aggregated_tags:
-                aggregated_tags[hashtag] += 1
-            else:
-                aggregated_tags[hashtag] = 1
-
-        top_6_tags = sorted(aggregated_tags, key=aggregated_tags.get, reverse=True)[:number]
-        final_tags = ','.join(top_6_tags)
-        return final_tags
+        # one row per (tag, answered question) pair, grouped case-insensitively
+        top_tags = HashTag.objects.filter(
+            questions__id__in=self.user.user_answers.values('question_id')
+        ).values(lname=Lower('name')).annotate(n=models.Count('id')).order_by('-n', 'lname')[:number]
+        return ','.join(tag['lname'] for tag in top_tags)
 
     def is_helper(self):
         return self.total_answers > 3
@@ -703,12 +693,10 @@ class Profile(Base):
     def number_good_questions(self):
         return self.user.user_questions.filter(vote_points__gte=1, type='question', soft_deleted=False).count()
 
-    def user_latest_questions(self):
-        return self.user.user_questions.filter(type='question', soft_deleted=False).order_by('-id')
-
-    def increase_reach(self, new_reached):
-        self.reached_ppl = self.reached_ppl + new_reached
-        self.save(update_fields=['reached_ppl'])
+    def user_latest_questions(self, limit=20):
+        return self.user.user_questions.filter(
+            type='question', soft_deleted=False
+        ).defer('text').order_by('-id')[:limit]
 
     def reputation_progress(self):
         """

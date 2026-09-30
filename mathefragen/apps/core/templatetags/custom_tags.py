@@ -114,7 +114,7 @@ def top_playlists():
 def unread_messages(user):
     # messages from the last 3 weeks ago
     three_weeks_ago = timezone.now() - timezone.timedelta(weeks=3)
-    user_read_messages = list(user.user_read_messages.values_list('message_id', flat=True))
+    user_read_messages = user.user_read_messages.values('message_id')
 
     personal_msgs = Message.objects.filter(
         idate__gte=three_weeks_ago,

@@ -1,11 +1,13 @@
 import json
 import logging
 import math
+from collections import Counter, defaultdict
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.storage import default_storage
+from django.db.models import F
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -27,6 +29,7 @@ from mathefragen.apps.question.models import (
     QuestionInvolvedUsers
 )
 from mathefragen.apps.question.utils import filter_questions
+from mathefragen.apps.user.models import Profile
 from mathefragen.apps.vote.models import Vote
 from mathefragen.lib import validate_with_turnstile
 
@@ -295,7 +298,7 @@ def update_questions_tags(request, question_id, slug):
 
 def question_detail_hashed(request, hash_id, slug):
     try:
-        question = Question.objects.get(hash_id=hash_id)
+        question = Question.objects.select_related('user__profile').get(hash_id=hash_id)
     except Question.DoesNotExist:
         return redirect('%s?deleted=1' % reverse('index'))
 
@@ -316,11 +319,15 @@ def question_detail_hashed(request, hash_id, slug):
     question.increase_views_counter(request=request)
 
     # increase reach, in question and in answers
+    # +1 per answer, so a user with several answers gets several; one UPDATE per distinct increment
     if hasattr(question.user, 'profile'):
-        question.user.profile.increase_reach(new_reached=1)
-        for answer in question.question_answers.all():
-            if hasattr(answer.user, 'profile'):
-                answer.user.profile.increase_reach(new_reached=1)
+        reach = Counter([question.user_id])
+        reach.update(question.question_answers.filter(user_id__isnull=False).values_list('user_id', flat=True))
+        user_ids_by_increment = defaultdict(list)
+        for user_id, increment in reach.items():
+            user_ids_by_increment[increment].append(user_id)
+        for increment, user_ids in user_ids_by_increment.items():
+            Profile.objects.filter(user_id__in=user_ids).update(reached_ppl=F('reached_ppl') + increment)
 
     answer = request.GET.get('answer')
     if answer:
