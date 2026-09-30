@@ -4,6 +4,7 @@ import re
 from django import template
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.db.models import Q
 from django.template.defaultfilters import stringfilter
 from django.utils import timezone
 from django.utils.timesince import timesince
@@ -114,19 +115,10 @@ def top_playlists():
 def unread_messages(user):
     # messages from the last 3 weeks ago
     three_weeks_ago = timezone.now() - timezone.timedelta(weeks=3)
-    user_read_messages = user.user_read_messages.values('message_id')
-
-    personal_msgs = Message.objects.filter(
+    return Message.objects.filter(
+        Q(to_users__id=user.id) | Q(to_all=True),
         idate__gte=three_weeks_ago,
-        to_users__id=user.id
-    ).exclude(id__in=user_read_messages).count()
-
-    global_msgs = Message.objects.filter(
-        idate__gte=three_weeks_ago,
-        to_all=True
-    ).exclude(id__in=user_read_messages).count()
-
-    return personal_msgs + global_msgs
+    ).exclude(id__in=user.user_read_messages.values('message_id')).distinct().count()
 
 
 @register.filter

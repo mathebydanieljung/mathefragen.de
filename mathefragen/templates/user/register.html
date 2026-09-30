@@ -94,10 +94,7 @@
                                             {{ register_form.password }}
                                         </div>
                                         <div class="mb-3">
-                                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"
-                                                 data-callback="turnstileEnableSubmit"
-                                                 data-expired-callback="turnstileDisableSubmit"
-                                                 data-error-callback="turnstileDisableSubmit"></div>
+                                            {% include 'includes/turnstile_gate.html' %}
                                             <button name="submit"
                                                     type="submit"
                                                     id="submit"

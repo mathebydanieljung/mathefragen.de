@@ -282,7 +282,7 @@
 
 {% if question.is_active %}
 
-    {% if request.user.is_authenticated and request.user.id != question.user_id and question.is_active %}
+    {% if request.user.is_authenticated and request.user.id != question.user_id %}
         {% include 'question/answer_form.html' %}
     {% endif %}
 

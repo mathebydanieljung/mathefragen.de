@@ -1,0 +1,5 @@
+{# Turnstile widget that keeps the form's submit buttons disabled until a token exists (see base.html) #}
+<div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"
+     data-callback="turnstileEnableSubmit"
+     data-expired-callback="turnstileDisableSubmit"
+     data-error-callback="turnstileDisableSubmit"></div>

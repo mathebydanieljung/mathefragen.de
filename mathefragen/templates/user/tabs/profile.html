@@ -385,9 +385,11 @@
                 {% with following_content=profile.following_content %}
                 <small class="d-block mb-3">
                     {% if following_content %}
-                        Du folgst {{ profile.user.following_hashtags.count }} Tag{{ profile.user.following_hashtags.count|pluralize:",s" }},
-                        {{ profile.user.following_questions.count }} Frage{{ profile.user.following_questions.count|pluralize:",n" }} und
+                        {% with n_tags=profile.user.following_hashtags.count n_questions=profile.user.following_questions.count %}
+                        Du folgst {{ n_tags }} Tag{{ n_tags|pluralize:",s" }},
+                        {{ n_questions }} Frage{{ n_questions|pluralize:",n" }} und
                         {{ profile.user.following_users.count }} Nutzern.
+                        {% endwith %}
                     {% else %}
                         Folge jetzt Hashtags, Fragen oder Nutzer, um dich am laufenden zu halten.
                     {% endif %}

@@ -28,10 +28,7 @@
                     <div class="custom_row mt-3">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"
-                                     data-callback="turnstileEnableSubmit"
-                                     data-expired-callback="turnstileDisableSubmit"
-                                     data-error-callback="turnstileDisableSubmit"></div>
+                                {% include 'includes/turnstile_gate.html' %}
                                 <button name="submit" type="submit" disabled class="btn lrm-button font18">
                                     Jetzt einloggen
                                 </button>
