@@ -161,7 +161,6 @@ class Profile(Base):
     social_sign = models.CharField(max_length=100, default='', blank=True)
     bio_text = models.TextField(default='', blank=True)
     skills = models.TextField(default='', blank=True)
-    fcm_token = models.TextField(default='', blank=True)
     confirm_hash = models.CharField(max_length=60, default='', blank=True)
     pw_onetime_hash = models.CharField(max_length=60, default='', blank=True)
 

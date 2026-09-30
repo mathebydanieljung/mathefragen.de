@@ -425,11 +425,6 @@ class Question(Base):
         return '[%s] %s' % (self.id, self.title[:70])
 
 
-class QuestionInvolvedUsers(models.Model):
-    question = models.OneToOneField(Question, related_name='involved_peeps', on_delete=models.CASCADE)
-    users = models.ManyToManyField(User)
-
-
 def follow_question(self, question_id):
     question = Question.objects.get(id=question_id)
     question.followers.add(self)

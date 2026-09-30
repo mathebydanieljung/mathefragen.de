@@ -43,7 +43,6 @@ class ProfileAdmin(admin.ModelAdmin):
         'bio_text',
         'knowledge_state',
         'skills',
-        'fcm_token',
         'phone_number',
         'confirm_hash',
         'pw_onetime_hash',

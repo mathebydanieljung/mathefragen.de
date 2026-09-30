@@ -26,7 +26,6 @@ from mathefragen.apps.question.models import (
     Answer,
     QuestionComment,
     AnswerComment,
-    QuestionInvolvedUsers
 )
 from mathefragen.apps.question.utils import filter_questions
 from mathefragen.apps.user.models import Profile
@@ -442,12 +441,6 @@ def answer_question(request, question_id):
             stats = request.stats
             stats.update_total_answers()
 
-        if not hasattr(answer.question, 'involved_peeps'):
-            QuestionInvolvedUsers.objects.create(question_id=question.id)
-            question.refresh_from_db()
-
-        question.involved_peeps.users.add(request.user)
-
         # update helped tags
         answer.user.profile.update_most_helped_tags()
 
@@ -565,13 +558,6 @@ def save_question_comment(request):
                 source_ip=source_ip
             )
 
-            if not hasattr(question, 'involved_peeps'):
-                involved_peeps = QuestionInvolvedUsers.objects.create(question_id=question.id)
-            else:
-                involved_peeps = question.involved_peeps
-
-            involved_peeps.users.add(request.user)
-
         # re-rank in index page
         question.re_rank(reason='kommentiert', last_acted_user=request.user)
 
@@ -609,12 +595,6 @@ def save_answer_comment(request):
                 text=comment_text,
                 source_ip=source_ip
             )
-            if not hasattr(answer.question, 'involved_peeps'):
-                involved_peeps = QuestionInvolvedUsers.objects.create(question_id=answer.question_id)
-            else:
-                involved_peeps = answer.question.involved_peeps
-
-            involved_peeps.users.add(request.user)
 
         # re-rank in index page
         question.re_rank(reason='Antwort kommentiert', last_acted_user=request.user)
