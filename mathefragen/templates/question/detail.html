@@ -24,14 +24,7 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
         <script src="https://cdn.tiny.cloud/1/1am3gvm21paktqtr11shw5n7d24t9vh3h9oduf216blqq11h/tinymce/5/tinymce.min.js"></script>
     {% else %}
-        <link href="{% static 'css/markdown.css' %}?v=1212" rel="stylesheet" type="text/css" />
-        <link href="{% static 'css/jquery-ui-1.14.2.min.css' %}" rel="stylesheet" type="text/css" />
-        <link href="{% static 'css/ajaximageupload.css' %}?v=1212" rel="stylesheet" type="text/css" />
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Converter.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Sanitizer.js' %}?v=1212"></script>
-        <script type="text/javascript" src="{% static 'js/md/Markdown.Editor.js' %}?v=23"></script>
-        <script type="text/javascript" src="{% static 'js/md/jquery-ui-1.14.2.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/md/jquery.ajaxfileupload.js' %}?v=1212"></script>
+        {% include 'includes/markdown_editor_assets.html' %}
     {% endif %}
     <script>
         var accept_url = "{% url 'accept_answer' %}";

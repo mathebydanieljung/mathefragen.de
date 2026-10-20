@@ -1796,6 +1796,11 @@ textarea.form-control {
     height: auto;
 }
 
+/* Bootstrap 4.6 gives inputs a fixed height, which clips the padding above */
+input.form-control {
+    height: auto;
+}
+
 .media-body a.reply-btn {
     float: right;
     font-size: 13px;
@@ -2438,11 +2443,8 @@ footer {
     max-width: 225px;
     margin-bottom: 1rem;
 }
-/* Keep the Bootstrap 4.0 metrics our layout was built on (4.6 changed them) */
-.small, small {
-    font-size: 80%;
-}
 
-input.form-control {
-    height: auto;
+/* Bootstrap 4.6 shrank <small> less (.875em); keep the 4.0 size */
+small {
+    font-size: 80%;
 }
