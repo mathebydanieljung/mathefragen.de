@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pipx install poetry==2.5.1
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: poetry
+      - run: poetry install --no-root
+      - run: poetry run python manage.py test
+        env:
+          # Sessions use Redis Sentinel unless DEBUG is set
+          DEBUG: "True"
+
+  # GitHub's own poetry.lock parsing stopped updating the dependency graph,
+  # so submit it explicitly to keep Dependabot alerts accurate.
+  dependency-submission:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: advanced-security/component-detection-dependency-submission-action@v0.2.0
+        with:
+          detectorsFilter: Poetry
+          detectorArgs: Poetry=EnableIfDefaultOff
+          fail-on-empty: "true"
