@@ -1,6 +1,6 @@
 FROM python:3.12-slim as builder
 
-RUN pip install -U poetry==2.5.1
+RUN pip install poetry==2.5.1
 
 RUN apt-get update && apt-get install -y \
     gcc
@@ -40,7 +40,6 @@ COPY --from=builder /code /code
 ARG GIT_TAG=dev
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_VERSION=2.5.1 \
     APP_VERSION=$GIT_TAG
 
 # Expose port (if necessary, e.g., for a web app)
