@@ -1,4 +1,4 @@
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 RUN pip install poetry==2.5.1
 
@@ -11,8 +11,8 @@ WORKDIR /code
 # Copy pyproject.toml and poetry.lock
 COPY pyproject.toml poetry.lock* /code/
 
-# Install dependencies
-RUN poetry config virtualenvs.create false \
+# Install dependencies into /code/.venv, so Poetry itself stays in this stage
+RUN poetry config virtualenvs.in-project true \
     && poetry install --only main --no-root
 
 # Copy application code
@@ -26,19 +26,16 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
 # Create and set working directory
 WORKDIR /code
 
-# Copy application code
+# Copy application code and its virtualenv
 COPY --from=builder /code /code
 
 # Set environment variables
 ARG GIT_TAG=dev
-ENV PYTHONUNBUFFERED=1 \
+ENV PATH="/code/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     APP_VERSION=$GIT_TAG
 
