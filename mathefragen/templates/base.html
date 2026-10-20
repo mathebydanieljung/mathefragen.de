@@ -61,7 +61,7 @@
 
         <!-- Google Fonts -->
         <link href="{% static 'css/google_font_face.css' %}" rel="stylesheet">
-        <link href="{% static 'css/bootstrap.min.css' %}?v=2212" rel="stylesheet">
+        <link href="{% static 'css/bootstrap-4.6.2.min.css' %}" rel="stylesheet">
         <link rel="stylesheet" href="{% static 'css/fontawesome-all.min.css' %}">
 
         <!-- CUSTOM STYLESHEET -->
@@ -71,9 +71,9 @@
                 --ci-shadow: {{ settings.ci_color|default:'#03689e42' }}42;
             }
         </style>
-        <link href="{% static 'css/style.css' %}?v=7" rel="stylesheet" type="text/css" />
+        <link href="{% static 'css/style.css' %}?v=8" rel="stylesheet" type="text/css" />
         <link href="{% static 'css/default.css' %}?v=09ed8kweese2" rel="stylesheet" type="text/css" />
-        <script src="{% static 'js/jquery.min.js' %}"></script>
+        <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
 
         {# Klaro Consent Manager   #}
         <script defer type="application/javascript"
@@ -443,8 +443,7 @@
         {% include 'includes/footer.html' %}
 
         <!-- js placed at the end of the document so the pages load faster -->
-        <script src="{% static 'js/popper.min.js' %}?v=1212"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap-4.6.2.bundle.min.js' %}"></script>
         <script src="{% static 'js/jquery.easing.min.js' %}"></script>
         <script src="{% static 'js/cookie.js' %}?v=1212"></script>
 

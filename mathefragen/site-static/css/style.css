@@ -2438,3 +2438,11 @@ footer {
     max-width: 225px;
     margin-bottom: 1rem;
 }
+/* Keep the Bootstrap 4.0 metrics our layout was built on (4.6 changed them) */
+.small, small {
+    font-size: 80%;
+}
+
+input.form-control {
+    height: auto;
+}
