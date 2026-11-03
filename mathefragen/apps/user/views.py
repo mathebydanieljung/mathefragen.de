@@ -1230,6 +1230,12 @@ def delete_account(request):
 
 
 @login_required
+def delete_account_shortcut(request):
+    """Merkbarer Link /konto-loeschen/ auf den Löschen-Bereich der eigenen Einstellungen."""
+    return redirect('%s#konto-loeschen' % reverse('profile_settings', kwargs={'pk': request.user.id}))
+
+
+@login_required
 def fetch_messages(request, pk):
     """
     fetches the latest 6 messages

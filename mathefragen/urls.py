@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from mathefragen.apps.question.models import Question
 from mathefragen.apps.question.views import index, CreateQuestion, mathefragen_landing
 from mathefragen.apps.tips.api.views import promotion
+from mathefragen.apps.user.views import delete_account_shortcut
 
 questions_sitemaps_dict = {
     # only() keeps the huge `text` column out of memory (~800 MB for all questions)
@@ -61,6 +62,7 @@ urlpatterns = [
     path('vote/', include('mathefragen.apps.vote.urls')),
     path('artikel/', include('mathefragen.apps.news.urls')),
     path('user/', include('mathefragen.apps.user.urls')),
+    path('konto-loeschen/', delete_account_shortcut, name='delete_account_shortcut'),
     path('review/', include('mathefragen.apps.review.urls')),
     path('search/', include('mathefragen.apps.search.urls')),
     path('feedback/', include('mathefragen.apps.feedback.urls')),

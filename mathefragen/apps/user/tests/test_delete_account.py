@@ -1,5 +1,6 @@
 from rest_framework import status
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import TestCase
@@ -75,6 +76,20 @@ class SelfDeleteWebViewTestCase(TestCase):
         self.assertIn('confirm_delete_account', content)
         # confirmation is gated on typing the own username
         self.assertIn('data-username="%s"' % self.user.username, content)
+        self.assertIn('id="konto-loeschen"', content)
+
+    def test_shortcut_redirects_to_own_settings(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/konto-loeschen/')
+        self.assertRedirects(
+            response,
+            reverse('profile_settings', args=(self.user.id,)) + '#konto-loeschen',
+            fetch_redirect_response=False,
+        )
+
+    def test_shortcut_requires_login(self):
+        response = self.client.get('/konto-loeschen/')
+        self.assertRedirects(response, settings.LOGIN_URL + '?next=/konto-loeschen/', fetch_redirect_response=False)
 
 
 class ApiDeleteOwnershipTestCase(TestCase):

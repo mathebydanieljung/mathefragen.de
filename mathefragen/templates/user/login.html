@@ -104,6 +104,10 @@
                                                href="{% url 'password_forgot' %}">
                                                 Passwort vergessen?
                                             </a>
+                                            <p class="font14 mt-2">
+                                                Konto löschen? Nach dem Login (notfalls Passwort zurücksetzen) unter
+                                                <a class="link_color" href="{% url 'delete_account_shortcut' %}">Einstellungen → Konto löschen</a>.
+                                            </p>
                                         </div>
                                         <div class="mt-3">
                                             {% if error %}
