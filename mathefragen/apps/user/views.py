@@ -17,6 +17,7 @@ from django.db.models import Count, Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, reverse, redirect, HttpResponse, HttpResponseRedirect
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, CreateView
@@ -51,6 +52,13 @@ from mathefragen.apps.user.models import (
 from mathefragen.lib import validate_with_turnstile
 
 
+def _safe_next(request, url):
+    """Weiterleitungsziel aus dem Request nur übernehmen, wenn es auf diese Seite zeigt (kein Open Redirect)."""
+    if url_has_allowed_host_and_scheme(url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return url
+    return None
+
+
 class Login(FormView):
 
     def get(self, request, *args, **kwargs):
@@ -74,7 +82,7 @@ class Login(FormView):
         if login_form.is_valid():
             login_id = login_form.cleaned_data.get('login_id').lower()
             password = login_form.cleaned_data.get('password')
-            next_page = request.POST.get('next_page')
+            next_page = _safe_next(request, request.POST.get('next_page'))
             new_question_hash = request.POST.get('nqh')
 
             turnstile_validation = validate_with_turnstile(request.POST.get('cf-turnstile-response'))
@@ -298,7 +306,7 @@ class Register(FormView):
 
     def post(self, request, *args, **kwargs):
         register_form = RegisterForm(request.POST)
-        next_url = request.POST.get('next')
+        next_url = _safe_next(request, request.POST.get('next'))
         new_question_hash = request.POST.get('nqh')
 
         if register_form.is_valid():
@@ -940,7 +948,7 @@ def fill_missing_data(request, pk):
         form = CompleteProfileForm(request.POST)
         fields_to_save = request.POST.get('fields_to_save', '')
         fields_to_save = [f for f in fields_to_save.split(',') if f.strip()]
-        url_to_return = request.POST.get('url_to_return')
+        url_to_return = _safe_next(request, request.POST.get('url_to_return')) or '/'
         if form.is_valid():
             for field in fields_to_save:
                 if field == 'institution':
@@ -1042,7 +1050,7 @@ def update_basic_info(request, pk):
         profile.save()
         profile.update_question_speed_fields()
 
-        next_page = request.POST.get('next')
+        next_page = _safe_next(request, request.POST.get('next'))
         if next_page:
             return redirect(next_page)
 

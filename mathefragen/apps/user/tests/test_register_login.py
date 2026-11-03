@@ -3,8 +3,10 @@ import string
 
 from rest_framework import status
 
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.shortcuts import reverse
+
+from mathefragen.apps.user.views import _safe_next
 
 
 class RegisterLoginTestCase(TestCase):
@@ -152,3 +154,13 @@ class RegisterLoginTestCase(TestCase):
             questions_list_url, HTTP_AUTHORIZATION='JWT {}'.format(token)
         )
         self.assertEqual(questions_list_response.status_code, status.HTTP_200_OK)
+
+
+class SafeNextTestCase(TestCase):
+    """Weiterleitung nach Login/Registrierung nur auf eigene Seiten (kein Open Redirect)."""
+
+    def test_only_local_targets_pass(self):
+        request = RequestFactory().post('/user/login/')
+        self.assertEqual(_safe_next(request, '/konto-loeschen/'), '/konto-loeschen/')
+        for bad in ('https://evil.example/', '//evil.example/', 'javascript:alert(1)', '', None):
+            self.assertIsNone(_safe_next(request, bad), bad)
