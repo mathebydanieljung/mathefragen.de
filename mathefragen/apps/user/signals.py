@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
@@ -24,6 +25,14 @@ def delete_user(sender, instance=None, **kwargs):
     else:
         # answers
         instance.user.delete()
+
+
+@receiver(post_delete, sender=Profile)
+def delete_profile_image(sender, instance=None, **kwargs):
+    # Django löscht Dateien nicht mit dem Datensatz; erst nach Commit, damit ein Rollback das Bild nicht kostet.
+    image = instance.profile_image
+    if image:
+        transaction.on_commit(lambda: image.storage.delete(image.name), robust=True)
 
 
 @receiver(pre_delete, sender=Profile)

@@ -4,7 +4,7 @@ import boto3
 import cloudinary.uploader
 import requests
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -1230,6 +1230,7 @@ def delete_account(request):
     # Inhalte erhalten: auf mathghost umhängen, dann Konto löschen.
     profile.transfer_content_to_ghost()
     profile.delete()  # post_delete-Signal löscht den zugehörigen User
+    logout(request)  # aktuelle Session beenden
 
     if request.stats:
         request.stats.update_total_users()

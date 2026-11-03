@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from rest_framework import status
 
 from django.conf import settings
@@ -5,7 +7,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from mathefragen.apps.user.models import GHOST_USERNAME
+from mathefragen.apps.user.models import GHOST_USERNAME, Profile
 from mathefragen.apps.question.models import (
     Question, Answer, AnswerComment, QuestionComment
 )
@@ -58,6 +60,21 @@ class SelfDeleteWebViewTestCase(TestCase):
 
         # personal IP trace removed from reassigned content
         self.assertEqual(self.answer.source_ip, '192.168.0.1')
+
+        # session ended right away
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_profile_delete_removes_image_file(self):
+        # Modell-Ebene: deckt Selbstlöschung, Admin und API ab
+        profile = Profile.objects.get(user=self.user)
+        profile.profile_image = 'user/me.png'
+        storage = Profile._meta.get_field('profile_image').storage
+
+        with patch.object(storage, 'delete') as delete_file, \
+                self.captureOnCommitCallbacks(execute=True):
+            profile.delete()
+
+        delete_file.assert_called_once_with('user/me.png')
 
     def test_delete_account_get_is_not_allowed(self):
         self.client.force_login(self.user)
