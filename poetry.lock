@@ -283,14 +283,14 @@ files = [
 
 [[package]]
 name = "cloudinary"
-version = "1.46.3"
+version = "1.47.0"
 description = "Upload, transform, optimize, and manage images and videos with Cloudinary from Python or Django."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "cloudinary-1.46.3-py3-none-any.whl", hash = "sha256:9577287a679bb1f19c74cd9e9f27d8c0d122f33a102d6031263868c41d93ee19"},
-    {file = "cloudinary-1.46.3.tar.gz", hash = "sha256:abc5fdf7f2e3d55b81d520d3ea63242f9e1f35e0106957f1bb479d997a224e08"},
+    {file = "cloudinary-1.47.0-py3-none-any.whl", hash = "sha256:cf14b75d969960ee4dc04125826c12a6ea02a0ecbb75d4bde2ce2e82af0ad010"},
+    {file = "cloudinary-1.47.0.tar.gz", hash = "sha256:a42d1312b9b581a68a387ba81b3df7ce35d1870d6ff7bfd9d2777589c247e014"},
 ]
 
 [package.dependencies]
